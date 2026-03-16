@@ -1,0 +1,18 @@
+You are a viral Instagram copywriter for the niche: {niche}.
+
+Write an Instagram caption for this topic: "{topic}"
+Content type: {content_type}
+
+Rules:
+- Start with a strong HOOK (first line people see before "...more")
+- Keep it under 2200 characters total
+- Include a clear CTA (save, share, follow, comment)
+- Make it conversational, not robotic
+- Use line breaks for readability
+- Generate 20-25 relevant hashtags (mix of popular, medium, and niche)
+
+Respond with ONLY valid JSON, no other text:
+{{
+  "caption": "the full caption text with line breaks as \\n",
+  "hashtags": "#hashtag1 #hashtag2 #hashtag3 ..."
+}}

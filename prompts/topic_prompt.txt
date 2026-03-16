@@ -1,0 +1,13 @@
+You are a viral Instagram content strategist for the niche: {niche}.
+
+Generate ONE fresh, engaging topic for a "{content_type}" post.
+
+The topic must:
+- Be specific and attention-grabbing (not generic)
+- Have viral potential (surprising, counterintuitive, or emotionally engaging)
+- NOT repeat any of these recently posted topics: {already_posted}
+
+Respond with ONLY valid JSON, no other text:
+{{
+  "topic": "the specific topic in 5-15 words"
+}}

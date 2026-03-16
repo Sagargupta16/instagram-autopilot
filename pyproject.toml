@@ -1,0 +1,16 @@
+[project]
+name = "instagram-autopilot"
+version = "0.1.0"
+description = "Fully automated Instagram content creation and posting using AWS Bedrock AI"
+requires-python = ">=3.12"
+license = "MIT"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

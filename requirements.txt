@@ -1,0 +1,8 @@
+boto3>=1.38.0
+cloudinary>=1.41.0
+requests>=2.32.0
+edge-tts>=7.0.0
+Pillow>=11.1.0
+python-dotenv>=1.1.0
+pydantic>=2.11.0
+pydantic-settings>=2.8.0
