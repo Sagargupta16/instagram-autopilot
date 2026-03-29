@@ -1,28 +1,41 @@
 # Instagram Autopilot
 
-Fully automated Instagram content creation and posting powered by AWS Bedrock AI.
+Fully automated social media content creation and posting powered by AWS Bedrock AI + Composio SDK.
 
-Generates topics, captions, images, and Reels -- then publishes them on a schedule. Set it up once, pay ~$5-15/month for Bedrock API, everything else is free.
+Generates topics, captions, images, and Reels for Instagram and X (Twitter) - then publishes them on a daily schedule. Set it up once, everything runs on GitHub Actions for free.
 
 ## How It Works
 
-1. **GitHub Actions** triggers on a cron schedule (2x daily)
-2. **Bedrock Claude** generates topic, caption, hashtags, and reel scripts
-3. **Bedrock Titan Image** generates post visuals
-4. **edge-tts** generates voiceover audio (free)
-5. **ffmpeg** stitches images + audio into Reel videos
-6. **Cloudinary** hosts the media (free tier)
-7. **Instagram Graph API** publishes the post
+1. **GitHub Actions** triggers on a cron schedule (Mon-Sat, 9 AM IST)
+2. **Content config** determines today's pillar (DevOps tips, career advice, tool spotlight, etc.)
+3. **AWS Bedrock** generates caption, hashtags, and image prompt (Claude Sonnet / Nova Pro)
+4. **AWS Bedrock** generates post visuals (Nova Canvas / Stability AI)
+5. **Composio SDK** publishes to Instagram and X (Twitter)
 
-## Content Types
+## Content Pillars
 
-- Single image posts (facts, tips, quotes)
-- Carousel posts (multi-slide educational content)
-- Reels (image + voiceover + subtitles)
+| Day | Pillar | Tone |
+|-----|--------|------|
+| Monday, Thursday | DevOps Tips | Educational, practical |
+| Tuesday | Career Advice | Motivational, authentic |
+| Wednesday | Tool Spotlight | Informative, enthusiastic |
+| Friday | Cloud Architecture | Technical, insightful |
+| Saturday | Weekend Motivation | Casual, inspiring |
+| Sunday | Rest | No post |
+
+All pillars, prompts, hashtags, and tone are configurable in `config.json`.
+
+## Phased Rollout
+
+| Phase | Scope | Status |
+|-------|-------|--------|
+| Phase 1 | Text posts + template images (Pillow) | In progress |
+| Phase 2 | AI-generated images (Nova Canvas / Stability) | Planned |
+| Phase 3 | Reels / short videos (Nova Reel) | Planned |
 
 ## Setup
 
-See [PLAN.md](PLAN.md) for the complete step-by-step setup guide.
+See [PLAN.md](PLAN.md) for the complete step-by-step build plan.
 
 ### Quick Start (Local Testing)
 
@@ -40,52 +53,83 @@ cp .env.example .env
 python -m src.main
 ```
 
-### Required Accounts
+### Required Services
 
 | Service | Purpose | Cost |
 |---------|---------|------|
-| AWS (Bedrock) | AI text + image generation | ~$5-15/mo |
-| Instagram Business/Creator | Posting target | Free |
-| Meta Developer | API access | Free |
-| Cloudinary | Media hosting | Free (25GB) |
-| GitHub | Automation (Actions) | Free |
+| AWS Bedrock | AI text + image generation | ~$3-10/mo |
+| Composio | Instagram + X posting (handles auth) | Free tier |
+| GitHub Actions | Cron automation | Free |
 
 ### GitHub Secrets
 
 ```
-AWS_ACCESS_KEY_ID
-AWS_SECRET_ACCESS_KEY
-AWS_REGION
-INSTAGRAM_USER_ID
-INSTAGRAM_ACCESS_TOKEN
-META_APP_ID
-META_APP_SECRET
-CLOUDINARY_CLOUD_NAME
-CLOUDINARY_API_KEY
-CLOUDINARY_API_SECRET
+AWS_BEARER_TOKEN_BEDROCK    # Bedrock API key (ABSK token)
+AWS_REGION                  # us-east-1
+COMPOSIO_API_KEY            # Composio SDK auth
+IMGBB_API_KEY               # Temporary image hosting (Phase 2)
 ```
 
 ## Project Structure
 
 ```
 src/
-  config.py                 # Settings from environment variables
-  content_generator.py      # Bedrock Claude: topics, captions, scripts
-  image_generator.py        # Bedrock Titan Image: post visuals
-  tts_generator.py          # edge-tts: voiceover audio
-  video_maker.py            # ffmpeg: stitch into Reels
-  media_uploader.py         # Cloudinary: host media
-  instagram_publisher.py    # Graph API: publish to Instagram
-  main.py                   # Orchestrator
+  main.py                    # Orchestrator: config -> generate -> post
+  config.py                  # Load and validate config.json
+  generator/
+    text.py                  # Bedrock: topics, captions, hashtags
+    image.py                 # Bedrock: AI image generation (Phase 2)
+    reel.py                  # Bedrock: video generation (Phase 3)
+  publisher/
+    instagram.py             # Composio: Instagram posting
+    twitter.py               # Composio: X/Twitter posting
+  utils/
+    image_host.py            # Temporary image hosting for Instagram
+    template_image.py        # Pillow: text-on-template for Phase 1
 
-prompts/                    # Prompt templates (customize for your niche)
+config.json                  # Content pillars, schedule, persona
 .github/workflows/
-  daily-post.yml            # Cron job: generate + publish
-  refresh-token.yml         # Cron job: refresh Instagram token
+  daily-post.yml             # Cron: generate + publish (Mon-Sat 9AM IST)
 ```
 
 ## Customization
 
-- Edit files in `prompts/` to change content style and tone
-- Set `NICHE` and `CONTENT_TYPES` in GitHub repo variables
+- Edit `config.json` to change pillars, schedule, persona, tone, and hashtags
 - Adjust cron schedule in `.github/workflows/daily-post.yml`
+- Add new content pillars by extending the `pillars` array in config
+- Switch Bedrock models by updating `model` field in config
+
+## Architecture
+
+```
+GitHub Actions (cron: Mon-Sat 3:30 AM UTC / 9:00 AM IST)
+    |
+    v
+main.py (orchestrator)
+    |
+    +-- config.json (pillars, schedule, persona, tone)
+    |
+    +-- generator/
+    |       |-- text.py       (Bedrock: Claude/Nova -> caption + hashtags)
+    |       |-- image.py      (Bedrock: Nova Canvas/Stability) [Phase 2]
+    |       |-- reel.py       (Bedrock: Nova Reel) [Phase 3]
+    |
+    +-- publisher/
+    |       |-- instagram.py  (Composio: create container -> publish)
+    |       |-- twitter.py    (Composio: upload media -> create tweet)
+    |
+    +-- utils/
+            |-- image_host.py      (imgbb temp hosting) [Phase 2]
+            |-- template_image.py  (Pillow text-on-image) [Phase 1]
+```
+
+## Cost Breakdown (Monthly)
+
+| Service | Free Tier | Estimated Cost |
+|---------|-----------|---------------|
+| AWS Bedrock (Claude Sonnet text) | Pay per use | ~$2-5/mo |
+| AWS Bedrock (Nova Canvas images) | Pay per use | ~$1-5/mo (Phase 2) |
+| Composio | Free tier | $0 |
+| GitHub Actions | 2000 min/mo | $0 |
+| imgbb | Free tier | $0 |
+| **Total** | | **~$3-10/mo** |
