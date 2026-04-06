@@ -59,11 +59,14 @@ def generate_template_image(
     """
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    style = image_styles.get(pillar_id, {
-        "bg_gradient": ["#1a1a2e", "#16213e"],
-        "accent": "#e94560",
-        "text_color": "#ffffff",
-    })
+    style = image_styles.get(
+        pillar_id,
+        {
+            "bg_gradient": ["#1a1a2e", "#16213e"],
+            "accent": "#e94560",
+            "text_color": "#ffffff",
+        },
+    )
 
     img = Image.new("RGB", SIZE)
     draw = ImageDraw.Draw(img)

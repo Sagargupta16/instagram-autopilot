@@ -79,9 +79,7 @@ class TestTwitterPublisher:
     def test_handles_nested_response_format(self, mock_toolset_cls: MagicMock) -> None:
         mock_toolset = MagicMock()
         mock_toolset_cls.return_value = mock_toolset
-        mock_toolset.execute_action.return_value = {
-            "data": {"data": {"data": {"id": "nested_id"}}}
-        }
+        mock_toolset.execute_action.return_value = {"data": {"data": {"data": {"id": "nested_id"}}}}
 
         from src.publisher.twitter import publish_text_post
 

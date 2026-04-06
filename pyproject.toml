@@ -10,7 +10,23 @@ target-version = "py312"
 line-length = 100
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP"]
+select = [
+    "E",     # pycodestyle errors
+    "F",     # pyflakes
+    "I",     # isort
+    "UP",    # pyupgrade
+    "B",     # flake8-bugbear
+    "SIM",   # flake8-simplify
+    "RUF",   # ruff-specific rules
+    "PTH",   # flake8-use-pathlib
+    "T20",   # flake8-print (no print() in src)
+]
+ignore = [
+    "E501",  # line too long (formatter handles this)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]  # allow assert in tests
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

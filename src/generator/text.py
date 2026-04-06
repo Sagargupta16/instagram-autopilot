@@ -18,9 +18,7 @@ DATA_DIR = Path(__file__).resolve().parent.parent.parent / "data"
 PROMPTS_DIR = Path(__file__).resolve().parent.parent.parent / "prompts"
 POSTED_TOPICS_FILE = DATA_DIR / "posted_topics.json"
 
-BEDROCK_INVOKE_URL = (
-    "https://bedrock-runtime.{region}.amazonaws.com/model/{model}/invoke"
-)
+BEDROCK_INVOKE_URL = "https://bedrock-runtime.{region}.amazonaws.com/model/{model}/invoke"
 
 
 def _invoke_bedrock(prompt: str) -> str:

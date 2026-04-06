@@ -1,8 +1,9 @@
 composio-core>=0.7.0
-requests>=2.32.0
-Pillow>=11.1.0
-pydantic>=2.11.0
-pydantic-settings>=2.8.0
+requests>=2.33.0
+Pillow>=12.0.0
+pydantic>=2.12.0
+pydantic-settings>=2.13.0
 
 # Dev / testing
-pytest>=8.0.0
+pytest>=9.0.0
+ruff>=0.15.0

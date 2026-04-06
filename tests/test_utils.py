@@ -25,9 +25,7 @@ class TestHexToRgb:
 
 
 class TestGenerateTemplateImage:
-    def test_creates_image_file(
-        self, sample_image_styles: dict[str, Any], tmp_path: Path
-    ) -> None:
+    def test_creates_image_file(self, sample_image_styles: dict[str, Any], tmp_path: Path) -> None:
         with patch("src.utils.template_image.OUTPUT_DIR", tmp_path):
             path = generate_template_image(
                 image_text="Test Image Text",
@@ -37,9 +35,7 @@ class TestGenerateTemplateImage:
             assert path.exists()
             assert path.suffix == ".png"
 
-    def test_image_dimensions(
-        self, sample_image_styles: dict[str, Any], tmp_path: Path
-    ) -> None:
+    def test_image_dimensions(self, sample_image_styles: dict[str, Any], tmp_path: Path) -> None:
         from PIL import Image
 
         with patch("src.utils.template_image.OUTPUT_DIR", tmp_path):
@@ -65,9 +61,7 @@ class TestImageHost:
     @patch("src.utils.image_host.requests.post")
     def test_upload_returns_url(self, mock_post: MagicMock, tmp_path: Path) -> None:
         mock_resp = MagicMock()
-        mock_resp.json.return_value = {
-            "data": {"url": "https://i.ibb.co/abc123/image.png"}
-        }
+        mock_resp.json.return_value = {"data": {"url": "https://i.ibb.co/abc123/image.png"}}
         mock_resp.raise_for_status = MagicMock()
         mock_post.return_value = mock_resp
 

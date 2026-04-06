@@ -6,6 +6,8 @@ import json
 from typing import Any
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from src.generator.text import generate_caption, generate_topic
 
 
@@ -66,11 +68,8 @@ class TestGenerateTopic:
         sample_pillar: dict[str, Any],
     ) -> None:
         mock_bedrock.return_value = "not valid json"
-        try:
+        with pytest.raises(json.JSONDecodeError):
             generate_topic(sample_pillar, "fact")
-            assert False, "Should have raised"
-        except json.JSONDecodeError:
-            pass
 
 
 class TestGenerateCaption:

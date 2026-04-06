@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -40,7 +40,7 @@ def load_config() -> dict[str, Any]:
 
 def get_todays_pillar(config: dict[str, Any]) -> dict[str, Any] | None:
     """Determine which content pillar to use based on today's day of week."""
-    today = datetime.now(timezone.utc).strftime("%A").lower()
+    today = datetime.now(UTC).strftime("%A").lower()
     for pillar in config["pillars"]:
         if today in pillar["days"]:
             return pillar

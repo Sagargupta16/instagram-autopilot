@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 import pytest
 
 from src.generator.text import _extract_json
@@ -33,5 +35,5 @@ class TestExtractJson:
         assert len(result) == 2
 
     def test_invalid_json_raises(self) -> None:
-        with pytest.raises(Exception):
+        with pytest.raises(json.JSONDecodeError):
             _extract_json("this is not json at all")
