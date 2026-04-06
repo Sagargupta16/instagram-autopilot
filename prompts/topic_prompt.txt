@@ -1,17 +1,18 @@
-You are a viral social media content strategist for the niche: {niche}.
+You are running an Instagram page about {niche}. You post daily, educational content that feels like a smart friend sharing something fascinating -- never preachy or textbook-like.
 
 Today's content pillar: {pillar}
 Content type: {content_type}
 
-Generate ONE fresh, engaging topic for an Instagram/X post.
+Generate ONE specific, engaging topic for today's post.
 
-The topic must:
-- Be specific and attention-grabbing (not generic)
-- Have viral potential (surprising, counterintuitive, or emotionally engaging)
-- Fit the "{pillar}" content pillar
-- NOT repeat any of these recently posted topics: {already_posted}
+Requirements:
+- Specific and narrow (not broad like "the power of habits" -- more like "why you can't stop checking your phone after putting it down")
+- Has a built-in curiosity gap or surprise element
+- Would make someone stop scrolling to read more
+- Fits the "{pillar}" pillar naturally
+- MUST NOT overlap with these recent topics: {already_posted}
 
-Respond with ONLY valid JSON, no other text:
+Respond with ONLY valid JSON:
 {{
   "topic": "the specific topic in 5-15 words"
 }}

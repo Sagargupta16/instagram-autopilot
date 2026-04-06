@@ -78,10 +78,12 @@
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| 1.24 | Write unit tests for config loading | [ ] | `tests/test_config.py` |
-| 1.25 | Write unit tests for text generation | [ ] | `tests/test_generator.py` (mock Bedrock) |
-| 1.26 | Write unit tests for publishers | [ ] | `tests/test_publisher.py` (mock Composio) |
-| 1.27 | Tune persona/prompts for natural output | [ ] | Iterate until captions don't sound AI-generated |
+| 1.24 | Write unit tests for config loading | [x] | `tests/test_config.py` -- pillar scheduling, config validation |
+| 1.25 | Write unit tests for text generation | [x] | `tests/test_generator.py` + `test_json_extract.py` (mock Bedrock) |
+| 1.26 | Write unit tests for publishers | [x] | `tests/test_publisher.py` (mock Composio), `tests/test_utils.py` |
+| 1.27 | Tune persona/prompts for natural output | [x] | Anti-AI-voice instructions, specific tone guidance, hashtag tiers |
+| 1.28 | Add `--dry-run` mode | [x] | Generate content without publishing, for local testing |
+| 1.29 | Add JSON extraction for Bedrock responses | [x] | Handles markdown code fences around JSON |
 
 ---
 

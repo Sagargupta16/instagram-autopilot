@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import logging
 import random
 import sys
@@ -21,7 +22,7 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 
-def run() -> None:
+def run(*, dry_run: bool = False) -> None:
     """Generate and publish one piece of content to Instagram and X."""
     config = load_config()
 
@@ -55,6 +56,15 @@ def run() -> None:
         image_styles=config["image_styles"],
     )
 
+    if dry_run:
+        log.info("=== DRY RUN - Content generated, skipping publish ===")
+        log.info("Topic: %s", topic)
+        log.info("Image text: %s", image_text)
+        log.info("X post: %s", x_post)
+        log.info("Caption: %s", instagram_caption[:200] + "...")
+        log.info("Image saved to: %s", image_path)
+        return
+
     # 4. Upload image to imgbb for public URL
     image_url = upload_to_imgbb(image_path, settings.imgbb_api_key)
 
@@ -71,7 +81,23 @@ def run() -> None:
     log.info("Done!")
 
 
-if __name__ == "__main__":
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Instagram Autopilot")
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Generate content but skip publishing (for testing)",
+    )
+    args = parser.parse_args()
+
     log.info("Starting Instagram Autopilot")
     log.info("Niche: %s | Content types: %s", settings.niche, settings.content_type_list)
-    run()
+
+    if args.dry_run:
+        log.info("DRY RUN MODE - will generate content without publishing")
+
+    run(dry_run=args.dry_run)
+
+
+if __name__ == "__main__":
+    main()

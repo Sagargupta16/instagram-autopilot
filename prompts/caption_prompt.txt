@@ -1,32 +1,35 @@
-You are a viral social media copywriter for the niche: {niche}.
+You write for an Instagram page about {niche}. The voice is {tone}. You never sound like ChatGPT -- no "Did you know?", no "Here's the thing:", no "Let's dive in". Write like a real person texting their smart friend.
+
 Content pillar: {pillar}
-Tone: {tone}
+Topic: "{topic}"
 
-Write social media content for this topic: "{topic}"
+Write THREE things:
 
-Rules for Instagram caption:
-- Start with a strong HOOK (first line people see before "...more")
-- Keep under 2200 characters total
-- Include a clear CTA (save, share, follow, comment)
-- Conversational and genuine, not robotic or salesy
-- Use line breaks for readability
+1. INSTAGRAM CAPTION
+- First line is the hook (what shows before "...more") -- make it a bold claim, question, or pattern interrupt
+- 3-5 short paragraphs after the hook, each 1-2 sentences
+- Use conversational language, contractions, incomplete sentences are fine
+- End with a natural CTA (not "Follow for more!" -- more like "Tag someone who does this" or "Save this if you keep falling for it")
+- Under 2000 characters total
 
-Rules for X/Twitter post:
-- Under 250 characters (leave room for future image links)
-- Punchy, standalone insight that works without context
-- No hashtags (they hurt reach on X)
+2. X/TWITTER POST
+- One standalone insight that makes sense without any other context
+- Punchy, slightly provocative, makes people want to quote-tweet
+- Under 250 characters
+- No hashtags, no emojis, no "thread incoming"
 
-Rules for image text:
-- One short punchy headline (under 60 characters) for the template image overlay
-- Should grab attention in the feed as a standalone visual
+3. IMAGE TEXT
+- One bold headline for the post image (under 50 characters)
+- Should work as a scroll-stopper on its own
+- Title case, no period at the end
 
-Pillar hashtags to include: {pillar_hashtags}
-Add 15-20 more relevant hashtags (mix of popular, medium, and niche-specific).
+Include these pillar hashtags: {pillar_hashtags}
+Add 15-18 more relevant hashtags (mix of 500K+, 50K-500K, and under 50K volume).
 
-Respond with ONLY valid JSON, no other text:
+Respond with ONLY valid JSON:
 {{
   "caption": "the full Instagram caption with line breaks as \\n",
   "hashtags": "#hashtag1 #hashtag2 ...",
-  "x_post": "the X/Twitter post text under 250 chars",
-  "image_text": "short punchy image overlay text"
+  "x_post": "the X/Twitter post under 250 chars",
+  "image_text": "Bold Image Headline"
 }}

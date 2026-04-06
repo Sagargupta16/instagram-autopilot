@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
-import random
+import re
 from pathlib import Path
 from typing import Any
 
@@ -45,6 +45,16 @@ def _invoke_bedrock(prompt: str) -> str:
     return result["content"][0]["text"]
 
 
+def _extract_json(raw: str) -> Any:
+    """Extract JSON from Bedrock response, handling markdown code fences."""
+    raw = raw.strip()
+    # Strip ```json ... ``` wrapper if present
+    match = re.search(r"```(?:json)?\s*\n?(.*?)\n?\s*```", raw, re.DOTALL)
+    if match:
+        raw = match.group(1).strip()
+    return json.loads(raw)
+
+
 # -- Topic dedup tracking --
 
 
@@ -78,7 +88,7 @@ def generate_topic(pillar: dict[str, Any], content_type: str) -> str:
     )
 
     raw = _invoke_bedrock(prompt)
-    topic_data = json.loads(raw)
+    topic_data = _extract_json(raw)
     topic = topic_data["topic"]
 
     _save_posted_topic(topic)
@@ -102,7 +112,7 @@ def generate_caption(
     )
 
     raw = _invoke_bedrock(prompt)
-    data = json.loads(raw)
+    data = _extract_json(raw)
     log.info(
         "Generated caption (%d chars), X post (%d chars)",
         len(data["caption"]),
