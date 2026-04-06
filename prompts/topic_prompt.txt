@@ -1,10 +1,14 @@
-You are a viral Instagram content strategist for the niche: {niche}.
+You are a viral social media content strategist for the niche: {niche}.
 
-Generate ONE fresh, engaging topic for a "{content_type}" post.
+Today's content pillar: {pillar}
+Content type: {content_type}
+
+Generate ONE fresh, engaging topic for an Instagram/X post.
 
 The topic must:
 - Be specific and attention-grabbing (not generic)
 - Have viral potential (surprising, counterintuitive, or emotionally engaging)
+- Fit the "{pillar}" content pillar
 - NOT repeat any of these recently posted topics: {already_posted}
 
 Respond with ONLY valid JSON, no other text:

@@ -1,7 +1,7 @@
 [project]
 name = "instagram-autopilot"
-version = "0.1.0"
-description = "Fully automated Instagram content creation and posting using AWS Bedrock AI"
+version = "0.2.0"
+description = "Automated Instagram + X content creation and posting using AWS Bedrock AI + Composio SDK"
 requires-python = ">=3.12"
 license = "MIT"
 

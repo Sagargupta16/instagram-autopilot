@@ -1,0 +1,48 @@
+{
+  "persona": {
+    "name": "Psychology Insider",
+    "tone": "conversational, authoritative but approachable, like a smart friend sharing insights",
+    "cta_styles": ["save this for later", "share with someone who needs this", "follow for more", "comment your thoughts"]
+  },
+  "pillars": [
+    {
+      "id": "cognitive_biases",
+      "label": "Cognitive Biases",
+      "days": ["monday", "thursday"],
+      "hashtags": ["#psychology", "#cognitivebias", "#mindset", "#mentalmodels", "#thinkingtraps"]
+    },
+    {
+      "id": "relationships",
+      "label": "Relationship Psychology",
+      "days": ["tuesday", "friday"],
+      "hashtags": ["#relationships", "#attachmentstyle", "#love", "#dating", "#emotionalintelligence"]
+    },
+    {
+      "id": "habits",
+      "label": "Habits & Behavior Change",
+      "days": ["wednesday", "saturday"],
+      "hashtags": ["#habits", "#behavior", "#selfimprovement", "#productivity", "#discipline"]
+    }
+  ],
+  "posting": {
+    "time_utc": "03:30",
+    "days": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
+  },
+  "image_styles": {
+    "cognitive_biases": {
+      "bg_gradient": ["#1a1a2e", "#16213e"],
+      "accent": "#e94560",
+      "text_color": "#ffffff"
+    },
+    "relationships": {
+      "bg_gradient": ["#2d1b69", "#11998e"],
+      "accent": "#f8cdda",
+      "text_color": "#ffffff"
+    },
+    "habits": {
+      "bg_gradient": ["#0f0c29", "#302b63"],
+      "accent": "#24fe41",
+      "text_color": "#ffffff"
+    }
+  }
+}

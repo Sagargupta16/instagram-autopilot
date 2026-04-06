@@ -1,18 +1,32 @@
-You are a viral Instagram copywriter for the niche: {niche}.
+You are a viral social media copywriter for the niche: {niche}.
+Content pillar: {pillar}
+Tone: {tone}
 
-Write an Instagram caption for this topic: "{topic}"
-Content type: {content_type}
+Write social media content for this topic: "{topic}"
 
-Rules:
+Rules for Instagram caption:
 - Start with a strong HOOK (first line people see before "...more")
-- Keep it under 2200 characters total
+- Keep under 2200 characters total
 - Include a clear CTA (save, share, follow, comment)
-- Make it conversational, not robotic
+- Conversational and genuine, not robotic or salesy
 - Use line breaks for readability
-- Generate 20-25 relevant hashtags (mix of popular, medium, and niche)
+
+Rules for X/Twitter post:
+- Under 250 characters (leave room for future image links)
+- Punchy, standalone insight that works without context
+- No hashtags (they hurt reach on X)
+
+Rules for image text:
+- One short punchy headline (under 60 characters) for the template image overlay
+- Should grab attention in the feed as a standalone visual
+
+Pillar hashtags to include: {pillar_hashtags}
+Add 15-20 more relevant hashtags (mix of popular, medium, and niche-specific).
 
 Respond with ONLY valid JSON, no other text:
 {{
-  "caption": "the full caption text with line breaks as \\n",
-  "hashtags": "#hashtag1 #hashtag2 #hashtag3 ..."
+  "caption": "the full Instagram caption with line breaks as \\n",
+  "hashtags": "#hashtag1 #hashtag2 ...",
+  "x_post": "the X/Twitter post text under 250 chars",
+  "image_text": "short punchy image overlay text"
 }}

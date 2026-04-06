@@ -26,11 +26,11 @@ Thumbs.db
 # Project specific
 data/posted_topics.json
 data/analytics.json
-data/tokens.json
 output/
 *.mp4
 *.mp3
 *.wav
+*.png
 
 # Logs
 *.log

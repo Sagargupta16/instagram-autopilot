@@ -1,43 +1,33 @@
-name: Daily Instagram Post
+name: Daily Instagram + X Post
 
 on:
   schedule:
-    # Post twice daily - adjust times to your audience's peak hours
-    - cron: "0 9 * * *"   # 9:00 AM UTC
-    - cron: "0 17 * * *"  # 5:00 PM UTC
-  workflow_dispatch:        # Manual trigger for testing
+    # Mon-Sat 3:30 AM UTC (9:00 AM IST)
+    - cron: "30 3 * * 1-6"
+  workflow_dispatch: # Manual trigger for testing
 
 jobs:
   post:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.12"
           cache: pip
 
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Install ffmpeg
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
-
       - name: Generate and publish post
         run: python -m src.main
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_BEARER_TOKEN_BEDROCK: ${{ secrets.AWS_BEARER_TOKEN_BEDROCK }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
-          INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
-          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
-          META_APP_ID: ${{ secrets.META_APP_ID }}
-          META_APP_SECRET: ${{ secrets.META_APP_SECRET }}
-          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
-          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
-          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+          COMPOSIO_API_KEY: ${{ secrets.COMPOSIO_API_KEY }}
+          IMGBB_API_KEY: ${{ secrets.IMGBB_API_KEY }}
           NICHE: ${{ vars.NICHE || 'psychology_facts' }}
-          CONTENT_TYPES: ${{ vars.CONTENT_TYPES || 'fact,tip,carousel,reel' }}
+          CONTENT_TYPES: ${{ vars.CONTENT_TYPES || 'fact,tip' }}

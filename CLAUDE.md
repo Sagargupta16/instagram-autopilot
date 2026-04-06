@@ -2,36 +2,37 @@
 
 ## Project Overview
 
-Fully automated Instagram content creation and posting using AWS Bedrock AI. Generates topics, captions, images, and Reels on a cron schedule via GitHub Actions. Everything is free except the Bedrock API (~$5-15/month).
+Fully automated Instagram + X/Twitter content creation and posting using AWS Bedrock AI + Composio SDK. Generates topics, captions, template images, and publishes on a cron schedule via GitHub Actions. Everything is free except the Bedrock API (~$3-10/month).
 
 ## Stack
 
 - **Python 3.12+** with type hints, pathlib, pydantic-settings
-- **AWS Bedrock**: Claude (text) + Titan Image (visuals)
-- **edge-tts**: Free text-to-speech for Reel voiceovers
-- **ffmpeg**: Video stitching (images + audio -> MP4)
-- **Cloudinary**: Media hosting (free tier)
-- **Instagram Graph API v21.0**: Publishing
-- **GitHub Actions**: Cron automation (2x daily)
+- **AWS Bedrock**: Claude Sonnet via bearer token (ABSK) for text generation
+- **Composio SDK**: Instagram + X/Twitter publishing (handles auth/tokens)
+- **Pillow**: Template image generation (1080x1080 with gradients + text)
+- **imgbb**: Free image hosting (Instagram requires public URLs)
+- **GitHub Actions**: Cron automation (Mon-Sat 9 AM IST)
 
 ## Project Structure
 
 ```
+config.json                 # Content strategy: pillars, schedule, persona, image styles
 src/
-  config.py                 # Pydantic settings from env vars
-  content_generator.py      # Bedrock Claude: topics, captions, carousel, reel scripts
-  image_generator.py        # Bedrock Titan Image: post/carousel/reel visuals
-  tts_generator.py          # edge-tts: voiceover + subtitle timing
-  video_maker.py            # ffmpeg: stitch into Reels
-  media_uploader.py         # Cloudinary upload -> public URLs
-  instagram_publisher.py    # Graph API: publish image/carousel/reel + token refresh
+  config.py                 # Pydantic settings (.env) + config.json loading
+  generator/
+    text.py                 # Bedrock Claude: topics, captions, X posts
+  publisher/
+    instagram.py            # Composio SDK: two-step publish (container -> publish)
+    twitter.py              # Composio SDK: text posts (graceful skip if not connected)
+  utils/
+    template_image.py       # Pillow: 1080x1080 gradient images with text overlay
+    image_host.py           # imgbb: upload -> public URL (24h expiry)
   main.py                   # Orchestrator entry point
 
 prompts/                    # Prompt templates (topic, caption, carousel, reel)
 data/                       # Runtime data (posted_topics.json, tracked locally)
 .github/workflows/
   daily-post.yml            # Daily content generation + publishing
-  refresh-token.yml         # Instagram token auto-refresh (bi-monthly)
 ```
 
 ## Commands
@@ -42,30 +43,25 @@ pip install -r requirements.txt
 
 # Run locally (requires .env with all credentials)
 python -m src.main
-
-# Test individual modules
-python -c "from src.content_generator import generate_topic; print(generate_topic())"
-python -c "from src.image_generator import generate_post_image; generate_post_image('test topic')"
-python -c "from src.tts_generator import generate_voiceover; generate_voiceover('Hello world')"
 ```
 
 ## Key Patterns
 
-- All config via environment variables (pydantic-settings), never hardcoded
-- Prompt templates live in `prompts/` as plain text with `{variable}` placeholders
-- `posted_topics.json` tracks last 500 topics to prevent repeats
-- Instagram Graph API requires media at a public URL (Cloudinary), not direct upload
-- Long-lived tokens expire in 60 days, auto-refreshed by `refresh-token.yml`
-- Content types: `fact`, `tip`, `carousel`, `reel` (configurable via CONTENT_TYPES env var)
+- **Config split**: Content strategy in `config.json` (git-tracked), secrets in `.env` (pydantic-settings)
+- **Pillar scheduling**: `config.json` maps days of week to content pillars (cognitive biases, relationships, habits)
+- **Bedrock via bearer token**: Direct HTTP calls with `Authorization: Bearer <ABSK>`, no boto3/IAM
+- **Composio two-step Instagram publish**: Create container (draft) -> publish container
+- **Topic dedup**: `posted_topics.json` tracks last 500 topics, sends recent 50 to Claude per prompt
+- **Prompt templates** in `prompts/` as plain text with `{variable}` placeholders
+- **Image hosting**: imgbb with 24h auto-expiry (Instagram fetches during container creation, then hosts its own copy)
 
 ## Important Constraints
 
 - Instagram API rate limit: 25 content publishes per 24 hours
-- Cloudinary free tier: 25GB storage, 25GB bandwidth/month
+- imgbb free tier: 32MB max upload
 - GitHub Actions free tier: 2000 minutes/month
-- Titan Image output is good for infographic/aesthetic styles, not photorealism
-- Reels require video hosted at a public URL, processing takes 10-60 seconds
-- New accounts need 2-week manual warm-up before automated posting (anti-bot measures)
+- X/Twitter: 280 weighted chars (emojis/CJK = 2, URLs = 23)
+- New Instagram accounts need 2-week manual warm-up before automated posting
 
 ## Coding Conventions
 
@@ -79,6 +75,7 @@ python -c "from src.tts_generator import generate_voiceover; generate_voiceover(
 ## Development Notes
 
 - `.env.example` has all required variables with placeholder values
-- `output/` directory is gitignored (temp images, audio, video)
+- `output/` directory is gitignored (temp images)
 - `data/posted_topics.json` is gitignored (runtime state)
-- ffmpeg must be installed locally and in CI (apt-get in workflow)
+- X/Twitter publishing gracefully skips if not connected on Composio
+- Phase 2 will replace Pillow templates with AI-generated images (Bedrock Nova Canvas)
