@@ -15,28 +15,31 @@ COMPOSIO_API_BASE = "https://backend.composio.dev/api"
 @lru_cache(maxsize=1)
 def _fetch_connected_accounts(api_key: str) -> list[dict]:
     """Fetch all active connected accounts from Composio."""
-    paths = (
-        "v2/connectedAccounts",
-        "v1/connectedAccounts",
-        "v2/connected-accounts",
-        "v1/connected-accounts",
+    paths = ("v1/connectedAccounts",)
+    header_variants = (
+        {"x-api-key": api_key},
+        {"Authorization": f"Bearer {api_key}"},
+        {"x-api-key": api_key, "Authorization": f"Bearer {api_key}"},
     )
     for path in paths:
-        url = f"{COMPOSIO_API_BASE}/{path}"
-        resp = requests.get(
-            url,
-            params={"showActiveOnly": "true"},
-            headers={"x-api-key": api_key},
-            timeout=30,
-        )
-        log.info("GET %s -> %s", path, resp.status_code)
-        if resp.ok:
-            data = resp.json()
-            items = data.get("items", data if isinstance(data, list) else [])
-            log.info("Fetched %d connected accounts via %s", len(items), path)
-            if items:
-                log.info("First account keys: %s", list(items[0].keys()) if items else "N/A")
-            return items
+        for headers in header_variants:
+            resp = requests.get(
+                f"{COMPOSIO_API_BASE}/{path}",
+                params={"showActiveOnly": "true"},
+                headers=headers,
+                timeout=30,
+            )
+            auth_type = "x-api-key" if "x-api-key" in headers else "Bearer"
+            if "x-api-key" in headers and "Authorization" in headers:
+                auth_type = "both"
+            log.info("GET %s [%s] -> %s", path, auth_type, resp.status_code)
+            if resp.ok:
+                data = resp.json()
+                items = data.get("items", data if isinstance(data, list) else [])
+                log.info("Fetched %d connected accounts", len(items))
+                if items:
+                    log.info("First account sample: %s", dict(list(items[0].items())[:5]))
+                return items
 
     log.warning("Failed to fetch connected accounts from Composio")
     return []
