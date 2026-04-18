@@ -9,7 +9,7 @@ import requests
 
 log = logging.getLogger(__name__)
 
-COMPOSIO_API_URL = "https://backend.composio.dev/api/v1/actions"
+COMPOSIO_API_URL = "https://backend.composio.dev/api/v3/actions/execute"
 
 
 def _execute_action(
@@ -20,8 +20,9 @@ def _execute_action(
 ) -> dict:
     """Execute a Composio action via REST API."""
     resp = requests.post(
-        f"{COMPOSIO_API_URL}/{action_slug}/execute",
+        COMPOSIO_API_URL,
         json={
+            "actionName": action_slug,
             "connectedAccountId": connected_account_id,
             "appName": "instagram",
             "input": params,

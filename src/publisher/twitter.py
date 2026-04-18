@@ -8,7 +8,7 @@ import requests
 
 log = logging.getLogger(__name__)
 
-COMPOSIO_API_URL = "https://backend.composio.dev/api/v1/actions"
+COMPOSIO_API_URL = "https://backend.composio.dev/api/v3/actions/execute"
 
 
 def publish_text_post(text: str, api_key: str, connected_account_id: str = "") -> str | None:
@@ -18,8 +18,9 @@ def publish_text_post(text: str, api_key: str, connected_account_id: str = "") -
     """
     try:
         resp = requests.post(
-            f"{COMPOSIO_API_URL}/TWITTER_CREATION_OF_A_POST/execute",
+            COMPOSIO_API_URL,
             json={
+                "actionName": "TWITTER_CREATION_OF_A_POST",
                 "connectedAccountId": connected_account_id or None,
                 "appName": "twitter",
                 "input": {"text": text},
