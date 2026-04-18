@@ -53,7 +53,9 @@ def generate_reel(
     }
 
     resp = requests.post(start_url, json=body, headers=headers, timeout=60)
-    resp.raise_for_status()
+    if not resp.ok:
+        log.error("Bedrock %s returned %s: %s", resp.status_code, resp.reason, resp.text)
+        resp.raise_for_status()
 
     invocation_arn = resp.json()["invocationArn"]
     log.info("Nova Reel job started: %s", invocation_arn)
