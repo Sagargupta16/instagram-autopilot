@@ -35,7 +35,7 @@
     "days": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
   },
   "models": {
-    "text": "anthropic.claude-sonnet-4-20250514",
+    "text": "us.anthropic.claude-sonnet-4-20250514",
     "image": "amazon.nova-canvas-v1:0",
     "video": "amazon.nova-reel-v1:0"
   }
