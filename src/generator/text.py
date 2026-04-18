@@ -39,7 +39,9 @@ def _invoke_bedrock(prompt: str) -> str:
     }
 
     resp = requests.post(url, json=body, headers=headers, timeout=60)
-    resp.raise_for_status()
+    if not resp.ok:
+        log.error("Bedrock %s returned %s: %s", resp.status_code, resp.reason, resp.text)
+        resp.raise_for_status()
     result = resp.json()
     return result["content"][0]["text"]
 
