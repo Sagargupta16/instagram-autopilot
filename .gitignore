@@ -35,3 +35,8 @@ output/
 # Logs
 *.log
 logs/
+
+# Added for consistency
+.env.local
+.env.*.local
+*.pyc
