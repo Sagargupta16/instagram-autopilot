@@ -15,19 +15,28 @@ COMPOSIO_API_BASE = "https://backend.composio.dev/api"
 @lru_cache(maxsize=1)
 def _fetch_connected_accounts(api_key: str) -> list[dict]:
     """Fetch all active connected accounts from Composio."""
-    for version in ("v2", "v1"):
+    paths = (
+        "v2/connectedAccounts",
+        "v1/connectedAccounts",
+        "v2/connected-accounts",
+        "v1/connected-accounts",
+    )
+    for path in paths:
+        url = f"{COMPOSIO_API_BASE}/{path}"
         resp = requests.get(
-            f"{COMPOSIO_API_BASE}/{version}/connectedAccounts",
+            url,
             params={"showActiveOnly": "true"},
             headers={"x-api-key": api_key},
             timeout=30,
         )
+        log.info("GET %s -> %s", path, resp.status_code)
         if resp.ok:
             data = resp.json()
             items = data.get("items", data if isinstance(data, list) else [])
-            log.info("Fetched %d connected accounts via %s", len(items), version)
+            log.info("Fetched %d connected accounts via %s", len(items), path)
+            if items:
+                log.info("First account keys: %s", list(items[0].keys()) if items else "N/A")
             return items
-        log.debug("connectedAccounts %s returned %s", version, resp.status_code)
 
     log.warning("Failed to fetch connected accounts from Composio")
     return []
