@@ -1,27 +1,37 @@
-"""Publish content to X/Twitter via Composio SDK."""
+"""Publish content to X/Twitter via Composio REST API."""
 
 from __future__ import annotations
 
 import logging
 
-from composio import Action, ComposioToolSet
+import requests
 
 log = logging.getLogger(__name__)
 
+COMPOSIO_API_URL = "https://backend.composio.dev/api/v1/actions"
 
-def publish_text_post(text: str, api_key: str) -> str | None:
+
+def publish_text_post(text: str, api_key: str, connected_account_id: str = "") -> str | None:
     """Publish a text-only post to X/Twitter.
 
     Returns the tweet ID on success, None if X is not connected.
     """
-    toolset = ComposioToolSet(api_key=api_key)
-
     try:
-        result = toolset.execute_action(
-            action=Action.TWITTER_CREATION_OF_A_POST,
-            params={"text": text},
+        resp = requests.post(
+            f"{COMPOSIO_API_URL}/TWITTER_CREATION_OF_A_POST/execute",
+            json={
+                "connectedAccountId": connected_account_id or None,
+                "appName": "twitter",
+                "input": {"text": text},
+            },
+            headers={"x-api-key": api_key},
+            timeout=60,
         )
-        # Tweet ID can be nested in various response formats
+        if not resp.ok:
+            log.warning("X/Twitter posting failed (%s): %s", resp.status_code, resp.text)
+            return None
+
+        result = resp.json()
         data = result.get("data", result)
         tweet_id = (
             data.get("id")
