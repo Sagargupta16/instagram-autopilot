@@ -11,7 +11,7 @@ from src.config import get_todays_pillar, load_config, settings
 from src.generator.image import generate_image
 from src.generator.reel import generate_reel
 from src.generator.text import generate_caption, generate_topic
-from src.publisher.instagram import publish_image_post, publish_reel
+from src.publisher.instagram import publish_carousel, publish_image_post, publish_reel
 from src.utils.image_host import configure_cloudinary, upload_image
 
 logging.basicConfig(
@@ -22,6 +22,40 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 
+def _post_carousel(
+    caption_data: dict[str, str],
+    config: dict,
+    instagram_caption: str,
+    *,
+    dry_run: bool,
+) -> None:
+    """Generate multiple AI images and publish as Instagram carousel."""
+    image_prompts: list[str] = caption_data["image_prompts"]
+    model_id = config["models"]["image"]
+
+    image_urls: list[str] = []
+    for i, prompt in enumerate(image_prompts):
+        log.info("Slide %d/%d prompt: %s", i + 1, len(image_prompts), prompt[:120])
+        image_bytes = generate_image(prompt=prompt, model_id=model_id)
+        log.info("Slide %d: %d bytes", i + 1, len(image_bytes))
+
+        if not dry_run:
+            image_urls.append(upload_image(image_bytes))
+
+    if dry_run:
+        log.info("DRY RUN: Generated %d carousel slides", len(image_prompts))
+        return
+
+    publish_carousel(
+        image_urls=image_urls,
+        caption=instagram_caption,
+        api_key=settings.composio_api_key,
+        ig_user_id=settings.instagram_user_id,
+        connected_account_id=settings.composio_connected_account_id,
+        user_id=settings.composio_user_id,
+    )
+
+
 def _post_image(
     caption_data: dict[str, str],
     config: dict,
@@ -30,7 +64,8 @@ def _post_image(
     dry_run: bool,
 ) -> None:
     """Generate an AI image and publish to Instagram."""
-    image_prompt = caption_data["image_prompt"]
+    prompts = caption_data.get("image_prompts", [caption_data.get("image_prompt", "")])
+    image_prompt = prompts[0]
     log.info("Image prompt: %s", image_prompt)
 
     image_bytes = generate_image(
@@ -129,6 +164,8 @@ def run(*, dry_run: bool = False) -> None:
 
     if content_format == "reel":
         _post_reel(caption_data, config, instagram_caption, dry_run=dry_run)
+    elif content_format == "carousel":
+        _post_carousel(caption_data, config, instagram_caption, dry_run=dry_run)
     else:
         _post_image(caption_data, config, instagram_caption, dry_run=dry_run)
 

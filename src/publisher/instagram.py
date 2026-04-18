@@ -92,6 +92,69 @@ def publish_image_post(
     return media_id
 
 
+def publish_carousel(
+    image_urls: list[str],
+    caption: str,
+    api_key: str,
+    ig_user_id: str,
+    connected_account_id: str,
+    user_id: str = "default",
+) -> str:
+    """Publish a carousel post (multiple images) to Instagram."""
+    child_ids: list[str] = []
+    for i, url in enumerate(image_urls):
+        log.info("Creating carousel child %d/%d...", i + 1, len(image_urls))
+        result = _execute_action(
+            action_slug="INSTAGRAM_CREATE_MEDIA_CONTAINER",
+            params={
+                "ig_user_id": ig_user_id,
+                "image_url": url,
+                "is_carousel_item": True,
+            },
+            api_key=api_key,
+            connected_account_id=connected_account_id,
+            user_id=user_id,
+        )
+        child_ids.append(result["data"]["id"])
+
+    time.sleep(3)
+
+    log.info("Creating carousel container with %d children...", len(child_ids))
+    carousel_result = _execute_action(
+        action_slug="INSTAGRAM_CREATE_CAROUSEL_CONTAINER",
+        params={
+            "ig_user_id": ig_user_id,
+            "children": child_ids,
+            "caption": caption,
+        },
+        api_key=api_key,
+        connected_account_id=connected_account_id,
+        user_id=user_id,
+    )
+
+    carousel_id = carousel_result["data"]["id"]
+    log.info("Carousel container created: %s", carousel_id)
+
+    time.sleep(3)
+
+    log.info("Publishing carousel to Instagram...")
+    publish_result = _execute_action(
+        action_slug="INSTAGRAM_CREATE_POST",
+        params={
+            "ig_user_id": ig_user_id,
+            "creation_id": carousel_id,
+            "max_wait_seconds": 60,
+        },
+        api_key=api_key,
+        connected_account_id=connected_account_id,
+        user_id=user_id,
+    )
+
+    media_id = publish_result["data"]["id"]
+    log.info("Published carousel! Media ID: %s (%d slides)", media_id, len(image_urls))
+    return media_id
+
+
 def publish_reel(
     video_url: str,
     caption: str,

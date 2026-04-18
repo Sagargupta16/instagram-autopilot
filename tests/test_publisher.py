@@ -89,6 +89,42 @@ class TestInstagramPublisher:
         assert "arguments" in first_call_body
 
     @patch("src.publisher.instagram.requests.post")
+    def test_publish_carousel_multi_step(self, mock_post: MagicMock) -> None:
+        mock_post.side_effect = [
+            MagicMock(ok=True, json=MagicMock(return_value={"data": {"id": "child_1"}})),
+            MagicMock(ok=True, json=MagicMock(return_value={"data": {"id": "child_2"}})),
+            MagicMock(ok=True, json=MagicMock(return_value={"data": {"id": "child_3"}})),
+            MagicMock(ok=True, json=MagicMock(return_value={"data": {"id": "carousel_c"}})),
+            MagicMock(ok=True, json=MagicMock(return_value={"data": {"id": "media_final"}})),
+        ]
+
+        from src.publisher.instagram import publish_carousel
+
+        media_id = publish_carousel(
+            image_urls=[
+                "https://example.com/1.png",
+                "https://example.com/2.png",
+                "https://example.com/3.png",
+            ],
+            caption="Carousel test",
+            api_key="key",
+            ig_user_id="123",
+            connected_account_id="ca_test",
+        )
+        assert media_id == "media_final"
+        assert mock_post.call_count == 5
+
+        child_call = mock_post.call_args_list[0].kwargs["json"]
+        assert child_call["arguments"]["is_carousel_item"] is True
+
+        carousel_call = mock_post.call_args_list[3].kwargs["json"]
+        assert carousel_call["arguments"]["children"] == [
+            "child_1",
+            "child_2",
+            "child_3",
+        ]
+
+    @patch("src.publisher.instagram.requests.post")
     def test_raises_on_composio_action_failure(self, mock_post: MagicMock) -> None:
         mock_post.return_value = MagicMock(
             ok=True,

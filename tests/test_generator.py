@@ -69,7 +69,8 @@ class TestGenerateCaption:
         assert "caption" in result
         assert "hashtags" in result
         assert "x_post" in result
-        assert "image_prompt" in result
+        assert "image_prompts" in result
+        assert len(result["image_prompts"]) == 5
         assert "video_prompt" in result
 
     @patch("src.generator.text._invoke_bedrock")

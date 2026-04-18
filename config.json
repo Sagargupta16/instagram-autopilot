@@ -11,7 +11,7 @@
       "days": ["monday", "thursday", "sunday"],
       "hashtags": ["#psychology", "#cognitivebias", "#mindset", "#mentalmodels", "#thinkingtraps"],
       "image_style": "cinematic photorealism with neon cyberpunk lighting, dark moody atmosphere, ultra-sharp 8K detail",
-      "content_format": "image"
+      "content_format": "carousel"
     },
     {
       "id": "relationships",
@@ -19,7 +19,7 @@
       "days": ["tuesday", "friday"],
       "hashtags": ["#relationships", "#attachmentstyle", "#love", "#dating", "#emotionalintelligence"],
       "image_style": "surreal 3D render with neon accents, ethereal glow, holographic elements, futuristic editorial aesthetic",
-      "content_format": "image"
+      "content_format": "carousel"
     },
     {
       "id": "habits",
@@ -27,7 +27,7 @@
       "days": ["wednesday", "saturday"],
       "hashtags": ["#habits", "#behavior", "#selfimprovement", "#productivity", "#discipline"],
       "image_style": "hyper-realistic futuristic photography, neon rim lighting, chrome surfaces, dramatic volumetric fog",
-      "content_format": "image"
+      "content_format": "carousel"
     }
   ],
   "posting": {

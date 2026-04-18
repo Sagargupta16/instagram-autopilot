@@ -18,20 +18,22 @@ Write FOUR things:
 - Under 250 characters
 - No hashtags, no emojis, no "thread incoming"
 
-3. IMAGE PROMPT
-- A highly detailed prompt for an AI image generator (Amazon Nova Canvas) to create a premium, scroll-stopping 1024x1024 image
+3. IMAGE PROMPTS (array of 5)
+- Generate exactly 5 DIFFERENT image prompts for a carousel post -- each slide should show a different visual angle, perspective, or sub-concept of the same topic
+- Think of it as a visual story: slide 1 = hook/attention, slides 2-4 = different facets/details, slide 5 = closing/memorable image
+- Each prompt is for Amazon Nova Canvas to create a premium 1024x1024 image
 - Base style: {image_style}
 - Visual direction: futuristic, neon-lit, cinematic, high-end editorial quality
-- REQUIRED elements to describe in detail:
+- REQUIRED elements to describe in each prompt:
   * Lighting: volumetric rays, neon glows, rim lighting, dramatic contrast, light leaks, bokeh
   * Color palette: cyberpunk neons (electric blue, hot pink, purple, teal), deep blacks, chrome/metallic accents
   * Composition: rule of thirds, leading lines, depth layers (foreground/midground/background), shallow depth of field
   * Atmosphere: fog, haze, particle effects, lens flare, reflective surfaces, glass, chrome
-  * Texture: ultra-detailed surface textures, skin pores if human, fabric weave, material reflections
   * Camera: specify lens (35mm, 85mm, macro), angle (low angle, eye level, birds eye), and distance
-- Create a conceptual/metaphorical visual that represents the topic -- NOT a literal illustration
-- Do NOT include any text, words, letters, or UI elements in the image
-- 400-512 characters (use the full length for maximum detail)
+- Create conceptual/metaphorical visuals that represent the topic -- NOT literal illustrations
+- Do NOT include any text, words, letters, or UI elements in any image
+- Each prompt: 400-512 characters (use the full length for maximum detail)
+- Each slide MUST be visually distinct (different scene, angle, color emphasis, or subject)
 
 4. VIDEO PROMPT (for Reels)
 - A cinematic prompt for an AI video generator (6 seconds, 24fps)
@@ -47,6 +49,6 @@ Respond with ONLY valid JSON:
   "caption": "the full Instagram caption with line breaks as \\n",
   "hashtags": "#hashtag1 #hashtag2 ...",
   "x_post": "the X/Twitter post under 250 chars",
-  "image_prompt": "ultra-detailed AI image generation prompt, 400-512 chars, neon/cinematic/futuristic",
+  "image_prompts": ["slide 1 prompt 400-512 chars", "slide 2 prompt 400-512 chars", "slide 3 prompt 400-512 chars", "slide 4 prompt 400-512 chars", "slide 5 prompt 400-512 chars"],
   "video_prompt": "cinematic AI video generation prompt under 400 chars"
 }}

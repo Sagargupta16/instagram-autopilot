@@ -101,8 +101,8 @@ def generate_caption(
     topic: str,
     pillar: dict[str, Any],
     persona: dict[str, Any],
-) -> dict[str, str]:
-    """Generate Instagram caption, X post, and image overlay text."""
+) -> dict[str, Any]:
+    """Generate Instagram caption, X post, and carousel image prompts."""
     prompt_template = (PROMPTS_DIR / "caption_prompt.txt").read_text()
     prompt = prompt_template.format(
         niche=settings.niche,
@@ -115,9 +115,11 @@ def generate_caption(
 
     raw = _invoke_bedrock(prompt)
     data = _extract_json(raw)
+    slide_count = len(data.get("image_prompts", []))
     log.info(
-        "Generated caption (%d chars), X post (%d chars)",
+        "Generated caption (%d chars), X post (%d chars), %d image prompts",
         len(data["caption"]),
         len(data["x_post"]),
+        slide_count,
     )
     return data

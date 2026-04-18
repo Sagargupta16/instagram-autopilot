@@ -48,12 +48,18 @@ def sample_persona() -> dict[str, Any]:
 
 
 @pytest.fixture()
-def sample_caption_data() -> dict[str, str]:
+def sample_caption_data() -> dict[str, Any]:
     return {
         "caption": "Here's something most people get wrong about memory...\n\nYour brain doesn't store memories like a camera.",
         "hashtags": "#psychology #memory #brain #cognitivebias #mindset",
         "x_post": "Your brain doesn't store memories like a camera. Every time you recall something, you're reconstructing it.",
-        "image_prompt": "A shattered mirror reflecting fragmented memories in a dark room with warm golden light rays",
+        "image_prompts": [
+            "A shattered mirror reflecting fragmented memories in a dark room with warm golden light rays",
+            "Close-up of neural pathways firing with neon blue electricity in a dark void",
+            "Hands holding a dissolving photograph, particles scattering into golden dust",
+            "A brain made of cracked glass with light leaking through the fractures",
+            "An empty chair in a spotlight with fading afterimages of the person who sat there",
+        ],
         "video_prompt": "Slow zoom into a shattered mirror, fragments floating in darkness with golden light passing through each shard",
     }
 
