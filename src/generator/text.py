@@ -106,6 +106,7 @@ def generate_caption(
         pillar=pillar["label"],
         topic=topic,
         tone=persona["tone"],
+        image_style=pillar.get("image_style", "PHOTOREALISM"),
         pillar_hashtags=" ".join(pillar["hashtags"]),
     )
 

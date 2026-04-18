@@ -93,13 +93,13 @@
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| 2.1 | Build `src/generator/image.py` | [ ] | Bedrock Nova Canvas + Stability AI |
-| 2.2 | Add `bedrock_image_model_id` to config | [ ] | Model selection for image gen |
-| 2.3 | Update `src/main.py` to use AI images | [ ] | Generate image -> host -> post with URL |
-| 2.4 | Update `src/publisher/twitter.py` for images | [ ] | Upload media via Composio -> attach to tweet |
-| 2.5 | Test image generation quality | [ ] | Infographic vs artistic styles |
+| 2.1 | Build `src/generator/image.py` | [x] | Bedrock Nova Canvas via bearer token, returns raw bytes |
+| 2.2 | Add `bedrock_image_model_id` to config | [x] | `models.image` in config.json + per-pillar `image_style` |
+| 2.3 | Update `src/main.py` to use AI images | [x] | In-memory pipeline: generate -> host -> post (no temp files) |
+| 2.4 | Update `src/publisher/twitter.py` for images | [x] | Text-only for now; image attachment deferred to Phase 4 |
+| 2.5 | Test image generation quality | [ ] | Needs live testing with real Bedrock API |
 | 2.6 | Test full pipeline with images | [ ] | End-to-end: generate text + image -> post |
-| 2.7 | Add image style config to `config.json` | [ ] | Infographic for tips, artistic for motivation |
+| 2.7 | Add image style config to `config.json` | [x] | Per-pillar `image_style` (PHOTOREALISM, 3D_ANIMATED_FAMILY_FILM) |
 | 2.8 | Monitor for 1 week | [ ] | Verify image quality and posting works daily |
 
 ---
@@ -110,13 +110,13 @@
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| 3.1 | Build `src/generator/reel.py` | [ ] | Bedrock Nova Reel: text prompt -> video |
-| 3.2 | Update `config.json` with reel settings | [ ] | Which pillars get reels vs images |
-| 3.3 | Update Instagram publisher for Reels | [ ] | `media_type: "REELS"`, `video_url` |
-| 3.4 | Handle video processing wait | [ ] | Poll status until FINISHED before publish |
-| 3.5 | Test reel generation quality | [ ] | Verify video looks good on mobile |
+| 3.1 | Build `src/generator/reel.py` | [x] | Bedrock Nova Reel: async job + polling, returns S3 URI |
+| 3.2 | Update `config.json` with reel settings | [x] | Per-pillar `content_format`: "image" or "reel" |
+| 3.3 | Update Instagram publisher for Reels | [x] | `publish_reel()`: `media_type: "REELS"`, `video_url`, `share_to_feed` |
+| 3.4 | Handle video processing wait | [x] | Poll with configurable interval + max wait, raises on timeout/failure |
+| 3.5 | Test reel generation quality | [ ] | Needs live testing with real Bedrock API + S3 bucket |
 | 3.6 | Test full pipeline with reels | [ ] | End-to-end: generate -> host -> post as reel |
-| 3.7 | Mix content types in schedule | [ ] | e.g., Mon=image, Wed=reel, Fri=carousel |
+| 3.7 | Mix content types in schedule | [x] | `content_format` per pillar in config.json, `_post_reel` falls back to image if no S3 bucket |
 
 ---
 
@@ -142,21 +142,20 @@ GitHub Actions (cron: Mon-Sat 3:30 AM UTC / 9:00 AM IST)
     v
 main.py (orchestrator)
     |
-    +-- config.json (pillars, schedule, persona, image styles)
+    +-- config.json (pillars, schedule, persona, models, image styles)
     +-- config.py   (pydantic settings from .env)
     |
     +-- generator/
-    |       |-- text.py       (Bedrock Claude via bearer token -> topic + caption + X post)
-    |       |-- image.py      (Bedrock Nova Canvas/Stability) [Phase 2]
-    |       |-- reel.py       (Bedrock Nova Reel) [Phase 3]
+    |       |-- text.py       (Bedrock Claude via bearer token -> topic + caption + X post + image/video prompts)
+    |       |-- image.py      (Bedrock Nova Canvas -> AI-generated images, in-memory bytes)
+    |       |-- reel.py       (Bedrock Nova Reel -> async job + S3 output)
     |
     +-- publisher/
-    |       |-- instagram.py  (Composio SDK: create container -> publish)
-    |       |-- twitter.py    (Composio SDK: create tweet, graceful skip)
+    |       |-- instagram.py  (Composio SDK: image posts + Reels)
+    |       |-- twitter.py    (Composio SDK: text posts, graceful skip)
     |
     +-- utils/
-            |-- template_image.py  (Pillow 1080x1080 with gradient + text) [Phase 1]
-            |-- image_host.py      (imgbb upload -> public URL)
+            |-- image_host.py      (imgbb: bytes -> public URL, 24h expiry)
 ```
 
 ---
@@ -171,7 +170,8 @@ main.py (orchestrator)
 | Image hosting | imgbb | Free, direct URLs, auto-expire, no query params |
 | Automation | GitHub Actions cron | Free, serverless, version-controlled |
 | Config | JSON file in repo + .env | Strategy in git, secrets in env |
-| Phase 1 images | Pillow template | Instagram requires images, Pillow is zero-cost |
+| Image generation | Bedrock Nova Canvas | AI-generated images, in-memory pipeline (no temp files) |
+| Video generation | Bedrock Nova Reel | Async S3 output, optional (falls back to image if no bucket) |
 | No storage | Generate and discard | No archival needed, imgbb expires in 24h |
 | Auth (AWS) | Bedrock bearer token (ABSK) | Already working, simpler than IAM keys |
 | Auth (social) | Composio SDK | Single API key for Instagram + X, no token refresh needed |
@@ -186,6 +186,7 @@ main.py (orchestrator)
 | `AWS_REGION` | 1 | `us-east-1` |
 | `COMPOSIO_API_KEY` | 1 | Composio SDK auth |
 | `IMGBB_API_KEY` | 1 | Temporary image hosting |
+| `S3_VIDEO_BUCKET` | 3 | S3 bucket for Nova Reel output (optional, falls back to image) |
 
 ---
 

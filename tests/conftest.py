@@ -22,6 +22,8 @@ def sample_pillar() -> dict[str, Any]:
         "label": "Cognitive Biases",
         "days": ["monday", "thursday"],
         "hashtags": ["#psychology", "#cognitivebias", "#mindset"],
+        "image_style": "PHOTOREALISM",
+        "content_format": "image",
     }
 
 
@@ -39,25 +41,14 @@ def sample_caption_data() -> dict[str, str]:
     return {
         "caption": "Here's something most people get wrong about memory...\n\nYour brain doesn't store memories like a camera.",
         "hashtags": "#psychology #memory #brain #cognitivebias #mindset",
-        "x_post": "Your brain doesn't store memories like a camera. Every time you recall something, you're actually reconstructing it from scratch.",
-        "image_text": "Your Memory Is Lying to You",
-    }
-
-
-@pytest.fixture()
-def sample_image_styles() -> dict[str, Any]:
-    return {
-        "cognitive_biases": {
-            "bg_gradient": ["#1a1a2e", "#16213e"],
-            "accent": "#e94560",
-            "text_color": "#ffffff",
-        }
+        "x_post": "Your brain doesn't store memories like a camera. Every time you recall something, you're reconstructing it.",
+        "image_prompt": "A shattered mirror reflecting fragmented memories in a dark room with warm golden light rays",
+        "video_prompt": "Slow zoom into a shattered mirror, fragments floating in darkness with golden light passing through each shard",
     }
 
 
 @pytest.fixture(autouse=True)
 def _env_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Set required env vars so Settings() doesn't fail during tests."""
     monkeypatch.setenv("AWS_BEARER_TOKEN_BEDROCK", "test-token")
     monkeypatch.setenv("COMPOSIO_API_KEY", "test-composio-key")
     monkeypatch.setenv("IMGBB_API_KEY", "test-imgbb-key")

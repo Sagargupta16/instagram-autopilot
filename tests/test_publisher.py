@@ -10,10 +10,9 @@ class TestInstagramPublisher:
     def test_publish_image_post_two_step(self, mock_toolset_cls: MagicMock) -> None:
         mock_toolset = MagicMock()
         mock_toolset_cls.return_value = mock_toolset
-
         mock_toolset.execute_action.side_effect = [
-            {"data": {"id": "container_123"}},  # Create container
-            {"data": {"id": "media_456"}},  # Publish
+            {"data": {"id": "container_123"}},
+            {"data": {"id": "media_456"}},
         ]
 
         from src.publisher.instagram import publish_image_post
@@ -23,33 +22,43 @@ class TestInstagramPublisher:
             caption="Test caption #test",
             api_key="test-key",
         )
-
         assert media_id == "media_456"
         assert mock_toolset.execute_action.call_count == 2
 
     @patch("src.publisher.instagram.ComposioToolSet")
-    def test_passes_correct_params_to_container(self, mock_toolset_cls: MagicMock) -> None:
+    def test_publish_reel_two_step(self, mock_toolset_cls: MagicMock) -> None:
         mock_toolset = MagicMock()
         mock_toolset_cls.return_value = mock_toolset
-
         mock_toolset.execute_action.side_effect = [
-            {"data": {"id": "container_123"}},
-            {"data": {"id": "media_456"}},
+            {"data": {"id": "reel_container_789"}},
+            {"data": {"id": "reel_media_012"}},
         ]
 
-        from src.publisher.instagram import IG_USER_ID, publish_image_post
+        from src.publisher.instagram import publish_reel
 
-        publish_image_post(
-            image_url="https://example.com/img.png",
-            caption="My caption",
-            api_key="key",
+        media_id = publish_reel(
+            video_url="s3://bucket/output.mp4",
+            caption="Reel caption",
+            api_key="test-key",
         )
+        assert media_id == "reel_media_012"
+        assert mock_toolset.execute_action.call_count == 2
 
-        first_call = mock_toolset.execute_action.call_args_list[0]
-        params = first_call.kwargs["params"]
-        assert params["ig_user_id"] == IG_USER_ID
-        assert params["image_url"] == "https://example.com/img.png"
-        assert params["caption"] == "My caption"
+    @patch("src.publisher.instagram.ComposioToolSet")
+    def test_reel_uses_reels_media_type(self, mock_toolset_cls: MagicMock) -> None:
+        mock_toolset = MagicMock()
+        mock_toolset_cls.return_value = mock_toolset
+        mock_toolset.execute_action.side_effect = [
+            {"data": {"id": "c"}},
+            {"data": {"id": "m"}},
+        ]
+
+        from src.publisher.instagram import publish_reel
+
+        publish_reel(video_url="s3://b/v.mp4", caption="c", api_key="k")
+        first_call_params = mock_toolset.execute_action.call_args_list[0].kwargs["params"]
+        assert first_call_params["media_type"] == "REELS"
+        assert first_call_params["share_to_feed"] is True
 
 
 class TestTwitterPublisher:

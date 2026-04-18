@@ -9,40 +9,34 @@
       "id": "cognitive_biases",
       "label": "Cognitive Biases",
       "days": ["monday", "thursday"],
-      "hashtags": ["#psychology", "#cognitivebias", "#mindset", "#mentalmodels", "#thinkingtraps"]
+      "hashtags": ["#psychology", "#cognitivebias", "#mindset", "#mentalmodels", "#thinkingtraps"],
+      "image_style": "PHOTOREALISM",
+      "content_format": "image"
     },
     {
       "id": "relationships",
       "label": "Relationship Psychology",
       "days": ["tuesday", "friday"],
-      "hashtags": ["#relationships", "#attachmentstyle", "#love", "#dating", "#emotionalintelligence"]
+      "hashtags": ["#relationships", "#attachmentstyle", "#love", "#dating", "#emotionalintelligence"],
+      "image_style": "3D_ANIMATED_FAMILY_FILM",
+      "content_format": "image"
     },
     {
       "id": "habits",
       "label": "Habits & Behavior Change",
       "days": ["wednesday", "saturday"],
-      "hashtags": ["#habits", "#behavior", "#selfimprovement", "#productivity", "#discipline"]
+      "hashtags": ["#habits", "#behavior", "#selfimprovement", "#productivity", "#discipline"],
+      "image_style": "PHOTOREALISM",
+      "content_format": "image"
     }
   ],
   "posting": {
     "time_utc": "03:30",
     "days": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
   },
-  "image_styles": {
-    "cognitive_biases": {
-      "bg_gradient": ["#1a1a2e", "#16213e"],
-      "accent": "#e94560",
-      "text_color": "#ffffff"
-    },
-    "relationships": {
-      "bg_gradient": ["#2d1b69", "#11998e"],
-      "accent": "#f8cdda",
-      "text_color": "#ffffff"
-    },
-    "habits": {
-      "bg_gradient": ["#0f0c29", "#302b63"],
-      "accent": "#24fe41",
-      "text_color": "#ffffff"
-    }
+  "models": {
+    "text": "anthropic.claude-sonnet-4-20250514",
+    "image": "amazon.nova-canvas-v1:0",
+    "video": "amazon.nova-reel-v1:0"
   }
 }

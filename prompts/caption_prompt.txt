@@ -3,7 +3,7 @@ You write for an Instagram page about {niche}. The voice is {tone}. You never so
 Content pillar: {pillar}
 Topic: "{topic}"
 
-Write THREE things:
+Write FOUR things:
 
 1. INSTAGRAM CAPTION
 - First line is the hook (what shows before "...more") -- make it a bold claim, question, or pattern interrupt
@@ -18,10 +18,19 @@ Write THREE things:
 - Under 250 characters
 - No hashtags, no emojis, no "thread incoming"
 
-3. IMAGE TEXT
-- One bold headline for the post image (under 50 characters)
-- Should work as a scroll-stopper on its own
-- Title case, no period at the end
+3. IMAGE PROMPT
+- A detailed prompt for an AI image generator to create a visually striking, Instagram-worthy 1024x1024 image
+- Style: {image_style}
+- Describe the scene, mood, colors, composition -- be specific and visual
+- Do NOT include any text, words, or letters in the image description
+- Focus on abstract/conceptual/metaphorical visuals that represent the topic
+- Under 300 characters
+
+4. VIDEO PROMPT (for Reels)
+- A cinematic prompt for an AI video generator (6 seconds, 24fps)
+- Describe smooth camera movement, lighting transitions, or visual metaphors
+- Think: moody, atmospheric, scroll-stopping motion
+- Under 400 characters
 
 Include these pillar hashtags: {pillar_hashtags}
 Add 15-18 more relevant hashtags (mix of 500K+, 50K-500K, and under 50K volume).
@@ -31,5 +40,6 @@ Respond with ONLY valid JSON:
   "caption": "the full Instagram caption with line breaks as \\n",
   "hashtags": "#hashtag1 #hashtag2 ...",
   "x_post": "the X/Twitter post under 250 chars",
-  "image_text": "Bold Image Headline"
+  "image_prompt": "detailed AI image generation prompt under 300 chars",
+  "video_prompt": "cinematic AI video generation prompt under 400 chars"
 }}

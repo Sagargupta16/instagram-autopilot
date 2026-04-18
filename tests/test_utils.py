@@ -1,93 +1,108 @@
-"""Tests for utility functions (template images, image hosting)."""
+"""Tests for utility functions (image hosting, image generation, reel generation)."""
 
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Any
+import base64
 from unittest.mock import MagicMock, patch
-
-from src.utils.template_image import _hex_to_rgb, generate_template_image
-
-
-class TestHexToRgb:
-    def test_basic_colors(self) -> None:
-        assert _hex_to_rgb("#ff0000") == (255, 0, 0)
-        assert _hex_to_rgb("#00ff00") == (0, 255, 0)
-        assert _hex_to_rgb("#0000ff") == (0, 0, 255)
-
-    def test_without_hash(self) -> None:
-        assert _hex_to_rgb("ffffff") == (255, 255, 255)
-        assert _hex_to_rgb("000000") == (0, 0, 0)
-
-    def test_mixed_case(self) -> None:
-        assert _hex_to_rgb("#FF0000") == (255, 0, 0)
-        assert _hex_to_rgb("#aaBBcc") == (170, 187, 204)
-
-
-class TestGenerateTemplateImage:
-    def test_creates_image_file(self, sample_image_styles: dict[str, Any], tmp_path: Path) -> None:
-        with patch("src.utils.template_image.OUTPUT_DIR", tmp_path):
-            path = generate_template_image(
-                image_text="Test Image Text",
-                pillar_id="cognitive_biases",
-                image_styles=sample_image_styles,
-            )
-            assert path.exists()
-            assert path.suffix == ".png"
-
-    def test_image_dimensions(self, sample_image_styles: dict[str, Any], tmp_path: Path) -> None:
-        from PIL import Image
-
-        with patch("src.utils.template_image.OUTPUT_DIR", tmp_path):
-            path = generate_template_image(
-                image_text="Test",
-                pillar_id="cognitive_biases",
-                image_styles=sample_image_styles,
-            )
-            img = Image.open(path)
-            assert img.size == (1080, 1080)
-
-    def test_uses_fallback_style_for_unknown_pillar(self, tmp_path: Path) -> None:
-        with patch("src.utils.template_image.OUTPUT_DIR", tmp_path):
-            path = generate_template_image(
-                image_text="Fallback test",
-                pillar_id="nonexistent_pillar",
-                image_styles={},
-            )
-            assert path.exists()
 
 
 class TestImageHost:
     @patch("src.utils.image_host.requests.post")
-    def test_upload_returns_url(self, mock_post: MagicMock, tmp_path: Path) -> None:
+    def test_upload_returns_url(self, mock_post: MagicMock) -> None:
         mock_resp = MagicMock()
         mock_resp.json.return_value = {"data": {"url": "https://i.ibb.co/abc123/image.png"}}
         mock_resp.raise_for_status = MagicMock()
         mock_post.return_value = mock_resp
 
-        img_path = tmp_path / "test.png"
-        img_path.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 100)
-
         from src.utils.image_host import upload_to_imgbb
 
-        url = upload_to_imgbb(img_path, api_key="test-key")
+        url = upload_to_imgbb(b"\x89PNG\r\n\x1a\n" + b"\x00" * 100, api_key="test-key")
         assert url == "https://i.ibb.co/abc123/image.png"
 
     @patch("src.utils.image_host.requests.post")
-    def test_sends_base64_image_data(self, mock_post: MagicMock, tmp_path: Path) -> None:
+    def test_sends_base64_encoded_bytes(self, mock_post: MagicMock) -> None:
         mock_resp = MagicMock()
         mock_resp.json.return_value = {"data": {"url": "https://example.com/img.png"}}
         mock_resp.raise_for_status = MagicMock()
         mock_post.return_value = mock_resp
 
-        img_path = tmp_path / "test.png"
-        img_path.write_bytes(b"fake image data")
-
         from src.utils.image_host import upload_to_imgbb
 
-        upload_to_imgbb(img_path, api_key="my-key")
+        raw_bytes = b"fake image data"
+        upload_to_imgbb(raw_bytes, api_key="my-key")
 
         call_data = mock_post.call_args.kwargs["data"]
         assert call_data["key"] == "my-key"
         assert call_data["expiration"] == 86400
-        assert len(call_data["image"]) > 0  # base64 encoded
+        assert call_data["image"] == base64.b64encode(raw_bytes).decode()
+
+
+class TestImageGenerator:
+    @patch("src.generator.image.requests.post")
+    def test_returns_image_bytes(self, mock_post: MagicMock) -> None:
+        fake_image = b"\x89PNG fake image bytes"
+        mock_resp = MagicMock()
+        mock_resp.json.return_value = {"images": [base64.b64encode(fake_image).decode()]}
+        mock_resp.raise_for_status = MagicMock()
+        mock_post.return_value = mock_resp
+
+        from src.generator.image import generate_image
+
+        result = generate_image(prompt="test prompt", model_id="amazon.nova-canvas-v1:0")
+        assert result == fake_image
+
+    @patch("src.generator.image.requests.post")
+    def test_sends_correct_body(self, mock_post: MagicMock) -> None:
+        mock_resp = MagicMock()
+        mock_resp.json.return_value = {"images": [base64.b64encode(b"img").decode()]}
+        mock_resp.raise_for_status = MagicMock()
+        mock_post.return_value = mock_resp
+
+        from src.generator.image import generate_image
+
+        generate_image(prompt="a cool image", model_id="amazon.nova-canvas-v1:0")
+
+        call_body = mock_post.call_args.kwargs["json"]
+        assert call_body["taskType"] == "TEXT_IMAGE"
+        assert call_body["textToImageParams"]["text"] == "a cool image"
+        assert call_body["imageGenerationConfig"]["width"] == 1024
+        assert call_body["imageGenerationConfig"]["height"] == 1024
+
+
+class TestReelGenerator:
+    @patch("src.generator.reel.time.sleep")
+    @patch("src.generator.reel.requests.get")
+    @patch("src.generator.reel.requests.post")
+    def test_polls_until_complete(
+        self, mock_post: MagicMock, mock_get: MagicMock, mock_sleep: MagicMock
+    ) -> None:
+        # Start job response
+        mock_start_resp = MagicMock()
+        mock_start_resp.json.return_value = {"invocationArn": "arn:aws:bedrock:job-123"}
+        mock_start_resp.raise_for_status = MagicMock()
+        mock_post.return_value = mock_start_resp
+
+        # Poll responses: InProgress -> Completed
+        mock_poll_1 = MagicMock()
+        mock_poll_1.json.return_value = {"status": "InProgress"}
+        mock_poll_1.raise_for_status = MagicMock()
+
+        mock_poll_2 = MagicMock()
+        mock_poll_2.json.return_value = {
+            "status": "Completed",
+            "outputDataConfig": {"s3OutputDataConfig": {"s3Uri": "s3://bucket/output"}},
+        }
+        mock_poll_2.raise_for_status = MagicMock()
+
+        mock_get.side_effect = [mock_poll_1, mock_poll_2]
+
+        from src.generator.reel import generate_reel
+
+        result = generate_reel(
+            prompt="test video",
+            model_id="amazon.nova-reel-v1:0",
+            s3_output_uri="s3://bucket/",
+            poll_interval=1,
+        )
+        assert result == "s3://bucket/output/output.mp4"
+        assert mock_get.call_count == 2

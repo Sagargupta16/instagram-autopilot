@@ -13,16 +13,18 @@ CONFIG_PATH = Path(__file__).resolve().parent.parent / "config.json"
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
-    # AWS Bedrock
+    # AWS Bedrock (bearer token auth)
     aws_bearer_token_bedrock: str
     aws_region: str = "us-east-1"
-    bedrock_model_id: str = "anthropic.claude-sonnet-4-20250514"
 
     # Composio SDK (handles Instagram + X/Twitter)
     composio_api_key: str
 
-    # imgbb (free image hosting for Instagram)
+    # imgbb (free image hosting -- Instagram needs public URLs)
     imgbb_api_key: str
+
+    # S3 bucket for Nova Reel video output
+    s3_video_bucket: str = ""
 
     # Content
     niche: str = "psychology_facts"
@@ -34,12 +36,10 @@ class Settings(BaseSettings):
 
 
 def load_config() -> dict[str, Any]:
-    """Load the content strategy config from config.json."""
     return json.loads(CONFIG_PATH.read_text())
 
 
 def get_todays_pillar(config: dict[str, Any]) -> dict[str, Any] | None:
-    """Determine which content pillar to use based on today's day of week."""
     today = datetime.now(UTC).strftime("%A").lower()
     for pillar in config["pillars"]:
         if today in pillar["days"]:

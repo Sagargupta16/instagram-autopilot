@@ -29,5 +29,6 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           COMPOSIO_API_KEY: ${{ secrets.COMPOSIO_API_KEY }}
           IMGBB_API_KEY: ${{ secrets.IMGBB_API_KEY }}
+          S3_VIDEO_BUCKET: ${{ secrets.S3_VIDEO_BUCKET }}
           NICHE: ${{ vars.NICHE || 'psychology_facts' }}
           CONTENT_TYPES: ${{ vars.CONTENT_TYPES || 'fact,tip' }}

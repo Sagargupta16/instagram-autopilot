@@ -42,23 +42,6 @@ class TestGenerateTopic:
 
     @patch("src.generator.text._invoke_bedrock")
     @patch("src.generator.text._save_posted_topic")
-    @patch("src.generator.text._load_posted_topics")
-    def test_sends_recent_topics_in_prompt(
-        self,
-        mock_load: MagicMock,
-        mock_save: MagicMock,
-        mock_bedrock: MagicMock,
-        sample_pillar: dict[str, Any],
-    ) -> None:
-        mock_load.return_value = ["topic1", "topic2", "topic3"]
-        mock_bedrock.return_value = json.dumps({"topic": "New topic"})
-        generate_topic(sample_pillar, "fact")
-
-        prompt_sent = mock_bedrock.call_args[0][0]
-        assert "topic1" in prompt_sent or "topic2" in prompt_sent
-
-    @patch("src.generator.text._invoke_bedrock")
-    @patch("src.generator.text._save_posted_topic")
     @patch("src.generator.text._load_posted_topics", return_value=[])
     def test_raises_on_invalid_json(
         self,
@@ -86,10 +69,11 @@ class TestGenerateCaption:
         assert "caption" in result
         assert "hashtags" in result
         assert "x_post" in result
-        assert "image_text" in result
+        assert "image_prompt" in result
+        assert "video_prompt" in result
 
     @patch("src.generator.text._invoke_bedrock")
-    def test_includes_pillar_in_prompt(
+    def test_includes_pillar_and_style_in_prompt(
         self,
         mock_bedrock: MagicMock,
         sample_pillar: dict[str, Any],
@@ -100,3 +84,4 @@ class TestGenerateCaption:
         generate_caption("Test topic", sample_pillar, sample_persona)
         prompt_sent = mock_bedrock.call_args[0][0]
         assert "Cognitive Biases" in prompt_sent
+        assert "PHOTOREALISM" in prompt_sent

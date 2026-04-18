@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import base64
 import logging
-from pathlib import Path
 
 import requests
 
@@ -13,13 +12,14 @@ log = logging.getLogger(__name__)
 IMGBB_UPLOAD_URL = "https://api.imgbb.com/1/upload"
 
 
-def upload_to_imgbb(image_path: Path, api_key: str) -> str:
-    """Upload an image to imgbb and return the direct URL.
+def upload_to_imgbb(image_bytes: bytes, api_key: str) -> str:
+    """Upload image bytes to imgbb and return the direct URL.
 
-    The image auto-expires after 24 hours (we only need it long enough
-    for Instagram to fetch it during container creation).
+    Accepts raw image bytes (PNG/JPEG) -- no file I/O needed.
+    Auto-expires after 24 hours (Instagram fetches during container
+    creation, then hosts its own copy).
     """
-    image_data = base64.b64encode(image_path.read_bytes()).decode()
+    image_data = base64.b64encode(image_bytes).decode()
 
     resp = requests.post(
         IMGBB_UPLOAD_URL,
