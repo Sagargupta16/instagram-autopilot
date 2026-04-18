@@ -6,6 +6,8 @@ import logging
 
 import requests
 
+from src.publisher.composio_auth import resolve_connected_account_id
+
 log = logging.getLogger(__name__)
 
 COMPOSIO_API_URL = "https://backend.composio.dev/api/v2/actions"
@@ -17,14 +19,18 @@ def publish_text_post(text: str, api_key: str, connected_account_id: str = "") -
     Returns the tweet ID on success, None if X is not connected.
     """
     try:
+        resolved_id = resolve_connected_account_id(api_key, "twitter", connected_account_id)
+        body: dict = {
+            "entityId": "default",
+            "appName": "twitter",
+            "input": {"text": text},
+        }
+        if resolved_id:
+            body["connectedAccountId"] = resolved_id
+
         resp = requests.post(
             f"{COMPOSIO_API_URL}/TWITTER_CREATION_OF_A_POST/execute",
-            json={
-                "connectedAccountId": connected_account_id or None,
-                "entityId": "default",
-                "appName": "twitter",
-                "input": {"text": text},
-            },
+            json=body,
             headers={"x-api-key": api_key},
             timeout=60,
         )

@@ -3,10 +3,18 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Any
 
 import pytest
+
+os.environ.setdefault("AWS_BEARER_TOKEN_BEDROCK", "test-token")
+os.environ.setdefault("AWS_REGION", "us-east-1")
+os.environ.setdefault("COMPOSIO_API_KEY", "test-composio-key")
+os.environ.setdefault("COMPOSIO_CONNECTED_ACCOUNT_ID", "test-account")
+os.environ.setdefault("INSTAGRAM_USER_ID", "123456")
+os.environ.setdefault("IMGBB_API_KEY", "test-imgbb-key")
 
 
 @pytest.fixture()
@@ -50,6 +58,7 @@ def sample_caption_data() -> dict[str, str]:
 @pytest.fixture(autouse=True)
 def _env_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("AWS_BEARER_TOKEN_BEDROCK", "test-token")
+    monkeypatch.setenv("AWS_REGION", "us-east-1")
     monkeypatch.setenv("COMPOSIO_API_KEY", "test-composio-key")
     monkeypatch.setenv("COMPOSIO_CONNECTED_ACCOUNT_ID", "test-account")
     monkeypatch.setenv("INSTAGRAM_USER_ID", "123456")

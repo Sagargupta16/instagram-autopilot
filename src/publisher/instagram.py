@@ -7,6 +7,8 @@ import time
 
 import requests
 
+from src.publisher.composio_auth import resolve_connected_account_id
+
 log = logging.getLogger(__name__)
 
 COMPOSIO_API_URL = "https://backend.composio.dev/api/v2/actions"
@@ -19,14 +21,18 @@ def _execute_action(
     connected_account_id: str,
 ) -> dict:
     """Execute a Composio action via REST API."""
+    resolved_id = resolve_connected_account_id(api_key, "instagram", connected_account_id)
+    body: dict = {
+        "entityId": "default",
+        "appName": "instagram",
+        "input": params,
+    }
+    if resolved_id:
+        body["connectedAccountId"] = resolved_id
+
     resp = requests.post(
         f"{COMPOSIO_API_URL}/{action_slug}/execute",
-        json={
-            "connectedAccountId": connected_account_id,
-            "entityId": "default",
-            "appName": "instagram",
-            "input": params,
-        },
+        json=body,
         headers={"x-api-key": api_key},
         timeout=120,
     )
