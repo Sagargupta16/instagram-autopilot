@@ -92,11 +92,16 @@ class TestInstagramPublisher:
     def test_raises_on_composio_action_failure(self, mock_post: MagicMock) -> None:
         mock_post.return_value = MagicMock(
             ok=True,
-            json=MagicMock(return_value={
-                "data": {"message": "Failed to create container (status 400)", "status_code": 400},
-                "successful": False,
-                "error": "Only photo or video can be accepted as media type",
-            }),
+            json=MagicMock(
+                return_value={
+                    "data": {
+                        "message": "Failed to create container (status 400)",
+                        "status_code": 400,
+                    },
+                    "successful": False,
+                    "error": "Only photo or video can be accepted as media type",
+                }
+            ),
         )
 
         from src.publisher.instagram import ComposioActionError, publish_image_post

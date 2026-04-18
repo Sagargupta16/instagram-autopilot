@@ -16,7 +16,9 @@ class TestImageHost:
         from src.utils.image_host import upload_image
 
         url = upload_image(b"\x89PNG\r\n\x1a\n" + b"\x00" * 100)
-        assert url == "https://res.cloudinary.com/test/image/upload/v1/instagram-autopilot/abc123.png"
+        assert (
+            url == "https://res.cloudinary.com/test/image/upload/v1/instagram-autopilot/abc123.png"
+        )
         mock_upload.assert_called_once()
 
     @patch("src.utils.image_host.cloudinary.uploader.upload")
