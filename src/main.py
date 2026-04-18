@@ -49,6 +49,8 @@ def _post_image(
         image_url=image_url,
         caption=instagram_caption,
         api_key=settings.composio_api_key,
+        ig_user_id=settings.instagram_user_id,
+        entity_id=settings.composio_entity_id,
     )
 
     publish_text_post(text=caption_data["x_post"], api_key=settings.composio_api_key)
@@ -84,6 +86,8 @@ def _post_reel(
         video_url=video_s3_uri,
         caption=instagram_caption,
         api_key=settings.composio_api_key,
+        ig_user_id=settings.instagram_user_id,
+        entity_id=settings.composio_entity_id,
     )
 
     publish_text_post(text=caption_data["x_post"], api_key=settings.composio_api_key)

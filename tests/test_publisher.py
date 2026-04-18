@@ -21,6 +21,8 @@ class TestInstagramPublisher:
             image_url="https://example.com/test.png",
             caption="Test caption #test",
             api_key="test-key",
+            ig_user_id="123456",
+            entity_id="test-entity",
         )
         assert media_id == "media_456"
         assert mock_toolset.execute_action.call_count == 2
@@ -40,6 +42,8 @@ class TestInstagramPublisher:
             video_url="s3://bucket/output.mp4",
             caption="Reel caption",
             api_key="test-key",
+            ig_user_id="123456",
+            entity_id="test-entity",
         )
         assert media_id == "reel_media_012"
         assert mock_toolset.execute_action.call_count == 2
@@ -55,7 +59,7 @@ class TestInstagramPublisher:
 
         from src.publisher.instagram import publish_reel
 
-        publish_reel(video_url="s3://b/v.mp4", caption="c", api_key="k")
+        publish_reel(video_url="s3://b/v.mp4", caption="c", api_key="k", ig_user_id="123")
         first_call_params = mock_toolset.execute_action.call_args_list[0].kwargs["params"]
         assert first_call_params["media_type"] == "REELS"
         assert first_call_params["share_to_feed"] is True

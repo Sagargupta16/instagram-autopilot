@@ -9,18 +9,22 @@ from composio import Action, ComposioToolSet
 
 log = logging.getLogger(__name__)
 
-IG_USER_ID = "25519335194405950"  # @sagar_sethh
 
-
-def publish_image_post(image_url: str, caption: str, api_key: str) -> str:
+def publish_image_post(
+    image_url: str,
+    caption: str,
+    api_key: str,
+    ig_user_id: str,
+    entity_id: str = "default",
+) -> str:
     """Publish a single image post to Instagram (two-step container flow)."""
-    toolset = ComposioToolSet(api_key=api_key)
+    toolset = ComposioToolSet(api_key=api_key, entity_id=entity_id)
 
     log.info("Creating Instagram media container...")
     container_result = toolset.execute_action(
         action=Action.INSTAGRAM_POST_IG_USER_MEDIA,
         params={
-            "ig_user_id": IG_USER_ID,
+            "ig_user_id": ig_user_id,
             "image_url": image_url,
             "caption": caption,
         },
@@ -35,7 +39,7 @@ def publish_image_post(image_url: str, caption: str, api_key: str) -> str:
     publish_result = toolset.execute_action(
         action=Action.INSTAGRAM_POST_IG_USER_MEDIA_PUBLISH,
         params={
-            "ig_user_id": IG_USER_ID,
+            "ig_user_id": ig_user_id,
             "creation_id": creation_id,
             "max_wait_seconds": 60,
         },
@@ -46,15 +50,21 @@ def publish_image_post(image_url: str, caption: str, api_key: str) -> str:
     return media_id
 
 
-def publish_reel(video_url: str, caption: str, api_key: str) -> str:
+def publish_reel(
+    video_url: str,
+    caption: str,
+    api_key: str,
+    ig_user_id: str,
+    entity_id: str = "default",
+) -> str:
     """Publish a Reel to Instagram (two-step container flow with video)."""
-    toolset = ComposioToolSet(api_key=api_key)
+    toolset = ComposioToolSet(api_key=api_key, entity_id=entity_id)
 
     log.info("Creating Instagram Reel container...")
     container_result = toolset.execute_action(
         action=Action.INSTAGRAM_POST_IG_USER_MEDIA,
         params={
-            "ig_user_id": IG_USER_ID,
+            "ig_user_id": ig_user_id,
             "video_url": video_url,
             "caption": caption,
             "media_type": "REELS",
@@ -70,7 +80,7 @@ def publish_reel(video_url: str, caption: str, api_key: str) -> str:
     publish_result = toolset.execute_action(
         action=Action.INSTAGRAM_POST_IG_USER_MEDIA_PUBLISH,
         params={
-            "ig_user_id": IG_USER_ID,
+            "ig_user_id": ig_user_id,
             "creation_id": creation_id,
             "max_wait_seconds": 120,
             "poll_interval_seconds": 5,
