@@ -19,7 +19,7 @@ class Settings(BaseSettings):
 
     # Composio SDK (handles Instagram + X/Twitter)
     composio_api_key: str
-    composio_entity_id: str = "default"
+    composio_connected_account_id: str = ""
     instagram_user_id: str = ""
 
     # imgbb (free image hosting -- Instagram needs public URLs)

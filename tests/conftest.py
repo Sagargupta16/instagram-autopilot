@@ -51,6 +51,6 @@ def sample_caption_data() -> dict[str, str]:
 def _env_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("AWS_BEARER_TOKEN_BEDROCK", "test-token")
     monkeypatch.setenv("COMPOSIO_API_KEY", "test-composio-key")
-    monkeypatch.setenv("COMPOSIO_ENTITY_ID", "test-entity")
+    monkeypatch.setenv("COMPOSIO_CONNECTED_ACCOUNT_ID", "test-account")
     monkeypatch.setenv("INSTAGRAM_USER_ID", "123456")
     monkeypatch.setenv("IMGBB_API_KEY", "test-imgbb-key")

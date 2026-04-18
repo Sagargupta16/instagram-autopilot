@@ -28,7 +28,7 @@ jobs:
           AWS_BEARER_TOKEN_BEDROCK: ${{ secrets.AWS_BEARER_TOKEN_BEDROCK }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           COMPOSIO_API_KEY: ${{ secrets.COMPOSIO_API_KEY }}
-          COMPOSIO_ENTITY_ID: ${{ secrets.COMPOSIO_ENTITY_ID }}
+          COMPOSIO_CONNECTED_ACCOUNT_ID: ${{ secrets.COMPOSIO_CONNECTED_ACCOUNT_ID }}
           INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
           IMGBB_API_KEY: ${{ secrets.IMGBB_API_KEY }}
           S3_VIDEO_BUCKET: ${{ secrets.S3_VIDEO_BUCKET }}

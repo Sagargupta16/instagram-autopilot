@@ -22,7 +22,7 @@ class TestInstagramPublisher:
             caption="Test caption #test",
             api_key="test-key",
             ig_user_id="123456",
-            entity_id="test-entity",
+            connected_account_id="test-account",
         )
         assert media_id == "media_456"
         assert mock_toolset.execute_action.call_count == 2
@@ -43,7 +43,7 @@ class TestInstagramPublisher:
             caption="Reel caption",
             api_key="test-key",
             ig_user_id="123456",
-            entity_id="test-entity",
+            connected_account_id="test-account",
         )
         assert media_id == "reel_media_012"
         assert mock_toolset.execute_action.call_count == 2

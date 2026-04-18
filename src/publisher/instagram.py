@@ -15,10 +15,13 @@ def publish_image_post(
     caption: str,
     api_key: str,
     ig_user_id: str,
-    entity_id: str = "default",
+    connected_account_id: str = "",
 ) -> str:
     """Publish a single image post to Instagram (two-step container flow)."""
-    toolset = ComposioToolSet(api_key=api_key, entity_id=entity_id)
+    account_ids = {}
+    if connected_account_id:
+        account_ids["instagram"] = connected_account_id
+    toolset = ComposioToolSet(api_key=api_key, connected_account_ids=account_ids or None)
 
     log.info("Creating Instagram media container...")
     container_result = toolset.execute_action(
@@ -55,10 +58,13 @@ def publish_reel(
     caption: str,
     api_key: str,
     ig_user_id: str,
-    entity_id: str = "default",
+    connected_account_id: str = "",
 ) -> str:
     """Publish a Reel to Instagram (two-step container flow with video)."""
-    toolset = ComposioToolSet(api_key=api_key, entity_id=entity_id)
+    account_ids = {}
+    if connected_account_id:
+        account_ids["instagram"] = connected_account_id
+    toolset = ComposioToolSet(api_key=api_key, connected_account_ids=account_ids or None)
 
     log.info("Creating Instagram Reel container...")
     container_result = toolset.execute_action(
