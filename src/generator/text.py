@@ -10,7 +10,7 @@ from typing import Any
 
 import requests
 
-from src.config import settings
+from src.config import load_config, settings
 
 log = logging.getLogger(__name__)
 
@@ -23,9 +23,10 @@ BEDROCK_INVOKE_URL = "https://bedrock-runtime.{region}.amazonaws.com/model/{mode
 
 def _invoke_bedrock(prompt: str) -> str:
     """Call Bedrock Claude via bearer token and return the text response."""
+    config = load_config()
     url = BEDROCK_INVOKE_URL.format(
         region=settings.aws_region,
-        model=settings.bedrock_model_id,
+        model=config["models"]["text"],
     )
     headers = {
         "Content-Type": "application/json",
