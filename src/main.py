@@ -1,4 +1,4 @@
-"""Main entry point: generate content and publish to Instagram + X."""
+"""Main entry point: generate content and publish to Instagram."""
 
 from __future__ import annotations
 
@@ -12,8 +12,7 @@ from src.generator.image import generate_image
 from src.generator.reel import generate_reel
 from src.generator.text import generate_caption, generate_topic
 from src.publisher.instagram import publish_image_post, publish_reel
-from src.publisher.twitter import publish_text_post
-from src.utils.image_host import upload_to_imgbb
+from src.utils.image_host import configure_cloudinary, upload_image
 
 logging.basicConfig(
     level=logging.INFO,
@@ -30,7 +29,7 @@ def _post_image(
     *,
     dry_run: bool,
 ) -> None:
-    """Generate an AI image and publish to Instagram + X."""
+    """Generate an AI image and publish to Instagram."""
     image_prompt = caption_data["image_prompt"]
     log.info("Image prompt: %s", image_prompt)
 
@@ -43,7 +42,7 @@ def _post_image(
         log.info("DRY RUN: Generated %d bytes of image data", len(image_bytes))
         return
 
-    image_url = upload_to_imgbb(image_bytes, settings.imgbb_api_key)
+    image_url = upload_image(image_bytes)
 
     publish_image_post(
         image_url=image_url,
@@ -51,9 +50,8 @@ def _post_image(
         api_key=settings.composio_api_key,
         ig_user_id=settings.instagram_user_id,
         connected_account_id=settings.composio_connected_account_id,
+        user_id=settings.composio_user_id,
     )
-
-    publish_text_post(text=caption_data["x_post"], api_key=settings.composio_api_key)
 
 
 def _post_reel(
@@ -88,13 +86,17 @@ def _post_reel(
         api_key=settings.composio_api_key,
         ig_user_id=settings.instagram_user_id,
         connected_account_id=settings.composio_connected_account_id,
+        user_id=settings.composio_user_id,
     )
-
-    publish_text_post(text=caption_data["x_post"], api_key=settings.composio_api_key)
 
 
 def run(*, dry_run: bool = False) -> None:
-    """Generate and publish one piece of content to Instagram and X."""
+    """Generate and publish one piece of content to Instagram."""
+    configure_cloudinary(
+        settings.cloudinary_cloud_name,
+        settings.cloudinary_api_key,
+        settings.cloudinary_api_secret,
+    )
     config = load_config()
 
     pillar = get_todays_pillar(config)

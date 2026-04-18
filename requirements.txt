@@ -1,6 +1,7 @@
 requests>=2.33.0
 pydantic>=2.12.0
 pydantic-settings>=2.13.0
+cloudinary>=1.44.0
 
 # Dev / testing
 pytest>=9.0.0

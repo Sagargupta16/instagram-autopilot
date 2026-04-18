@@ -19,12 +19,19 @@ Write FOUR things:
 - No hashtags, no emojis, no "thread incoming"
 
 3. IMAGE PROMPT
-- A detailed prompt for an AI image generator to create a visually striking, Instagram-worthy 1024x1024 image
-- Style: {image_style}
-- Describe the scene, mood, colors, composition -- be specific and visual
-- Do NOT include any text, words, or letters in the image description
-- Focus on abstract/conceptual/metaphorical visuals that represent the topic
-- Under 300 characters
+- A highly detailed prompt for an AI image generator (Amazon Nova Canvas) to create a premium, scroll-stopping 1024x1024 image
+- Base style: {image_style}
+- Visual direction: futuristic, neon-lit, cinematic, high-end editorial quality
+- REQUIRED elements to describe in detail:
+  * Lighting: volumetric rays, neon glows, rim lighting, dramatic contrast, light leaks, bokeh
+  * Color palette: cyberpunk neons (electric blue, hot pink, purple, teal), deep blacks, chrome/metallic accents
+  * Composition: rule of thirds, leading lines, depth layers (foreground/midground/background), shallow depth of field
+  * Atmosphere: fog, haze, particle effects, lens flare, reflective surfaces, glass, chrome
+  * Texture: ultra-detailed surface textures, skin pores if human, fabric weave, material reflections
+  * Camera: specify lens (35mm, 85mm, macro), angle (low angle, eye level, birds eye), and distance
+- Create a conceptual/metaphorical visual that represents the topic -- NOT a literal illustration
+- Do NOT include any text, words, letters, or UI elements in the image
+- 400-512 characters (use the full length for maximum detail)
 
 4. VIDEO PROMPT (for Reels)
 - A cinematic prompt for an AI video generator (6 seconds, 24fps)
@@ -40,6 +47,6 @@ Respond with ONLY valid JSON:
   "caption": "the full Instagram caption with line breaks as \\n",
   "hashtags": "#hashtag1 #hashtag2 ...",
   "x_post": "the X/Twitter post under 250 chars",
-  "image_prompt": "detailed AI image generation prompt under 300 chars",
+  "image_prompt": "ultra-detailed AI image generation prompt, 400-512 chars, neon/cinematic/futuristic",
   "video_prompt": "cinematic AI video generation prompt under 400 chars"
 }}

@@ -7,34 +7,29 @@ from unittest.mock import MagicMock, patch
 
 
 class TestImageHost:
-    @patch("src.utils.image_host.requests.post")
-    def test_upload_returns_url(self, mock_post: MagicMock) -> None:
-        mock_resp = MagicMock()
-        mock_resp.json.return_value = {"data": {"url": "https://i.ibb.co/abc123/image.png"}}
-        mock_resp.raise_for_status = MagicMock()
-        mock_post.return_value = mock_resp
+    @patch("src.utils.image_host.cloudinary.uploader.upload")
+    def test_upload_returns_secure_url(self, mock_upload: MagicMock) -> None:
+        mock_upload.return_value = {
+            "secure_url": "https://res.cloudinary.com/test/image/upload/v1/instagram-autopilot/abc123.png",
+        }
 
-        from src.utils.image_host import upload_to_imgbb
+        from src.utils.image_host import upload_image
 
-        url = upload_to_imgbb(b"\x89PNG\r\n\x1a\n" + b"\x00" * 100, api_key="test-key")
-        assert url == "https://i.ibb.co/abc123/image.png"
+        url = upload_image(b"\x89PNG\r\n\x1a\n" + b"\x00" * 100)
+        assert url == "https://res.cloudinary.com/test/image/upload/v1/instagram-autopilot/abc123.png"
+        mock_upload.assert_called_once()
 
-    @patch("src.utils.image_host.requests.post")
-    def test_sends_base64_encoded_bytes(self, mock_post: MagicMock) -> None:
-        mock_resp = MagicMock()
-        mock_resp.json.return_value = {"data": {"url": "https://example.com/img.png"}}
-        mock_resp.raise_for_status = MagicMock()
-        mock_post.return_value = mock_resp
+    @patch("src.utils.image_host.cloudinary.uploader.upload")
+    def test_uploads_to_correct_folder(self, mock_upload: MagicMock) -> None:
+        mock_upload.return_value = {"secure_url": "https://res.cloudinary.com/test/img.png"}
 
-        from src.utils.image_host import upload_to_imgbb
+        from src.utils.image_host import upload_image
 
-        raw_bytes = b"fake image data"
-        upload_to_imgbb(raw_bytes, api_key="my-key")
+        upload_image(b"fake image data")
 
-        call_data = mock_post.call_args.kwargs["data"]
-        assert call_data["key"] == "my-key"
-        assert call_data["expiration"] == 86400
-        assert call_data["image"] == base64.b64encode(raw_bytes).decode()
+        call_kwargs = mock_upload.call_args.kwargs
+        assert call_kwargs["folder"] == "instagram-autopilot"
+        assert call_kwargs["resource_type"] == "image"
 
 
 class TestImageGenerator:

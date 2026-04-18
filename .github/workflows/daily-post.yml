@@ -1,9 +1,9 @@
-name: Daily Instagram + X Post
+name: Daily Instagram Post
 
 on:
   schedule:
-    # Mon-Sat 3:30 AM UTC (9:00 AM IST)
-    - cron: "30 3 * * 1-6"
+    # Every day 3:30 AM UTC (9:00 AM IST)
+    - cron: "30 3 * * *"
   workflow_dispatch: # Manual trigger for testing
 
 jobs:
@@ -29,8 +29,11 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           COMPOSIO_API_KEY: ${{ secrets.COMPOSIO_API_KEY }}
           COMPOSIO_CONNECTED_ACCOUNT_ID: ${{ secrets.COMPOSIO_CONNECTED_ACCOUNT_ID }}
+          COMPOSIO_USER_ID: ${{ secrets.COMPOSIO_USER_ID }}
           INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
-          IMGBB_API_KEY: ${{ secrets.IMGBB_API_KEY }}
+          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
           S3_VIDEO_BUCKET: ${{ secrets.S3_VIDEO_BUCKET }}
           NICHE: ${{ vars.NICHE || 'psychology_facts' }}
           CONTENT_TYPES: ${{ vars.CONTENT_TYPES || 'fact,tip' }}

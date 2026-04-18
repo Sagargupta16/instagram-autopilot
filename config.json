@@ -8,9 +8,9 @@
     {
       "id": "cognitive_biases",
       "label": "Cognitive Biases",
-      "days": ["monday", "thursday"],
+      "days": ["monday", "thursday", "sunday"],
       "hashtags": ["#psychology", "#cognitivebias", "#mindset", "#mentalmodels", "#thinkingtraps"],
-      "image_style": "PHOTOREALISM",
+      "image_style": "cinematic photorealism with neon cyberpunk lighting, dark moody atmosphere, ultra-sharp 8K detail",
       "content_format": "image"
     },
     {
@@ -18,7 +18,7 @@
       "label": "Relationship Psychology",
       "days": ["tuesday", "friday"],
       "hashtags": ["#relationships", "#attachmentstyle", "#love", "#dating", "#emotionalintelligence"],
-      "image_style": "3D_ANIMATED_FAMILY_FILM",
+      "image_style": "surreal 3D render with neon accents, ethereal glow, holographic elements, futuristic editorial aesthetic",
       "content_format": "image"
     },
     {
@@ -26,13 +26,13 @@
       "label": "Habits & Behavior Change",
       "days": ["wednesday", "saturday"],
       "hashtags": ["#habits", "#behavior", "#selfimprovement", "#productivity", "#discipline"],
-      "image_style": "PHOTOREALISM",
+      "image_style": "hyper-realistic futuristic photography, neon rim lighting, chrome surfaces, dramatic volumetric fog",
       "content_format": "image"
     }
   ],
   "posting": {
     "time_utc": "03:30",
-    "days": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
+    "days": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
   },
   "models": {
     "text": "us.anthropic.claude-sonnet-4-20250514-v1:0",

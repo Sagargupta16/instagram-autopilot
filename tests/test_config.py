@@ -49,15 +49,16 @@ class TestGetTodaysPillar:
             assert pillar is not None
             assert "monday" in pillar["days"]
 
-    def test_returns_none_on_sunday(self, sample_config: dict[str, Any]) -> None:
+    def test_returns_none_when_no_pillar_scheduled(self) -> None:
+        config = {"pillars": [{"id": "test", "days": ["monday"]}]}
         with patch("src.config.datetime") as mock_dt:
-            mock_dt.now.return_value.strftime.return_value = "Sunday"
+            mock_dt.now.return_value.strftime.return_value = "Tuesday"
             mock_dt.UTC = __import__("datetime").UTC
-            pillar = get_todays_pillar(sample_config)
+            pillar = get_todays_pillar(config)
             assert pillar is None
 
-    def test_all_weekdays_have_pillars(self, sample_config: dict[str, Any]) -> None:
-        weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+    def test_all_days_have_pillars(self, sample_config: dict[str, Any]) -> None:
+        weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
         for day in weekdays:
             with patch("src.config.datetime") as mock_dt:
                 mock_dt.now.return_value.strftime.return_value = day

@@ -14,13 +14,23 @@ log = logging.getLogger(__name__)
 BEDROCK_INVOKE_URL = "https://bedrock-runtime.{region}.amazonaws.com/model/{model}/invoke"
 
 
+DEFAULT_NEGATIVE_PROMPT = (
+    "text, watermark, logo, words, letters, numbers, signature, caption, subtitle, "
+    "blurry, out of focus, low resolution, pixelated, grainy, noisy, jpeg artifacts, "
+    "compression artifacts, low quality, amateur, poorly lit, flat lighting, "
+    "oversaturated, washed out, distorted, deformed, ugly, disfigured, "
+    "stock photo, generic, clipart, cartoon unless requested, boring composition"
+)
+
+
 def generate_image(
     prompt: str,
     model_id: str,
     *,
     width: int = 1024,
     height: int = 1024,
-    negative_prompt: str = "text, watermark, logo, words, letters, blurry, low quality, distorted",
+    cfg_scale: float = 9.0,
+    negative_prompt: str = DEFAULT_NEGATIVE_PROMPT,
 ) -> bytes:
     """Generate an image from a text prompt via Bedrock Nova Canvas.
 
@@ -42,6 +52,7 @@ def generate_image(
             "width": width,
             "height": height,
             "quality": "premium",
+            "cfgScale": cfg_scale,
         },
     }
 

@@ -1,17 +1,17 @@
 # Instagram Autopilot
 
-Fully automated Instagram + X/Twitter content creation and posting powered by AWS Bedrock AI + Composio SDK.
+Fully automated Instagram content creation and posting powered by AWS Bedrock AI + Composio v3 API.
 
-Generates topics, captions, AI images (Nova Canvas), and optional Reels (Nova Reel) daily -- then publishes them automatically. Set it up once, everything runs on GitHub Actions for free.
+Generates topics, captions, premium AI images (neon/cinematic style via Nova Canvas), and optional Reels (Nova Reel) daily -- then publishes them automatically via GitHub Actions. Set it up once, it runs every day.
 
 ## How It Works
 
-1. **GitHub Actions** triggers on a cron schedule (Mon-Sat, 9 AM IST)
+1. **GitHub Actions** triggers daily on a cron schedule (9 AM IST)
 2. **Config** determines today's content pillar and format (image or reel)
-3. **AWS Bedrock Claude** generates topic, caption, X post, image prompt, and video prompt
-4. **AWS Bedrock Nova Canvas** generates a 1024x1024 AI image from the prompt
-5. **imgbb** hosts the image at a public URL (24h auto-expiry)
-6. **Composio SDK** publishes to Instagram (image post or Reel) and X/Twitter
+3. **AWS Bedrock Claude** generates topic, caption, and a detailed image prompt (neon, cinematic, futuristic styling)
+4. **AWS Bedrock Nova Canvas** generates a premium 1024x1024 AI image (cfgScale 9.0, aggressive negative prompts)
+5. **Cloudinary** hosts the image at a public URL (trusted by Instagram's CDN)
+6. **Composio v3 API** publishes to Instagram via two-step container flow
 
 For reel-format pillars, **Bedrock Nova Reel** generates a 6-second video via async S3 output, then publishes as an Instagram Reel.
 
@@ -19,9 +19,9 @@ For reel-format pillars, **Bedrock Nova Reel** generates a 6-second video via as
 
 | Day | Pillar | Image Style | Format |
 |-----|--------|-------------|--------|
-| Monday, Thursday | Cognitive Biases | Photorealism | Image |
-| Tuesday, Friday | Relationship Psychology | 3D Animated | Image |
-| Wednesday, Saturday | Habits & Behavior Change | Photorealism | Image |
+| Monday, Thursday | Cognitive Biases | Cinematic photorealism, neon cyberpunk lighting | Image |
+| Tuesday, Friday | Relationship Psychology | Surreal 3D render, holographic, futuristic editorial | Image |
+| Wednesday, Saturday | Habits & Behavior Change | Hyper-realistic futuristic, neon rim lighting, chrome | Image |
 | Sunday | Rest | -- | No post |
 
 Pillars, persona, tone, image styles, content format, and hashtags are all configurable in `config.json`.
@@ -47,9 +47,9 @@ python -m src.main --dry-run # Generate without publishing
 | Service | Purpose | Cost |
 |---------|---------|------|
 | [AWS Bedrock](https://aws.amazon.com/bedrock/) | AI text (Claude), images (Nova Canvas), video (Nova Reel) | ~$3-10/mo |
-| [Composio](https://composio.dev/) | Instagram + X publishing (handles auth/tokens) | Free tier |
-| [imgbb](https://imgbb.com/) | Image hosting (Instagram requires public URLs) | Free tier |
-| [GitHub Actions](https://github.com/features/actions) | Cron automation | Free tier |
+| [Composio](https://composio.dev/) | Instagram publishing via v3 REST API | Free tier |
+| [Cloudinary](https://cloudinary.com/) | Image hosting (Instagram needs URLs from trusted CDNs) | Free tier |
+| [GitHub Actions](https://github.com/features/actions) | Daily cron automation | Free tier |
 
 ### GitHub Secrets
 
@@ -59,15 +59,21 @@ Add these in your repo Settings > Secrets and variables > Actions:
 |--------|---------|
 | `AWS_BEARER_TOKEN_BEDROCK` | Bedrock API auth (ABSK token) |
 | `AWS_REGION` | AWS region (e.g., `us-east-1`) |
-| `COMPOSIO_API_KEY` | Composio SDK auth |
-| `IMGBB_API_KEY` | imgbb image upload |
-| `S3_VIDEO_BUCKET` | S3 bucket for Nova Reel output (optional -- omit to skip reels) |
+| `COMPOSIO_API_KEY` | Composio v3 API key (`ak_` prefix) |
+| `COMPOSIO_CONNECTED_ACCOUNT_ID` | Composio connected account (`ca_` prefix) |
+| `COMPOSIO_USER_ID` | Composio user ID (from connected account) |
+| `INSTAGRAM_USER_ID` | Instagram Business/Creator account user ID |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name |
+| `CLOUDINARY_API_KEY` | Cloudinary API key |
+| `CLOUDINARY_API_SECRET` | Cloudinary API secret |
+| `S3_VIDEO_BUCKET` | S3 bucket for Nova Reel output (optional) |
 
 ### One-Time Composio Setup
 
 1. Create account at [composio.dev](https://composio.dev/)
-2. Connect Instagram (Business/Creator account required)
-3. Optionally connect X/Twitter (the bot gracefully skips if not connected)
+2. Generate a v3 API key (starts with `ak_`)
+3. Connect Instagram (Business/Creator account required)
+4. Note the connected account ID (`ca_` prefix) and user ID from the dashboard
 
 ## Project Structure
 
@@ -81,15 +87,14 @@ src/
     image.py                 # Bedrock Nova Canvas: AI image generation (in-memory)
     reel.py                  # Bedrock Nova Reel: async video generation (S3 output)
   publisher/
-    instagram.py             # Composio SDK: image posts + Reels
-    twitter.py               # Composio SDK: X text posts (graceful skip)
+    instagram.py             # Composio v3 REST API: image posts + Reels
   utils/
-    image_host.py            # imgbb: bytes -> public URL (24h auto-expiry)
+    image_host.py            # Cloudinary: bytes -> public URL
 
 prompts/                     # AI prompt templates with {variable} placeholders
 data/                        # Runtime state (posted_topics.json for dedup)
 .github/workflows/
-  daily-post.yml             # Cron: Mon-Sat 3:30 AM UTC (9 AM IST)
+  daily-post.yml             # Cron: daily 3:30 AM UTC (9 AM IST)
   ci.yml                     # Ruff lint + pytest on push/PR
 ```
 
@@ -101,6 +106,7 @@ data/                        # Runtime state (posted_topics.json for dedup)
 - **Niche**: Change `NICHE` in `.env` (default: `psychology_facts`)
 - **Content types**: Change `CONTENT_TYPES` in `.env` (default: `fact,tip`)
 - **AI models**: Change `models` in `config.json` (text, image, video)
+- **Image quality**: Tune `cfgScale` in `image.py` and negative prompts for different aesthetics
 
 ## Cost Breakdown (Monthly)
 
@@ -110,8 +116,8 @@ data/                        # Runtime state (posted_topics.json for dedup)
 | AWS Bedrock (Nova Canvas) | Pay per use | ~$1-3/mo |
 | AWS Bedrock (Nova Reel) | Pay per use | ~$1-5/mo (optional) |
 | Composio | Free tier | $0 |
+| Cloudinary | 25 credits/mo | $0 |
 | GitHub Actions | 2000 min/mo | $0 |
-| imgbb | Free tier | $0 |
 | **Total** | | **~$3-10/mo** |
 
 ## License

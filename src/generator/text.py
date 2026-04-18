@@ -34,7 +34,7 @@ def _invoke_bedrock(prompt: str) -> str:
     }
     body = {
         "anthropic_version": "bedrock-2023-05-31",
-        "max_tokens": 1024,
+        "max_tokens": 2048,
         "messages": [{"role": "user", "content": prompt}],
     }
 

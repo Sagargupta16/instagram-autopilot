@@ -1,4 +1,4 @@
-"""Publish content to Instagram via Composio REST API."""
+"""Publish content to Instagram via Composio v3 REST API."""
 
 from __future__ import annotations
 
@@ -7,11 +7,13 @@ import time
 
 import requests
 
-from src.publisher.composio_auth import resolve_connected_account_id
-
 log = logging.getLogger(__name__)
 
-COMPOSIO_API_URL = "https://backend.composio.dev/api/v2/actions"
+COMPOSIO_API_URL = "https://backend.composio.dev/api/v3/tools/execute"
+
+
+class ComposioActionError(Exception):
+    """Raised when a Composio v3 action returns successful=false."""
 
 
 def _execute_action(
@@ -19,19 +21,16 @@ def _execute_action(
     params: dict,
     api_key: str,
     connected_account_id: str,
+    user_id: str = "default",
 ) -> dict:
-    """Execute a Composio action via REST API."""
-    resolved_id = resolve_connected_account_id(api_key, "instagram", connected_account_id)
+    """Execute a Composio action via v3 REST API."""
     body: dict = {
-        "entityId": "default",
-        "appName": "instagram",
-        "input": params,
+        "arguments": params,
+        "connected_account_id": connected_account_id,
+        "user_id": user_id,
     }
-    if resolved_id:
-        body["connectedAccountId"] = resolved_id
-
     resp = requests.post(
-        f"{COMPOSIO_API_URL}/{action_slug}/execute",
+        f"{COMPOSIO_API_URL}/{action_slug}",
         json=body,
         headers={"x-api-key": api_key},
         timeout=120,
@@ -39,7 +38,13 @@ def _execute_action(
     if not resp.ok:
         log.error("Composio %s returned %s: %s", action_slug, resp.status_code, resp.text)
         resp.raise_for_status()
-    return resp.json()
+
+    result = resp.json()
+    if not result.get("successful", True):
+        error_msg = result.get("error") or result.get("data", {}).get("message", "Unknown error")
+        log.error("Composio %s failed: %s", action_slug, error_msg)
+        raise ComposioActionError(f"{action_slug}: {error_msg}")
+    return result
 
 
 def publish_image_post(
@@ -47,12 +52,13 @@ def publish_image_post(
     caption: str,
     api_key: str,
     ig_user_id: str,
-    connected_account_id: str = "",
+    connected_account_id: str,
+    user_id: str = "default",
 ) -> str:
     """Publish a single image post to Instagram (two-step container flow)."""
     log.info("Creating Instagram media container...")
     container_result = _execute_action(
-        action_slug="INSTAGRAM_POST_IG_USER_MEDIA",
+        action_slug="INSTAGRAM_CREATE_MEDIA_CONTAINER",
         params={
             "ig_user_id": ig_user_id,
             "image_url": image_url,
@@ -60,6 +66,7 @@ def publish_image_post(
         },
         api_key=api_key,
         connected_account_id=connected_account_id,
+        user_id=user_id,
     )
 
     creation_id = container_result["data"]["id"]
@@ -69,7 +76,7 @@ def publish_image_post(
 
     log.info("Publishing to Instagram...")
     publish_result = _execute_action(
-        action_slug="INSTAGRAM_POST_IG_USER_MEDIA_PUBLISH",
+        action_slug="INSTAGRAM_CREATE_POST",
         params={
             "ig_user_id": ig_user_id,
             "creation_id": creation_id,
@@ -77,6 +84,7 @@ def publish_image_post(
         },
         api_key=api_key,
         connected_account_id=connected_account_id,
+        user_id=user_id,
     )
 
     media_id = publish_result["data"]["id"]
@@ -89,12 +97,13 @@ def publish_reel(
     caption: str,
     api_key: str,
     ig_user_id: str,
-    connected_account_id: str = "",
+    connected_account_id: str,
+    user_id: str = "default",
 ) -> str:
     """Publish a Reel to Instagram (two-step container flow with video)."""
     log.info("Creating Instagram Reel container...")
     container_result = _execute_action(
-        action_slug="INSTAGRAM_POST_IG_USER_MEDIA",
+        action_slug="INSTAGRAM_CREATE_MEDIA_CONTAINER",
         params={
             "ig_user_id": ig_user_id,
             "video_url": video_url,
@@ -104,6 +113,7 @@ def publish_reel(
         },
         api_key=api_key,
         connected_account_id=connected_account_id,
+        user_id=user_id,
     )
 
     creation_id = container_result["data"]["id"]
@@ -111,7 +121,7 @@ def publish_reel(
 
     log.info("Waiting for Reel to process...")
     publish_result = _execute_action(
-        action_slug="INSTAGRAM_POST_IG_USER_MEDIA_PUBLISH",
+        action_slug="INSTAGRAM_CREATE_POST",
         params={
             "ig_user_id": ig_user_id,
             "creation_id": creation_id,
@@ -120,6 +130,7 @@ def publish_reel(
         },
         api_key=api_key,
         connected_account_id=connected_account_id,
+        user_id=user_id,
     )
 
     media_id = publish_result["data"]["id"]

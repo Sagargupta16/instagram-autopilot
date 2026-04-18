@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.4.0] - 2026-04-18
+
+### Changed
+- Migrated from Composio SDK to Composio v3 REST API (`POST /api/v3/tools/execute/{slug}`)
+- Switched image hosting from imgbb to Cloudinary (Instagram blocks imgbb URLs)
+- Upgraded image quality: cfgScale 9.0, 30+ negative prompt terms, 400-512 char detailed prompts
+- Pillar image styles upgraded to neon/cyberpunk/cinematic/futuristic aesthetics
+- Image prompt generation now requires lighting, lens, atmosphere, and composition details
+- Bumped text generation max_tokens from 1024 to 2048 for richer prompts
+- Updated daily workflow schedule and secrets for v3 API + Cloudinary
+- Updated CI workflow to use Cloudinary test env vars
+
+### Added
+- `ComposioActionError` for proper v3 response error handling (`successful: false`)
+- `COMPOSIO_USER_ID` setting (required by v3 API)
+- `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` settings
+- Test for Composio v3 error response handling
+
+### Removed
+- Twitter/X publishing (`src/publisher/twitter.py`)
+- imgbb integration (`IMGBB_API_KEY` setting)
+- Composio auth helper (`src/publisher/composio_auth.py`)
+
 ## [0.3.0] - 2026-04-18
 
 ### Changed
@@ -51,4 +74,3 @@
 ## [0.1.0] - 2026-03-16
 
 - Initial project scaffold with full automation pipeline
-- CLAUDE.md with project context

@@ -43,4 +43,6 @@ jobs:
         env:
           AWS_BEARER_TOKEN_BEDROCK: test-token
           COMPOSIO_API_KEY: test-key
-          IMGBB_API_KEY: test-key
+          CLOUDINARY_CLOUD_NAME: test-cloud
+          CLOUDINARY_API_KEY: test-key
+          CLOUDINARY_API_SECRET: test-secret

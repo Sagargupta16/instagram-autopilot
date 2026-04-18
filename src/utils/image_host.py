@@ -1,38 +1,31 @@
-"""Upload images to imgbb for public URL hosting."""
+"""Upload images to Cloudinary for public URL hosting."""
 
 from __future__ import annotations
 
-import base64
+import io
 import logging
 
-import requests
+import cloudinary
+import cloudinary.uploader
 
 log = logging.getLogger(__name__)
 
-IMGBB_UPLOAD_URL = "https://api.imgbb.com/1/upload"
+
+def configure_cloudinary(cloud_name: str, api_key: str, api_secret: str) -> None:
+    cloudinary.config(cloud_name=cloud_name, api_key=api_key, api_secret=api_secret)
 
 
-def upload_to_imgbb(image_bytes: bytes, api_key: str) -> str:
-    """Upload image bytes to imgbb and return the direct URL.
+def upload_image(image_bytes: bytes) -> str:
+    """Upload image bytes to Cloudinary and return the direct URL.
 
-    Accepts raw image bytes (PNG/JPEG) -- no file I/O needed.
-    Auto-expires after 24 hours (Instagram fetches during container
-    creation, then hosts its own copy).
+    Accepts raw image bytes (PNG/JPEG). Cloudinary URLs are trusted by
+    Instagram's Graph API (unlike imgbb which Meta blocks).
     """
-    image_data = base64.b64encode(image_bytes).decode()
-
-    resp = requests.post(
-        IMGBB_UPLOAD_URL,
-        data={
-            "key": api_key,
-            "image": image_data,
-            "expiration": 86400,
-        },
-        timeout=30,
+    result = cloudinary.uploader.upload(
+        io.BytesIO(image_bytes),
+        folder="instagram-autopilot",
+        resource_type="image",
     )
-    resp.raise_for_status()
-
-    result = resp.json()
-    url = result["data"]["url"]
-    log.info("Image uploaded to imgbb: %s", url)
+    url: str = result["secure_url"]
+    log.info("Image uploaded to Cloudinary: %s", url)
     return url

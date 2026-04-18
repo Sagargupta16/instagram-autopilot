@@ -17,13 +17,16 @@ class Settings(BaseSettings):
     aws_bearer_token_bedrock: str
     aws_region: str = "us-east-1"
 
-    # Composio SDK (handles Instagram + X/Twitter)
+    # Composio (Instagram publishing via REST API)
     composio_api_key: str
     composio_connected_account_id: str = ""
+    composio_user_id: str = "default"
     instagram_user_id: str = ""
 
-    # imgbb (free image hosting -- Instagram needs public URLs)
-    imgbb_api_key: str
+    # Cloudinary (image hosting -- Instagram needs public URLs from trusted CDNs)
+    cloudinary_cloud_name: str
+    cloudinary_api_key: str
+    cloudinary_api_secret: str
 
     # S3 bucket for Nova Reel video output
     s3_video_bucket: str = ""
