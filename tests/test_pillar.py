@@ -1,11 +1,11 @@
-"""Tests for config loading and pillar scheduling."""
+"""Tests for pillar config loading and today's-pillar routing."""
 
 from __future__ import annotations
 
 from typing import Any
 from unittest.mock import patch
 
-from src.config import get_todays_pillar, load_config
+from src.pillar import get_todays_pillar, load_config
 
 
 class TestLoadConfig:
@@ -42,7 +42,7 @@ class TestLoadConfig:
 
 class TestGetTodaysPillar:
     def test_returns_pillar_on_scheduled_day(self, sample_config: dict[str, Any]) -> None:
-        with patch("src.config.datetime") as mock_dt:
+        with patch("src.pillar.datetime") as mock_dt:
             mock_dt.now.return_value.strftime.return_value = "Monday"
             mock_dt.UTC = __import__("datetime").UTC
             pillar = get_todays_pillar(sample_config)
@@ -51,16 +51,15 @@ class TestGetTodaysPillar:
 
     def test_returns_none_when_no_pillar_scheduled(self) -> None:
         config = {"pillars": [{"id": "test", "days": ["monday"]}]}
-        with patch("src.config.datetime") as mock_dt:
+        with patch("src.pillar.datetime") as mock_dt:
             mock_dt.now.return_value.strftime.return_value = "Tuesday"
             mock_dt.UTC = __import__("datetime").UTC
             pillar = get_todays_pillar(config)
             assert pillar is None
 
     def test_all_days_have_pillars(self, sample_config: dict[str, Any]) -> None:
-        weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-        for day in weekdays:
-            with patch("src.config.datetime") as mock_dt:
+        for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]:
+            with patch("src.pillar.datetime") as mock_dt:
                 mock_dt.now.return_value.strftime.return_value = day
                 mock_dt.UTC = __import__("datetime").UTC
                 pillar = get_todays_pillar(sample_config)

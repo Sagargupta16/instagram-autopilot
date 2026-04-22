@@ -1,13 +1,11 @@
+"""Pydantic settings loaded from .env.
+
+Instantiated at import time -- missing required env vars raise at startup.
+"""
+
 from __future__ import annotations
 
-import json
-from datetime import UTC, datetime
-from pathlib import Path
-from typing import Any
-
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
-CONFIG_PATH = Path(__file__).resolve().parent.parent / "config.json"
 
 
 class Settings(BaseSettings):
@@ -23,33 +21,21 @@ class Settings(BaseSettings):
     composio_user_id: str = "default"
     instagram_user_id: str = ""
 
-    # Cloudinary (image hosting -- Instagram needs public URLs from trusted CDNs)
+    # Cloudinary (image hosting -- Meta trusts res.cloudinary.com, blocks imgbb)
     cloudinary_cloud_name: str
     cloudinary_api_key: str
     cloudinary_api_secret: str
 
-    # S3 bucket for Nova Reel video output
+    # S3 bucket for Nova Reel video output (optional -- reels skip if empty)
     s3_video_bucket: str = ""
 
-    # Content
+    # Content strategy
     niche: str = "ai_creativity_and_prompts"
     content_types: str = "tip,trick,showcase,tutorial,insight"
 
     @property
     def content_type_list(self) -> list[str]:
         return [t.strip() for t in self.content_types.split(",")]
-
-
-def load_config() -> dict[str, Any]:
-    return json.loads(CONFIG_PATH.read_text())
-
-
-def get_todays_pillar(config: dict[str, Any]) -> dict[str, Any] | None:
-    today = datetime.now(UTC).strftime("%A").lower()
-    for pillar in config["pillars"]:
-        if today in pillar["days"]:
-            return pillar
-    return None
 
 
 settings = Settings()  # type: ignore[call-arg]

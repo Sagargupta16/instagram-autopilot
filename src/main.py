@@ -1,4 +1,4 @@
-"""Main entry point: generate content and publish to Instagram."""
+"""Entry point: route today's pillar to the appropriate publishing flow."""
 
 from __future__ import annotations
 
@@ -7,12 +7,14 @@ import logging
 import random
 import sys
 
-from src.config import get_todays_pillar, load_config, settings
-from src.generator.image import generate_image
-from src.generator.reel import generate_reel
-from src.generator.text import generate_caption, generate_topic
-from src.publisher.instagram import publish_carousel, publish_image_post, publish_reel
-from src.utils.image_host import configure_cloudinary, upload_image
+from src.adapters.cloudinary_host import configure as configure_cloudinary
+from src.content.caption import generate_caption
+from src.content.topic import generate_topic
+from src.flows.carousel_flow import post_carousel
+from src.flows.image_flow import post_image
+from src.flows.reel_flow import post_reel
+from src.pillar import get_todays_pillar, load_config
+from src.settings import settings
 
 logging.basicConfig(
     level=logging.INFO,
@@ -22,168 +24,52 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 
-def _post_carousel(
-    caption_data: dict[str, str],
-    config: dict,
-    instagram_caption: str,
-    *,
-    dry_run: bool,
-) -> None:
-    """Generate multiple AI images and publish as Instagram carousel."""
-    image_prompts: list[str] = caption_data["image_prompts"]
-    model_id = config["models"]["image"]
-
-    image_urls: list[str] = []
-    for i, prompt in enumerate(image_prompts):
-        log.info("Slide %d/%d prompt: %s", i + 1, len(image_prompts), prompt[:120])
-        image_bytes = generate_image(prompt=prompt, model_id=model_id)
-        log.info("Slide %d: %d bytes", i + 1, len(image_bytes))
-
-        if not dry_run:
-            image_urls.append(upload_image(image_bytes))
-
-    if dry_run:
-        log.info("DRY RUN: Generated %d carousel slides", len(image_prompts))
-        return
-
-    publish_carousel(
-        image_urls=image_urls,
-        caption=instagram_caption,
-        api_key=settings.composio_api_key,
-        ig_user_id=settings.instagram_user_id,
-        connected_account_id=settings.composio_connected_account_id,
-        user_id=settings.composio_user_id,
-    )
-
-
-def _post_image(
-    caption_data: dict[str, str],
-    config: dict,
-    instagram_caption: str,
-    *,
-    dry_run: bool,
-) -> None:
-    """Generate an AI image and publish to Instagram."""
-    prompts = caption_data.get("image_prompts", [caption_data.get("image_prompt", "")])
-    image_prompt = prompts[0]
-    log.info("Image prompt: %s", image_prompt)
-
-    image_bytes = generate_image(
-        prompt=image_prompt,
-        model_id=config["models"]["image"],
-    )
-
-    if dry_run:
-        log.info("DRY RUN: Generated %d bytes of image data", len(image_bytes))
-        return
-
-    image_url = upload_image(image_bytes)
-
-    publish_image_post(
-        image_url=image_url,
-        caption=instagram_caption,
-        api_key=settings.composio_api_key,
-        ig_user_id=settings.instagram_user_id,
-        connected_account_id=settings.composio_connected_account_id,
-        user_id=settings.composio_user_id,
-    )
-
-
-def _post_reel(
-    caption_data: dict[str, str],
-    config: dict,
-    instagram_caption: str,
-    *,
-    dry_run: bool,
-) -> None:
-    """Generate an AI video and publish as Instagram Reel."""
-    video_prompt = caption_data["video_prompt"]
-    log.info("Video prompt: %s", video_prompt)
-
-    if not settings.s3_video_bucket:
-        log.warning("S3_VIDEO_BUCKET not set -- falling back to image post")
-        _post_image(caption_data, config, instagram_caption, dry_run=dry_run)
-        return
-
-    video_s3_uri = generate_reel(
-        prompt=video_prompt,
-        model_id=config["models"]["video"],
-        s3_output_uri=settings.s3_video_bucket,
-    )
-
-    if dry_run:
-        log.info("DRY RUN: Video at %s", video_s3_uri)
-        return
-
-    publish_reel(
-        video_url=video_s3_uri,
-        caption=instagram_caption,
-        api_key=settings.composio_api_key,
-        ig_user_id=settings.instagram_user_id,
-        connected_account_id=settings.composio_connected_account_id,
-        user_id=settings.composio_user_id,
-    )
-
-
 def run(*, dry_run: bool = False) -> None:
     """Generate and publish one piece of content to Instagram."""
-    configure_cloudinary(
-        settings.cloudinary_cloud_name,
-        settings.cloudinary_api_key,
-        settings.cloudinary_api_secret,
-    )
+    configure_cloudinary()
     config = load_config()
 
     pillar = get_todays_pillar(config)
     if pillar is None:
-        log.info("No pillar scheduled for today (Sunday). Skipping.")
+        log.info("No pillar scheduled for today. Skipping.")
         return
 
     log.info("Pillar: %s", pillar["label"])
-
     content_type = random.choice(settings.content_type_list)
     log.info("Content type: %s", content_type)
 
-    # 1. Generate topic
     topic = generate_topic(pillar, content_type)
+    caption_data = generate_caption(topic, pillar, config["persona"])
 
-    # 2. Generate caption, prompts for image/video, and X post
-    persona = config["persona"]
-    caption_data = generate_caption(topic, pillar, persona)
-
-    instagram_caption = caption_data["caption"] + "\n\n" + caption_data["hashtags"]
+    caption = caption_data["caption"] + "\n\n" + caption_data["hashtags"]
     log.info("X post: %s", caption_data["x_post"])
 
     if dry_run:
         log.info("=== DRY RUN ===")
         log.info("Topic: %s", topic)
-        log.info("Caption: %s", instagram_caption[:200] + "...")
+        log.info("Caption: %s...", caption[:200])
 
-    # 3. Generate media and publish based on pillar's content format
-    content_format = pillar.get("content_format", "image")
+    image_model = config["models"]["image"]
+    video_model = config["models"]["video"]
+    content_format = pillar.get("content_format", "carousel")
 
     if content_format == "reel":
-        _post_reel(caption_data, config, instagram_caption, dry_run=dry_run)
-    elif content_format == "carousel":
-        _post_carousel(caption_data, config, instagram_caption, dry_run=dry_run)
+        post_reel(caption_data, caption, image_model, video_model, dry_run=dry_run)
+    elif content_format == "image":
+        post_image(caption_data, caption, image_model, dry_run=dry_run)
     else:
-        _post_image(caption_data, config, instagram_caption, dry_run=dry_run)
+        post_carousel(caption_data, caption, image_model, dry_run=dry_run)
 
     log.info("Done!")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Instagram Autopilot")
-    parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Generate content but skip publishing (for testing)",
-    )
+    parser.add_argument("--dry-run", action="store_true", help="Generate but don't publish")
     args = parser.parse_args()
 
     log.info("Starting Instagram Autopilot")
     log.info("Niche: %s | Types: %s", settings.niche, settings.content_type_list)
-
     run(dry_run=args.dry_run)
 
 

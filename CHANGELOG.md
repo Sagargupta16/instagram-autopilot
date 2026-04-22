@@ -1,5 +1,37 @@
 # Changelog
 
+## [0.5.0] - 2026-04-22
+
+### Changed
+- Restructure `src/` into bounded-context layers: `adapters/`, `content/`, `media/`, `publishing/`, `flows/`
+- Each directory now wraps exactly one external service or responsibility
+- Settings renamed from `config.py` to `settings.py`; pillar routing extracted to `pillar.py`
+- Publisher functions no longer take auth parameters -- `adapters/composio.py::execute_action()` reads from settings
+- Tests mirror `src/` layout (`tests/content/`, `tests/adapters/`, etc.)
+- Every file now under 100 lines (hard project rule: 200 soft limit, 300 hard limit)
+- Rename prompts: `topic_prompt.txt` -> `topic.txt`, `caption_prompt.txt` -> `caption.txt`
+- Rewrite CLAUDE.md around cross-file contracts + project rules (file size, one-dep-per-dir)
+
+### Added
+- `src/adapters/bedrock.py`: unified Bedrock HTTP client (invoke, async, status, extract_json)
+- `src/adapters/hackernews.py` + `src/adapters/reddit.py`: split trend sources per service
+- `src/content/trends.py`: parallel trend aggregator
+- Tests for each adapter, content module, publisher, and flow
+
+### Removed
+- `src/generator/`, `src/publisher/`, `src/utils/` (replaced by new layout)
+- Auth parameters from publisher function signatures
+
+## [0.4.1] - 2026-04-22
+
+### Changed
+- Ground daily topics in live HN + Reddit trends (graceful on failure)
+- Caption prompt now mandates 5 VISUALLY DIFFERENT styles from a 12-style palette (not all neon)
+- Align pillars + persona to `creativity.prompt` account (AI art, prompts, creative experiments)
+
+### Added
+- Trend fetcher pulling from 7 parallel sources (HN search + Reddit top)
+
 ## [0.4.0] - 2026-04-18
 
 ### Changed

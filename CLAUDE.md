@@ -4,71 +4,123 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Fully automated Instagram content bot. Daily cron in GitHub Actions generates an AI topic, caption, and 5 neon/cinematic images via AWS Bedrock, then publishes a 5-slide carousel via Composio v3. Reels supported but optional (require S3).
+Fully automated Instagram content bot. A daily cron in GitHub Actions generates an AI topic (grounded in live HN/Reddit trends), writes a caption, generates 5 diverse AI images via AWS Bedrock Nova Canvas, and publishes a 5-slide carousel via the Composio v3 API.
 
 ## Commands
 
 ```bash
 pip install -r requirements.txt
-python -m src.main                              # Full live run (generate + publish)
-python -m src.main --dry-run                    # Generate only, no publish
-python -m pytest                                # Run full test suite
-python -m pytest tests/test_publisher.py        # Single test file
-python -m pytest tests/test_publisher.py::TestInstagramPublisher::test_publish_carousel_multi_step  # Single test
-python -m ruff check .                          # Lint
-python -m ruff format .                         # Auto-format
+python -m src.main                          # Full live run (generate + publish)
+python -m src.main --dry-run                # Generate only, no publish
+python -m pytest                            # Run full test suite
+python -m pytest tests/content/             # Tests for one package
+python -m pytest tests/publishing/test_carousel.py::TestPublishCarousel::test_multi_step_flow  # Single test
+python -m ruff check .                      # Lint
+python -m ruff format .                     # Auto-format
 ```
 
 ## Architecture
 
-The pipeline is a linear flow orchestrated by `src/main.py::run()`. Understanding these non-obvious cross-file contracts is essential:
+The project is organized by **bounded context, one external service per layer**. Each directory under `src/` wraps exactly one concern:
 
-### 1. Pillar routing (config.json -> main.py)
+```
+src/
+├── settings.py        # Pydantic settings loaded from .env
+├── pillar.py          # config.json loader + today's-pillar routing
+├── main.py            # Entry point + run() orchestrator (<70 lines)
+│
+├── adapters/          # Low-level HTTP clients for external services
+│   ├── bedrock.py     # AWS Bedrock (bearer token, no boto3)
+│   ├── composio.py    # Composio v3 REST API + ComposioActionError
+│   ├── cloudinary_host.py  # Cloudinary image upload
+│   ├── hackernews.py  # HN Algolia search
+│   └── reddit.py      # Reddit public JSON
+│
+├── content/           # Text generation (uses adapters/bedrock)
+│   ├── topic.py       # generate_topic() with trend grounding
+│   ├── caption.py     # generate_caption() - 5 diverse image prompts
+│   ├── trends.py      # Parallel HN + Reddit aggregation
+│   └── dedup.py       # posted_topics.json (last 500)
+│
+├── media/             # AI media generation (uses adapters/bedrock)
+│   ├── image.py       # Nova Canvas (cfgScale 9.0, aggressive negative prompt)
+│   └── video.py       # Nova Reel async + poll
+│
+├── publishing/        # Instagram publishing (uses adapters/composio)
+│   ├── image_post.py  # 2-step: container -> publish
+│   ├── carousel.py    # N+2-step: N children -> carousel -> publish
+│   └── reel.py        # 2-step with REELS media_type
+│
+└── flows/             # Orchestration -- no external deps, just composes
+    ├── carousel_flow.py
+    ├── image_flow.py
+    └── reel_flow.py   # Falls back to image_flow if S3 missing
+```
 
-`config.json` has an array of `pillars`, each with `days` (which weekdays it runs), `image_style` (natural-language style directive), and `content_format` (`"carousel"`, `"image"`, or `"reel"`). `get_todays_pillar()` in `src/config.py` matches today's weekday to a pillar. The `content_format` field dispatches to one of `_post_carousel`, `_post_image`, or `_post_reel` in `main.py`. **Default is carousel** (5 slides) — single-image mode still exists but isn't used by any pillar.
+## Non-Obvious Cross-File Contracts
 
-### 2. Bedrock via bearer token (no boto3)
+### Pillar routing
+`config.json` has `pillars[].content_format` which is `"carousel"`, `"image"`, or `"reel"`. `main.py::run()` dispatches to the matching `flows/*_flow.py`. **Default is carousel** — single-image mode is kept but unused by any pillar.
 
-All three Bedrock calls (`generator/text.py`, `generator/image.py`, `generator/reel.py`) use plain `requests.post` with `Authorization: Bearer <AWS_BEARER_TOKEN_BEDROCK>`. **No boto3, no IAM keys.** The ABSK token is a newer Bedrock auth mechanism. If you see boto3 being added, that's wrong — keep the bearer-token pattern.
+### Claude returns `image_prompts` as a LIST of 5
+`prompts/caption.txt` instructs Claude to return `image_prompts: [s1, s2, s3, s4, s5]` (a JSON array, not a string). Each entry uses a DIFFERENT style from a 12-style palette (photoreal, 3D render, vaporwave, editorial, oil painting, anime, macro, retrofuturist, collage, watercolor, cyberpunk, surreal). Don't force neon on everything — the palette is the point.
 
-### 3. Prompt chaining (text.py -> image.py)
+### Trends grounding
+`content/topic.py` calls `fetch_trending_topics()` which parallel-fetches from HN + Reddit. The topic prompt template contains `{trending_topics}` — Claude uses fresh headlines to pick angles. If all trend sources fail, the code silently passes `[]` and Claude generates untethered. Don't add "required" error handling here — graceful degradation is intentional.
 
-`generate_caption()` returns a dict containing `image_prompts` (a **list of 5 strings**, not a single string). The caption template at `prompts/caption_prompt.txt` instructs Claude to produce 5 visually distinct prompts for one topic — different angles/perspectives forming a carousel narrative (hook -> details -> close). Each prompt is 400-512 chars with explicit lighting, lens, and composition directives. `generate_image()` is called once per prompt in a loop in `_post_carousel`.
+### Composio auth comes from settings
+`adapters/composio.py::execute_action(slug, params)` reads `composio_api_key`, `composio_connected_account_id`, `composio_user_id` from `src.settings` directly. Publisher functions pass ONLY the action-specific params. Don't add auth parameters back — that's what the old code did and it's what we just simplified away.
 
-### 4. Composio v3 publishing flows (publisher/instagram.py)
+### Composio v3 wraps Instagram errors in 200 responses
+When Instagram's Graph API rejects something (bad URL, rate limit, etc.), Composio v3 returns HTTP 200 with `{"successful": false, "error": "..."}`. `execute_action()` raises `ComposioActionError`. Don't assume `data.id` exists — callers should let the error propagate.
 
-All Composio calls go through `_execute_action()` which posts to `/api/v3/tools/execute/{slug}` with body `{arguments, connected_account_id, user_id}`. It raises `ComposioActionError` when `successful: false` in the response — **don't assume `data.id` exists without checking**, v3 wraps Instagram API errors in a 200 response.
+### Bedrock uses bearer token, not boto3
+All three Bedrock calls (`adapters/bedrock.py`) use `requests.post` with `Authorization: Bearer <AWS_BEARER_TOKEN_BEDROCK>`. The ABSK token is a newer Bedrock auth mechanism. **If you see boto3 being added, that's wrong.**
 
-- `publish_image_post` — 2 calls: `INSTAGRAM_CREATE_MEDIA_CONTAINER` -> `INSTAGRAM_CREATE_POST`
-- `publish_carousel` — **N+2 calls**: N child containers (each with `is_carousel_item: true`, no caption) -> `INSTAGRAM_CREATE_CAROUSEL_CONTAINER` (caption goes here) -> `INSTAGRAM_CREATE_POST`
-- `publish_reel` — 2 calls: media container with `media_type: "REELS"` -> publish (longer `max_wait_seconds` because Instagram transcodes video)
+### Cloudinary is required (not imgbb)
+Instagram's Graph API fetches images server-side from the URL we provide. **Meta blocks `i.ibb.co`** with error 9004. `res.cloudinary.com` is trusted. If you swap hosts, verify Meta can fetch the URL *before* rewriting anything — the fail mode is silent until publish time. Don't add retry/fallback logic; fix the host.
 
-### 5. Image hosting: Cloudinary is required (not imgbb)
+### Settings load at import time
+`src/settings.py` instantiates `Settings()` at module level. Missing env vars raise ValidationError before any code runs. `tests/conftest.py` uses `os.environ.setdefault()` at the top — before any `from src.*` import — so test collection works.
 
-Instagram's Graph API fetches images server-side from the URL you provide. **Meta blocks `i.ibb.co` URLs** with error 9004 "The media could not be fetched from this URI". Cloudinary's `res.cloudinary.com` domain is trusted. If you ever switch providers, verify Meta can fetch the URL *before* rewriting anything — the fail mode is silent until publish time. Don't add retry/fallback logic; fix the host.
+## Project Rules
 
-### 6. Settings (src/config.py)
+### File size
+- **Soft limit 200 lines, hard limit 300.**
+- If a file hits 200 lines, plan a split before adding more code. Most files here are 30-80 lines by design.
 
-`Settings()` is instantiated at module-import time. Missing env vars raise pydantic ValidationError before any code runs. Tests use `os.environ.setdefault()` at the top of `tests/conftest.py` (before any `from src.*` import). Required env vars: `AWS_BEARER_TOKEN_BEDROCK`, `COMPOSIO_API_KEY` (must be `ak_` prefix), `COMPOSIO_CONNECTED_ACCOUNT_ID` (must be `ca_` prefix), `COMPOSIO_USER_ID`, `INSTAGRAM_USER_ID`, `CLOUDINARY_*` (3 vars). Optional: `S3_VIDEO_BUCKET` (only for Reels).
+### One external service per directory
+- `adapters/` = one file per external service, does nothing but HTTP.
+- `content/`, `media/`, `publishing/` = each wraps one external service via its adapter.
+- `flows/` = zero external deps, just composes other layers.
+- Don't cross the streams (e.g., publisher modules don't call image hosts directly — that's what `flows/` is for).
 
-### 7. Topic dedup
+### Function length
+- Target <40 lines per function. If it needs scrolling, split it.
 
-`data/posted_topics.json` (gitignored) stores the last 500 topics. The prompt template sends the most recent 50 to Claude so it avoids repeats. If you're debugging and see "topic too similar to recent", check/clear this file.
+### Tests mirror `src/`
+- `src/content/topic.py` → `tests/content/test_topic.py`.
+- Top-level tests (`tests/test_pillar.py`) only for top-level modules (`src/pillar.py`).
+
+### No abbreviations in module names
+- `cloudinary_host.py` not `cld.py`, `carousel.py` not `car.py`.
+
+### No comments that narrate obvious code
+- Only write a comment when the WHY is non-obvious (hidden constraint, subtle invariant, known landmine). Don't explain WHAT the code does.
 
 ## Important Constraints
 
 - Instagram API: 25 publishes per 24 hours
 - Nova Canvas dimensions must be divisible by 16 (repo uses 1024x1024)
-- Nova Reel requires an S3 bucket — no workaround, it's async output only
+- Nova Reel requires an S3 bucket — no workaround, async output only
 - Composio v3 rejects `ck_` prefix keys (legacy v1/v2) — must be `ak_`
-- Cloudinary free tier: 25 credits/month (~30+ daily posts worth)
-- Image prompts must avoid text/words/letters — Nova Canvas tends to generate gibberish text otherwise (see aggressive negative_prompt in `generator/image.py`)
+- Cloudinary free tier: 25 credits/month (~30+ daily posts)
+- Image prompts must avoid text/words/letters — Nova Canvas hallucinates gibberish text otherwise (see aggressive `DEFAULT_NEGATIVE_PROMPT` in `src/media/image.py`)
 
 ## Coding Conventions
 
 - Type hints on all functions, `from __future__ import annotations` at file top
 - f-strings, `pathlib` over `os.path`
-- Pydantic for settings; plain dicts for config.json (no schema class)
+- Pydantic for settings; plain dicts for `config.json` (no schema class)
 - Conventional commits: `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:`
 - No `Co-Authored-By` trailers
-- Use `replace_all=False` edits — don't batch changes unrelated to the current task

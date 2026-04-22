@@ -1,18 +1,13 @@
-"""Generate images using AWS Bedrock Nova Canvas."""
+"""Generate images via Bedrock Nova Canvas."""
 
 from __future__ import annotations
 
 import base64
 import logging
 
-import requests
-
-from src.config import settings
+from src.adapters.bedrock import invoke_model
 
 log = logging.getLogger(__name__)
-
-BEDROCK_INVOKE_URL = "https://bedrock-runtime.{region}.amazonaws.com/model/{model}/invoke"
-
 
 DEFAULT_NEGATIVE_PROMPT = (
     "text, watermark, logo, words, letters, numbers, signature, caption, subtitle, "
@@ -32,21 +27,10 @@ def generate_image(
     cfg_scale: float = 9.0,
     negative_prompt: str = DEFAULT_NEGATIVE_PROMPT,
 ) -> bytes:
-    """Generate an image from a text prompt via Bedrock Nova Canvas.
-
-    Returns raw PNG bytes (no file saved to disk).
-    """
-    url = BEDROCK_INVOKE_URL.format(
-        region=settings.aws_region,
-        model=model_id,
-    )
-
+    """Generate an image from a text prompt. Returns raw PNG bytes."""
     body = {
         "taskType": "TEXT_IMAGE",
-        "textToImageParams": {
-            "text": prompt,
-            "negativeText": negative_prompt,
-        },
+        "textToImageParams": {"text": prompt, "negativeText": negative_prompt},
         "imageGenerationConfig": {
             "numberOfImages": 1,
             "width": width,
@@ -55,24 +39,7 @@ def generate_image(
             "cfgScale": cfg_scale,
         },
     }
-
-    resp = requests.post(
-        url,
-        json=body,
-        headers={
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "Authorization": f"Bearer {settings.aws_bearer_token_bedrock}",
-        },
-        timeout=120,
-    )
-    if not resp.ok:
-        log.error("Bedrock %s returned %s: %s", resp.status_code, resp.reason, resp.text)
-        resp.raise_for_status()
-
-    result = resp.json()
-    image_b64 = result["images"][0]
-    image_bytes = base64.b64decode(image_b64)
-
+    result = invoke_model(model_id, body)
+    image_bytes = base64.b64decode(result["images"][0])
     log.info("Generated image (%d bytes) via %s", len(image_bytes), model_id)
     return image_bytes
