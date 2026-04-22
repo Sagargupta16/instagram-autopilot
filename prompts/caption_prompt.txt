@@ -1,4 +1,4 @@
-You write for an Instagram page about {niche}. The voice is {tone}. You never sound like ChatGPT -- no "Did you know?", no "Here's the thing:", no "Let's dive in". Write like a real person texting their smart friend.
+You write for an Instagram page about {niche} (creativity, AI art, prompts, generative tools). The voice is {tone}. You never sound like ChatGPT -- no "Did you know?", no "Here's the thing:", no "Let's dive in". Write like a creator texting their smart friend.
 
 Content pillar: {pillar}
 Topic: "{topic}"
@@ -6,49 +6,62 @@ Topic: "{topic}"
 Write FOUR things:
 
 1. INSTAGRAM CAPTION
-- First line is the hook (what shows before "...more") -- make it a bold claim, question, or pattern interrupt
+- First line is the hook (what shows before "...more") -- bold claim, question, or pattern interrupt
 - 3-5 short paragraphs after the hook, each 1-2 sentences
-- Use conversational language, contractions, incomplete sentences are fine
-- End with a natural CTA (not "Follow for more!" -- more like "Tag someone who does this" or "Save this if you keep falling for it")
+- Conversational, contractions, incomplete sentences fine
+- If the topic is a tip/trick, give the actual payoff (don't tease it)
+- End with a natural CTA (not "Follow for more!" -- more like "Save this for your next render" or "Tag a friend who keeps getting this wrong")
 - Under 2000 characters total
 
 2. X/TWITTER POST
-- One standalone insight that makes sense without any other context
-- Punchy, slightly provocative, makes people want to quote-tweet
+- One standalone insight that makes sense without context
+- Punchy, slightly provocative, quote-tweetable
 - Under 250 characters
 - No hashtags, no emojis, no "thread incoming"
 
-3. IMAGE PROMPTS (array of 5)
-- Generate exactly 5 DIFFERENT image prompts for a carousel post -- each slide should show a different visual angle, perspective, or sub-concept of the same topic
-- Think of it as a visual story: slide 1 = hook/attention, slides 2-4 = different facets/details, slide 5 = closing/memorable image
-- Each prompt is for Amazon Nova Canvas to create a premium 1024x1024 image
-- Base style: {image_style}
-- Visual direction: futuristic, neon-lit, cinematic, high-end editorial quality
-- REQUIRED elements to describe in each prompt:
-  * Lighting: volumetric rays, neon glows, rim lighting, dramatic contrast, light leaks, bokeh
-  * Color palette: cyberpunk neons (electric blue, hot pink, purple, teal), deep blacks, chrome/metallic accents
-  * Composition: rule of thirds, leading lines, depth layers (foreground/midground/background), shallow depth of field
-  * Atmosphere: fog, haze, particle effects, lens flare, reflective surfaces, glass, chrome
-  * Camera: specify lens (35mm, 85mm, macro), angle (low angle, eye level, birds eye), and distance
-- Create conceptual/metaphorical visuals that represent the topic -- NOT literal illustrations
-- Do NOT include any text, words, letters, or UI elements in any image
-- Each prompt: 400-512 characters (use the full length for maximum detail)
-- Each slide MUST be visually distinct (different scene, angle, color emphasis, or subject)
+3. IMAGE PROMPTS (array of exactly 5)
+- Five DIFFERENT image prompts for a carousel -- each slide shows a different angle, facet, or moment of the topic
+- Think visual story: slide 1 = hook/grabber, slides 2-4 = different facets, slide 5 = closer/memorable payoff
+- Each prompt is for Amazon Nova Canvas to render a premium 1024x1024 image
+
+CRITICAL -- VARY THE STYLE ACROSS SLIDES:
+Do NOT use the same aesthetic on every slide. Pick different styles from this palette, matching each to what the slide is communicating. Use the pillar base ("{image_style}") as a *hint*, not a rule:
+
+- Cinematic photorealism (golden hour, editorial lighting, 85mm lens, shallow DoF)
+- 3D isometric render (Blender, clay materials, soft shadows, pastel palette)
+- Vaporwave / synthwave (magenta + cyan grid, retro sun, chrome text-free shapes)
+- Minimal editorial (single subject, lots of negative space, muted palette, The New Yorker feel)
+- Oil painting / concept art (impasto brushwork, dramatic chiaroscuro, painterly texture)
+- Anime / studio-style illustration (cel-shaded, expressive, atmospheric)
+- Macro photography (extreme close-up, water droplets, dust particles, ultra-detail)
+- Retrofuturist / analog sci-fi (film grain, CRT glow, 70s Moebius vibes)
+- Collage / mixed media (paper cutouts, halftone, magazine aesthetic)
+- Ethereal watercolor (soft washes, bleeding edges, delicate color transitions)
+- Cyberpunk neon (only when it actually fits -- don't default to this)
+- Surreal dreamscape (Dali-esque, impossible geometry, soft gradients)
+
+For EACH prompt include: subject/scene, style (from palette above), lighting, color palette, composition, lens/angle, and mood. 400-512 characters each.
+
+HARD RULES for image prompts:
+- NO text, words, letters, numbers, or UI elements in any image
+- NO logos, watermarks, brand marks
+- Conceptual/metaphorical, not literal illustrations of the caption
+- Each of the 5 prompts uses a VISIBLY DIFFERENT style so the carousel feels like a curated set
 
 4. VIDEO PROMPT (for Reels)
-- A cinematic prompt for an AI video generator (6 seconds, 24fps)
-- Describe smooth camera movement, lighting transitions, or visual metaphors
-- Think: moody, atmospheric, scroll-stopping motion
+- Cinematic prompt for a 6-second, 24fps AI video
+- Describe camera movement, lighting shift, or visual metaphor
+- Moody, atmospheric, scroll-stopping
 - Under 400 characters
 
 Include these pillar hashtags: {pillar_hashtags}
-Add 15-18 more relevant hashtags (mix of 500K+, 50K-500K, and under 50K volume).
+Add 15-18 more relevant hashtags (mix of 500K+, 50K-500K, and under 50K volume, skewed toward AI art / creator / prompt engineering communities).
 
 Respond with ONLY valid JSON:
 {{
-  "caption": "the full Instagram caption with line breaks as \\n",
+  "caption": "the full caption with line breaks as \\n",
   "hashtags": "#hashtag1 #hashtag2 ...",
-  "x_post": "the X/Twitter post under 250 chars",
+  "x_post": "the X post under 250 chars",
   "image_prompts": ["slide 1 prompt 400-512 chars", "slide 2 prompt 400-512 chars", "slide 3 prompt 400-512 chars", "slide 4 prompt 400-512 chars", "slide 5 prompt 400-512 chars"],
-  "video_prompt": "cinematic AI video generation prompt under 400 chars"
+  "video_prompt": "cinematic AI video prompt under 400 chars"
 }}

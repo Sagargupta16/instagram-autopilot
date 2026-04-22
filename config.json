@@ -1,32 +1,40 @@
 {
   "persona": {
-    "name": "Psychology Insider",
-    "tone": "conversational, authoritative but approachable, like a smart friend sharing insights",
-    "cta_styles": ["save this for later", "share with someone who needs this", "follow for more", "comment your thoughts"]
+    "name": "Creativity Prompt",
+    "tone": "curious, playful, lightly nerdy -- like a designer friend showing you their latest experiment",
+    "cta_styles": ["save this for your next render", "try this prompt and tag me", "which slide hit hardest?", "follow for daily AI creative fuel", "steal this for your workflow"]
   },
   "pillars": [
     {
-      "id": "cognitive_biases",
-      "label": "Cognitive Biases",
-      "days": ["monday", "thursday", "sunday"],
-      "hashtags": ["#psychology", "#cognitivebias", "#mindset", "#mentalmodels", "#thinkingtraps"],
-      "image_style": "cinematic photorealism with neon cyberpunk lighting, dark moody atmosphere, ultra-sharp 8K detail",
+      "id": "ai_art_techniques",
+      "label": "AI Art Techniques",
+      "days": ["monday", "thursday"],
+      "hashtags": ["#aiart", "#generativeart", "#aiartists", "#promptengineering", "#digitalart"],
+      "image_style": "lean photoreal but let the slide topic pick",
       "content_format": "carousel"
     },
     {
-      "id": "relationships",
-      "label": "Relationship Psychology",
+      "id": "prompt_engineering",
+      "label": "Prompt Engineering & Tips",
       "days": ["tuesday", "friday"],
-      "hashtags": ["#relationships", "#attachmentstyle", "#love", "#dating", "#emotionalintelligence"],
-      "image_style": "surreal 3D render with neon accents, ethereal glow, holographic elements, futuristic editorial aesthetic",
+      "hashtags": ["#promptengineering", "#aiprompts", "#midjourney", "#stablediffusion", "#creativeai"],
+      "image_style": "clean editorial -- vary per slide",
       "content_format": "carousel"
     },
     {
-      "id": "habits",
-      "label": "Habits & Behavior Change",
+      "id": "tools_and_models",
+      "label": "New AI Tools & Models",
       "days": ["wednesday", "saturday"],
-      "hashtags": ["#habits", "#behavior", "#selfimprovement", "#productivity", "#discipline"],
-      "image_style": "hyper-realistic futuristic photography, neon rim lighting, chrome surfaces, dramatic volumetric fog",
+      "hashtags": ["#aitools", "#generativeai", "#machinelearning", "#aicommunity", "#futureofdesign"],
+      "image_style": "retrofuturist or 3D render -- vary per slide",
+      "content_format": "carousel"
+    },
+    {
+      "id": "creative_experiments",
+      "label": "Creative Experiments & Ideas",
+      "days": ["sunday"],
+      "hashtags": ["#creativecoding", "#aiart", "#experimentaldesign", "#generative", "#artoftheday"],
+      "image_style": "surreal or mixed-media collage -- vary per slide",
       "content_format": "carousel"
     }
   ],

@@ -1,16 +1,21 @@
-You are running an Instagram page about {niche}. You post daily, educational content that feels like a smart friend sharing something fascinating -- never preachy or textbook-like.
+You run an Instagram page about {niche} (creativity, AI art, prompts, generative tools). Your audience is designers, artists, tinkerers, and curious creators -- people who are building with AI or excited by it.
 
-Today's content pillar: {pillar}
+Content pillar: {pillar}
 Content type: {content_type}
 
-Generate ONE specific, engaging topic for today's post.
+CURRENTLY TRENDING in AI/creativity communities (fresh from Hacker News + Reddit in the last week):
+{trending_topics}
+
+Use the trending topics as fuel -- pick an angle that ties to one of them OR to a pattern you notice across them. The topic doesn't have to be literally one of the headlines, but it should feel current, not timeless. If the trends list is empty, generate an original topic that still feels like it belongs to a creator-tools community today.
+
+Generate ONE specific, engaging post topic.
 
 Requirements:
-- Specific and narrow (not broad like "the power of habits" -- more like "why you can't stop checking your phone after putting it down")
-- Has a built-in curiosity gap or surprise element
-- Would make someone stop scrolling to read more
-- Fits the "{pillar}" pillar naturally
-- MUST NOT overlap with these recent topics: {already_posted}
+- Narrow and specific (not "AI art is cool" -- more like "why your Stable Diffusion hands always look broken and the one negative prompt that fixes it")
+- Built-in curiosity gap, surprise, or useful payoff
+- Would make a creator stop scrolling
+- Fits the "{pillar}" pillar
+- Avoid overlap with these recent topics: {already_posted}
 
 Respond with ONLY valid JSON:
 {{

@@ -32,8 +32,8 @@ class Settings(BaseSettings):
     s3_video_bucket: str = ""
 
     # Content
-    niche: str = "psychology_facts"
-    content_types: str = "fact,tip"
+    niche: str = "ai_creativity_and_prompts"
+    content_types: str = "tip,trick,showcase,tutorial,insight"
 
     @property
     def content_type_list(self) -> list[str]:

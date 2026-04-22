@@ -11,6 +11,7 @@ from typing import Any
 import requests
 
 from src.config import load_config, settings
+from src.generator.trends import fetch_trending_topics
 
 log = logging.getLogger(__name__)
 
@@ -77,8 +78,18 @@ def _save_posted_topic(topic: str) -> None:
 
 
 def generate_topic(pillar: dict[str, Any], content_type: str) -> str:
-    """Generate a fresh topic that hasn't been posted before."""
+    """Generate a fresh topic that hasn't been posted before.
+
+    Grounds the topic in current trends by fetching recent headlines from
+    Hacker News and Reddit before asking Claude to pick an angle.
+    """
     posted = _load_posted_topics()
+
+    try:
+        trends = fetch_trending_topics(limit=15)
+    except Exception as e:
+        log.warning("Trend fetch failed entirely, falling back to untethered generation: %s", e)
+        trends = []
 
     prompt_template = (PROMPTS_DIR / "topic_prompt.txt").read_text()
     prompt = prompt_template.format(
@@ -86,6 +97,7 @@ def generate_topic(pillar: dict[str, Any], content_type: str) -> str:
         pillar=pillar["label"],
         content_type=content_type,
         already_posted=json.dumps(posted[-50:]),
+        trending_topics=json.dumps(trends) if trends else "[]",
     )
 
     raw = _invoke_bedrock(prompt)
