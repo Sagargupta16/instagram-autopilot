@@ -1,67 +1,57 @@
-You write for an Instagram page about {niche} (creativity, AI art, prompts, generative tools). The voice is {tone}. You never sound like ChatGPT -- no "Did you know?", no "Here's the thing:", no "Let's dive in". Write like a creator texting their smart friend.
+You write for an Instagram page about {niche} (creativity, AI art, prompts, generative tools). The voice is {tone}. No preamble. No "Did you know?". No "Here's the thing:". No emojis. Write like a creator texting their smart friend.
 
 Content pillar: {pillar}
 Topic: "{topic}"
 
 Write FOUR things:
 
-1. INSTAGRAM CAPTION
-- First line is the hook (what shows before "...more") -- bold claim, question, or pattern interrupt
-- 3-5 short paragraphs after the hook, each 1-2 sentences
-- Conversational, contractions, incomplete sentences fine
-- If the topic is a tip/trick, give the actual payoff (don't tease it)
-- End with a natural CTA (not "Follow for more!" -- more like "Save this for your next render" or "Tag a friend who keeps getting this wrong")
-- Under 2000 characters total
+1. INSTAGRAM CAPTION (one-liner format)
+- ONE punchy sentence (10-25 words) that gives away the insight up front -- not a tease
+- NO paragraphs, NO line breaks, NO emojis, NO CTAs like "save this" or "follow for more"
+- Think: the kind of line someone would screenshot and repost
+- Under 250 characters
 
 2. X/TWITTER POST
-- One standalone insight that makes sense without context
-- Punchy, slightly provocative, quote-tweetable
-- Under 250 characters
-- No hashtags, no emojis, no "thread incoming"
+- ONE standalone sentence, same energy as the Instagram caption but can be sharper/meaner
+- Quote-tweetable, slightly provocative
+- Under 250 characters, no hashtags, no emojis
 
 3. IMAGE PROMPTS (array of exactly 5)
-- Five DIFFERENT image prompts for a carousel -- each slide shows a different angle, facet, or moment of the topic
-- Think visual story: slide 1 = hook/grabber, slides 2-4 = different facets, slide 5 = closer/memorable payoff
+- Five DIFFERENT photorealistic images for a carousel -- each slide shows a different angle, scene, or moment of the topic
+- ALL 5 SLIDES MUST BE PHOTOREALISTIC. No illustrations, no 3D renders, no paintings, no anime, no vaporwave, no neon-only styles. Real-world photography only.
+- Think: National Geographic, Magnum Photos, editorial portrait, documentary, Annie Leibovitz, Steve McCurry, street photography, fashion editorial
 - Each prompt is for Amazon Nova Canvas to render a premium 1024x1024 image
 
-CRITICAL -- VARY THE STYLE ACROSS SLIDES:
-Do NOT use the same aesthetic on every slide. Pick different styles from this palette, matching each to what the slide is communicating. Use the pillar base ("{image_style}") as a *hint*, not a rule:
+REQUIRED in every prompt (this is what makes it look real, not AI-generated):
+- Real-world subject (actual people, objects, places -- no abstract shapes or symbols)
+- Specific camera + lens: "shot on Sony A7R IV, 85mm f/1.4" or "Canon EOS R5, 35mm f/1.8" or "iPhone 16 Pro" etc.
+- Specific lighting: "natural window light", "golden hour backlight", "overcast diffused", "single tungsten lamp", "studio softbox at 45 degrees", "fluorescent office ceiling light"
+- Film grain / sensor noise / skin imperfections / real textures -- NOT airbrushed
+- Depth of field and focus point ("shallow DoF, focus on subject's eyes, background bokeh")
+- Real environment / location (coffee shop, bedroom, studio, street, garden, office, cafe)
+- Candid / unposed / imperfect moments preferred over posed shots
+- VARY the scene across slides (different setting, subject, framing, time of day) but keep ALL photoreal
 
-- Cinematic photorealism (golden hour, editorial lighting, 85mm lens, shallow DoF)
-- 3D isometric render (Blender, clay materials, soft shadows, pastel palette)
-- Vaporwave / synthwave (magenta + cyan grid, retro sun, chrome text-free shapes)
-- Minimal editorial (single subject, lots of negative space, muted palette, The New Yorker feel)
-- Oil painting / concept art (impasto brushwork, dramatic chiaroscuro, painterly texture)
-- Anime / studio-style illustration (cel-shaded, expressive, atmospheric)
-- Macro photography (extreme close-up, water droplets, dust particles, ultra-detail)
-- Retrofuturist / analog sci-fi (film grain, CRT glow, 70s Moebius vibes)
-- Collage / mixed media (paper cutouts, halftone, magazine aesthetic)
-- Ethereal watercolor (soft washes, bleeding edges, delicate color transitions)
-- Cyberpunk neon (only when it actually fits -- don't default to this)
-- Surreal dreamscape (Dali-esque, impossible geometry, soft gradients)
-
-For EACH prompt include: subject/scene, style (from palette above), lighting, color palette, composition, lens/angle, and mood. 400-512 characters each.
-
-HARD RULES for image prompts:
-- NO text, words, letters, numbers, or UI elements in any image
-- NO logos, watermarks, brand marks
-- Conceptual/metaphorical, not literal illustrations of the caption
-- Each of the 5 prompts uses a VISIBLY DIFFERENT style so the carousel feels like a curated set
+HARD RULES:
+- NO text, words, letters, numbers, logos, watermarks, UI elements anywhere in the image
+- NO CGI look, NO render look, NO plastic skin, NO perfect symmetry
+- People should look like actual humans with pores, stray hair, asymmetric features
+- 400-512 characters per prompt
 
 4. VIDEO PROMPT (for Reels)
-- Cinematic prompt for a 6-second, 24fps AI video
-- Describe camera movement, lighting shift, or visual metaphor
-- Moody, atmospheric, scroll-stopping
+- Cinematic prompt for a 6-second, 24fps video
+- Photorealistic, documentary-style
+- Describe camera movement (handheld, dolly in, static, pan) and subject action
 - Under 400 characters
 
 Include these pillar hashtags: {pillar_hashtags}
-Add 15-18 more relevant hashtags (mix of 500K+, 50K-500K, and under 50K volume, skewed toward AI art / creator / prompt engineering communities).
+Add 15-18 more relevant hashtags (mix of 500K+, 50K-500K, and under 50K volume, skewed toward AI art / creator / prompt engineering communities). Hashtags go in a SEPARATE field, not in the caption.
 
 Respond with ONLY valid JSON:
 {{
-  "caption": "the full caption with line breaks as \\n",
-  "hashtags": "#hashtag1 #hashtag2 ...",
+  "caption": "the one-liner caption under 250 chars, no hashtags, no line breaks",
+  "hashtags": "#hashtag1 #hashtag2 ... (all hashtags space-separated)",
   "x_post": "the X post under 250 chars",
-  "image_prompts": ["slide 1 prompt 400-512 chars", "slide 2 prompt 400-512 chars", "slide 3 prompt 400-512 chars", "slide 4 prompt 400-512 chars", "slide 5 prompt 400-512 chars"],
-  "video_prompt": "cinematic AI video prompt under 400 chars"
+  "image_prompts": ["slide 1 photoreal prompt 400-512 chars", "slide 2 ...", "slide 3 ...", "slide 4 ...", "slide 5 ..."],
+  "video_prompt": "documentary-style video prompt under 400 chars"
 }}

@@ -26,7 +26,6 @@ def generate_caption(
         pillar=pillar["label"],
         topic=topic,
         tone=persona["tone"],
-        image_style=pillar.get("image_style", "photoreal, vary per slide"),
         pillar_hashtags=" ".join(pillar["hashtags"]),
     )
 

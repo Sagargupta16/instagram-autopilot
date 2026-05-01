@@ -28,7 +28,7 @@ class TestGenerateCaption:
         assert "video_prompt" in result
 
     @patch("src.content.caption.invoke_claude")
-    def test_passes_pillar_and_style_to_prompt(
+    def test_passes_topic_and_pillar_to_prompt(
         self,
         mock_claude: MagicMock,
         sample_pillar: dict[str, Any],
@@ -36,7 +36,7 @@ class TestGenerateCaption:
         sample_caption_data: dict[str, Any],
     ) -> None:
         mock_claude.return_value = json.dumps(sample_caption_data)
-        generate_caption("Test topic", sample_pillar, sample_persona)
+        generate_caption("Test topic xyz", sample_pillar, sample_persona)
         prompt_sent = mock_claude.call_args[0][1]
+        assert "Test topic xyz" in prompt_sent
         assert sample_pillar["label"] in prompt_sent
-        assert sample_pillar["image_style"] in prompt_sent

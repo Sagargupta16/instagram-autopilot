@@ -5,6 +5,8 @@ from __future__ import annotations
 import base64
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from src.media.image import generate_image
 
 
@@ -25,4 +27,4 @@ class TestGenerateImage:
         assert body["textToImageParams"]["text"] == "a cool image"
         assert body["imageGenerationConfig"]["width"] == 1024
         assert body["imageGenerationConfig"]["height"] == 1024
-        assert body["imageGenerationConfig"]["cfgScale"] == 9.0
+        assert body["imageGenerationConfig"]["cfgScale"] == pytest.approx(6.5)
