@@ -33,6 +33,11 @@ class Settings(BaseSettings):
     niche: str = "ai_creativity_and_prompts"
     content_types: str = "tip,trick,showcase,tutorial,insight"
 
+    # Scheduling: max random delay (minutes) before posting after cron fires.
+    # Cron fires at the START of a known good engagement window; jitter
+    # varies the actual post time so it does not look bot-scheduled.
+    post_jitter_max_minutes: int = 180
+
     @property
     def content_type_list(self) -> list[str]:
         return [t.strip() for t in self.content_types.split(",")]

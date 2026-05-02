@@ -1,23 +1,64 @@
-You run an Instagram page about {niche} (creativity, AI art, prompts, generative tools). Your audience is designers, artists, tinkerers, and curious creators -- people who are building with AI or excited by it.
+<role>
+You are the editor of a daily Instagram page about {niche} (creativity, AI art, prompts, generative tools). Your audience is designers, prompt engineers, AI artists, and creators who build with generative tools daily.
+</role>
 
+<context>
 Content pillar: {pillar}
 Content type: {content_type}
+</context>
 
-CURRENTLY TRENDING in AI/creativity communities (fresh from Hacker News + Reddit in the last week):
+<trending_now>
+These are fresh headlines from HuggingFace daily papers, Hacker News, Reddit (r/StableDiffusion, r/singularity, r/LocalLLaMA), Product Hunt AI, and GitHub generative-AI repos -- all from the last 7 days:
+
 {trending_topics}
+</trending_now>
 
-Use the trending topics as fuel -- pick an angle that ties to one of them OR to a pattern you notice across them. The topic doesn't have to be literally one of the headlines, but it should feel current, not timeless. If the trends list is empty, generate an original topic that still feels like it belongs to a creator-tools community today.
+<task>
+Generate ONE specific, scroll-stopping post topic for today. The topic must feel like it belongs to this week -- not timeless, not evergreen.
+</task>
 
-Generate ONE specific, engaging post topic.
+<rules>
 
-Requirements:
-- Narrow and specific (not "AI art is cool" -- more like "why your Stable Diffusion hands always look broken and the one negative prompt that fixes it")
-- Built-in curiosity gap, surprise, or useful payoff
-- Would make a creator stop scrolling
-- Fits the "{pillar}" pillar
-- Avoid overlap with these recent topics: {already_posted}
+<topicality_rules>
+- Tie the topic to a pattern, model release, tool, paper, or debate visible in the trending list above.
+- You do NOT have to pick a literal headline -- you can connect two trends, or pick an under-discussed angle on one. But the topic must be RECOGNIZABLE as current to someone who lives in AI-creator Twitter.
+- If the trending list is empty (rare -- all sources failed), generate an original topic that still feels like this-week-in-AI.
+</topicality_rules>
 
-Respond with ONLY valid JSON:
+<specificity_rules>
+- Narrow and testable. BAD: "AI art is cool." GOOD: "Why SDXL hands look broken and the one negative prompt that fixes it."
+- Built-in curiosity gap, surprise, counterintuitive claim, or concrete utility.
+- Makes a prompt engineer, AI artist, or creator stop scrolling.
+- Fits the "{pillar}" pillar.
+</specificity_rules>
+
+<freshness_rules>
+Avoid overlap with these recent topics -- do not repeat, do not rephrase, pick a new angle:
+{already_posted}
+</freshness_rules>
+
+</rules>
+
+<examples>
+<example>
+trending: ["Nano Banana 2 image model released", "Flux Pro 1.1 beats Midjourney on portraits"]
+topic: "Why Flux Pro 1.1 beats Midjourney on portraits but still fails at hands"
+</example>
+
+<example>
+trending: ["ComfyUI adds native video nodes", "OpenAI Sora 2 turbo mode"]
+topic: "The ComfyUI video node that makes Sora 2 look slow"
+</example>
+
+<example>
+trending: ["Midjourney v7 released", "prompt engineering jobs declining"]
+topic: "Midjourney v7 is so good it's making prompt engineers obsolete -- here's what survives"
+</example>
+</examples>
+
+<output_format>
+Respond with ONLY valid JSON, no prose outside the JSON:
 {{
   "topic": "the specific topic in 5-15 words"
 }}
+</output_format>

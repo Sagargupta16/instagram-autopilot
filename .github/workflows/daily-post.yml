@@ -2,14 +2,18 @@ name: Daily Instagram Post
 
 on:
   schedule:
-    # Every day 3:30 AM UTC (9:00 AM IST)
-    - cron: "30 3 * * *"
+    # Fires at 15:30 UTC (start of US lunch engagement window:
+    # 10:30 AM EST / 11:30 AM EDT / 9:00 PM IST). The bot then sleeps
+    # a random 0-180 min via POST_JITTER_MAX_MINUTES so the actual post
+    # time lands somewhere in the 3-hour peak window and does not look
+    # cron-scheduled.
+    - cron: "30 15 * * *"
   workflow_dispatch: # Manual trigger for testing
 
 jobs:
   post:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 240
 
     steps:
       - uses: actions/checkout@v4
@@ -37,3 +41,4 @@ jobs:
           S3_VIDEO_BUCKET: ${{ secrets.S3_VIDEO_BUCKET }}
           NICHE: ${{ vars.NICHE || 'psychology_facts' }}
           CONTENT_TYPES: ${{ vars.CONTENT_TYPES || 'fact,tip' }}
+          POST_JITTER_MAX_MINUTES: ${{ vars.POST_JITTER_MAX_MINUTES || '180' }}

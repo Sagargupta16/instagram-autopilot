@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.6.0] - 2026-05-02
+
+### Changed
+- Rewrote `prompts/caption.txt` using Anthropic XML-tag structure (`<role>`, `<rules>`, `<examples>`, `<output_format>`) for stronger adherence
+- Caption prompt now enforces Nova Canvas canonical order (subject -> environment -> pose -> lighting -> camera+lens -> texture) with explicit camera/lens/lighting/film-stock vocabulary
+- Caption prompt hard-forbids negation words (`no`/`not`/`without`) inside the prompt text -- Nova Canvas inverts negations, so exclusions belong only in `negativeText`
+- Rewrote `prompts/topic.txt` using XML structure with few-shot examples tying topics to trending headlines
+- Cron schedule moved from 03:30 UTC to 15:30 UTC (start of US lunch engagement window); workflow timeout raised to 240 min to cover jitter
+
+### Added
+- `src/adapters/huggingface_papers.py` -- HuggingFace daily papers feed (community-curated trending AI research, no auth)
+- `src/adapters/producthunt.py` -- Product Hunt AI-category atom feed (no auth)
+- `src/adapters/github_trending.py` -- GitHub search API for trending `generative-ai` / `llm` repos (60 req/hr unauthenticated)
+- `src/content/trends.py` now parallel-fetches from 11 sources across 5 services (was 2 services)
+- `src/schedule.py` -- `apply_jitter()` randomizes post time 0-180 min inside the engagement window so cron scheduling does not look bot-like
+- `POST_JITTER_MAX_MINUTES` env setting (default 180) + workflow wiring
+- Tests for all new adapters, schedule, and trends aggregator
+
 ## [0.5.0] - 2026-04-22
 
 ### Changed

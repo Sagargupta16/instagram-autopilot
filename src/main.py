@@ -14,6 +14,7 @@ from src.flows.carousel_flow import post_carousel
 from src.flows.image_flow import post_image
 from src.flows.reel_flow import post_reel
 from src.pillar import get_todays_pillar, load_config
+from src.schedule import apply_jitter
 from src.settings import settings
 
 logging.basicConfig(
@@ -33,6 +34,11 @@ def run(*, dry_run: bool = False) -> None:
     if pillar is None:
         log.info("No pillar scheduled for today. Skipping.")
         return
+
+    # Randomize actual post time inside the engagement window so the
+    # account does not look bot-scheduled. Skipped on dry-run.
+    if not dry_run:
+        apply_jitter(settings.post_jitter_max_minutes)
 
     log.info("Pillar: %s", pillar["label"])
     content_type = random.choice(settings.content_type_list)

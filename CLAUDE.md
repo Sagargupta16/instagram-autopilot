@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Fully automated Instagram content bot. A daily cron in GitHub Actions generates an AI topic (grounded in live HN/Reddit trends), writes a caption, generates 5 diverse AI images via AWS Bedrock Nova Canvas, and publishes a 5-slide carousel via the Composio v3 API.
+Fully automated Instagram content bot. A daily cron in GitHub Actions generates an AI topic (grounded in live trends from 5 sources: HuggingFace papers, Product Hunt, GitHub, Hacker News, Reddit), writes a one-liner caption, generates 5 photorealistic AI images via AWS Bedrock Nova Canvas, and publishes a 5-slide carousel via the Composio v3 API.
 
 ## Commands
 
@@ -27,23 +27,27 @@ The project is organized by **bounded context, one external service per layer**.
 src/
 ├── settings.py        # Pydantic settings loaded from .env
 ├── pillar.py          # config.json loader + today's-pillar routing
+├── schedule.py        # apply_jitter() -- randomize post time inside window
 ├── main.py            # Entry point + run() orchestrator (<70 lines)
 │
 ├── adapters/          # Low-level HTTP clients for external services
-│   ├── bedrock.py     # AWS Bedrock (bearer token, no boto3)
-│   ├── composio.py    # Composio v3 REST API + ComposioActionError
-│   ├── cloudinary_host.py  # Cloudinary image upload
-│   ├── hackernews.py  # HN Algolia search
-│   └── reddit.py      # Reddit public JSON
+│   ├── bedrock.py            # AWS Bedrock (bearer token, no boto3)
+│   ├── composio.py           # Composio v3 REST API + ComposioActionError
+│   ├── cloudinary_host.py    # Cloudinary image upload
+│   ├── hackernews.py         # HN Algolia search
+│   ├── reddit.py             # Reddit public JSON
+│   ├── huggingface_papers.py # HuggingFace daily papers (trending AI research)
+│   ├── producthunt.py        # Product Hunt AI-category atom feed
+│   └── github_trending.py    # GitHub search API (topic:generative-ai / llm)
 │
 ├── content/           # Text generation (uses adapters/bedrock)
 │   ├── topic.py       # generate_topic() with trend grounding
-│   ├── caption.py     # generate_caption() - 5 diverse image prompts
-│   ├── trends.py      # Parallel HN + Reddit aggregation
+│   ├── caption.py     # generate_caption() - 5 photoreal image prompts
+│   ├── trends.py      # Parallel aggregation across 11 sources / 5 services
 │   └── dedup.py       # posted_topics.json (last 500)
 │
 ├── media/             # AI media generation (uses adapters/bedrock)
-│   ├── image.py       # Nova Canvas (cfgScale 9.0, aggressive negative prompt)
+│   ├── image.py       # Nova Canvas (cfgScale 6.5, aggressive negative prompt)
 │   └── video.py       # Nova Reel async + poll
 │
 ├── publishing/        # Instagram publishing (uses adapters/composio)
@@ -62,11 +66,17 @@ src/
 ### Pillar routing
 `config.json` has `pillars[].content_format` which is `"carousel"`, `"image"`, or `"reel"`. `main.py::run()` dispatches to the matching `flows/*_flow.py`. **Default is carousel** — single-image mode is kept but unused by any pillar.
 
-### Claude returns `image_prompts` as a LIST of 5
-`prompts/caption.txt` instructs Claude to return `image_prompts: [s1, s2, s3, s4, s5]` (a JSON array, not a string). Each entry uses a DIFFERENT style from a 12-style palette (photoreal, 3D render, vaporwave, editorial, oil painting, anime, macro, retrofuturist, collage, watercolor, cyberpunk, surreal). Don't force neon on everything — the palette is the point.
+### Claude returns `image_prompts` as a LIST of 5 PHOTOREAL prompts
+`prompts/caption.txt` instructs Claude to return `image_prompts: [s1, s2, s3, s4, s5]` (a JSON array, not a string). **ALL FIVE must be photorealistic** (National Geographic / Magnum / Annie Leibovitz references). The template enforces Nova Canvas canonical order: subject -> environment -> pose -> lighting -> camera+lens -> texture. Slides vary across setting/subject/framing/time-of-day but all stay photoreal. Don't reintroduce the old 12-style palette — we ripped it out because mixed styles broke visual coherence.
 
-### Trends grounding
-`content/topic.py` calls `fetch_trending_topics()` which parallel-fetches from HN + Reddit. The topic prompt template contains `{trending_topics}` — Claude uses fresh headlines to pick angles. If all trend sources fail, the code silently passes `[]` and Claude generates untethered. Don't add "required" error handling here — graceful degradation is intentional.
+### Nova Canvas inverts negations — exclusions belong only in negativeText
+The caption prompt explicitly forbids `no`/`not`/`without` inside image prompt text. Nova Canvas (and many diffusion models) treats negation words as *keywords to include*, not exclude. Put exclusions in `negativeText` at the image-generation layer (see `src/media/image.py::DEFAULT_NEGATIVE_PROMPT`). If you see `"no text in image"` inside a prompt string, that's the bug.
+
+### Trends grounding spans 5 services / 11 sources
+`content/topic.py` calls `fetch_trending_topics()` which parallel-fetches from: HuggingFace daily papers, Product Hunt AI, GitHub (topic:generative-ai + topic:llm), HN search (3 queries), Reddit top (4 subreddits). The topic prompt template contains `{trending_topics}` — Claude uses fresh headlines to pick angles. If any/all sources fail, the code silently passes partial or `[]` results. Don't add "required" error handling here — graceful degradation is intentional. All sources are **no-auth** (no API key, no OAuth) — if adding a new source needs auth, rethink.
+
+### Post-time jitter
+`main.py::run()` calls `apply_jitter(settings.post_jitter_max_minutes)` (default 180 min) before publishing. The GitHub Actions cron fires at 15:30 UTC (start of US lunch engagement window); the jitter sleeps 0-180 min so the actual post time varies day-to-day and does not look bot-scheduled. Skipped on `--dry-run`. Workflow `timeout-minutes` must cover jitter + generation (currently 240).
 
 ### Composio auth comes from settings
 `adapters/composio.py::execute_action(slug, params)` reads `composio_api_key`, `composio_connected_account_id`, `composio_user_id` from `src.settings` directly. Publisher functions pass ONLY the action-specific params. Don't add auth parameters back — that's what the old code did and it's what we just simplified away.
