@@ -8,7 +8,12 @@ on:
     # time lands somewhere in the 3-hour peak window and does not look
     # cron-scheduled.
     - cron: "30 15 * * *"
-  workflow_dispatch: # Manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      force_jitter:
+        description: "Apply 0-180 min jitter on manual run (normally skipped)"
+        type: boolean
+        default: false
 
 jobs:
   post:
@@ -41,4 +46,5 @@ jobs:
           S3_VIDEO_BUCKET: ${{ secrets.S3_VIDEO_BUCKET }}
           NICHE: ${{ vars.NICHE || 'ai_creativity_and_prompts' }}
           CONTENT_TYPES: ${{ vars.CONTENT_TYPES || 'tip,trick,showcase,tutorial,insight' }}
-          POST_JITTER_MAX_MINUTES: ${{ vars.POST_JITTER_MAX_MINUTES || '180' }}
+          # Schedule runs always jitter; manual runs skip unless force_jitter is checked.
+          POST_JITTER_MAX_MINUTES: ${{ (github.event_name == 'schedule' || inputs.force_jitter) && (vars.POST_JITTER_MAX_MINUTES || '180') || '0' }}
