@@ -39,6 +39,6 @@ jobs:
           CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
           CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
           S3_VIDEO_BUCKET: ${{ secrets.S3_VIDEO_BUCKET }}
-          NICHE: ${{ vars.NICHE || 'psychology_facts' }}
-          CONTENT_TYPES: ${{ vars.CONTENT_TYPES || 'fact,tip' }}
+          NICHE: ${{ vars.NICHE || 'ai_creativity_and_prompts' }}
+          CONTENT_TYPES: ${{ vars.CONTENT_TYPES || 'tip,trick,showcase,tutorial,insight' }}
           POST_JITTER_MAX_MINUTES: ${{ vars.POST_JITTER_MAX_MINUTES || '180' }}

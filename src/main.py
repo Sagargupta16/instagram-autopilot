@@ -7,6 +7,7 @@ import logging
 import random
 import sys
 
+from src.adapters.bedrock import verify_auth
 from src.adapters.cloudinary_host import configure as configure_cloudinary
 from src.content.caption import generate_caption
 from src.content.topic import generate_topic
@@ -34,6 +35,10 @@ def run(*, dry_run: bool = False) -> None:
     if pillar is None:
         log.info("No pillar scheduled for today. Skipping.")
         return
+
+    # Fail fast on expired Bedrock bearer tokens BEFORE sleeping 0-180 min
+    # for jitter -- otherwise a bad token wastes 3 hours of runtime.
+    verify_auth(config["models"]["text"])
 
     # Randomize actual post time inside the engagement window so the
     # account does not look bot-scheduled. Skipped on dry-run.

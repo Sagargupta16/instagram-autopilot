@@ -26,6 +26,25 @@ def _auth_headers() -> dict[str, str]:
     }
 
 
+def verify_auth(model_id: str) -> None:
+    """Smoke test the bearer token with a 1-token Claude call.
+
+    Raises HTTPError immediately on 403 so expired tokens fail fast
+    instead of dying after the 3-hour jitter sleep.
+    """
+    url = INVOKE_URL.format(region=settings.aws_region, model=model_id)
+    body = {
+        "anthropic_version": "bedrock-2023-05-31",
+        "max_tokens": 1,
+        "messages": [{"role": "user", "content": "ok"}],
+    }
+    resp = requests.post(url, json=body, headers=_auth_headers(), timeout=15)
+    if not resp.ok:
+        log.error("Bedrock auth preflight FAILED %s: %s", resp.status_code, resp.text)
+        resp.raise_for_status()
+    log.info("Bedrock auth preflight OK")
+
+
 def invoke_claude(model_id: str, prompt: str, max_tokens: int = 2048) -> str:
     """Call a Claude model on Bedrock and return the response text."""
     url = INVOKE_URL.format(region=settings.aws_region, model=model_id)
