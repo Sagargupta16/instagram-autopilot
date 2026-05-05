@@ -7,9 +7,9 @@ import logging
 import random
 import sys
 
-from src.adapters.bedrock import verify_auth
-from src.adapters.cloudinary_host import configure as configure_cloudinary
+from src.adapters import bedrock, cloudinary_host, composio
 from src.content.caption import generate_caption
+from src.content.dedup import record_post
 from src.content.topic import generate_topic
 from src.flows.carousel_flow import post_carousel
 from src.flows.image_flow import post_image
@@ -26,9 +26,20 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 
+def _preflight_all_auth(text_model_id: str) -> None:
+    """Verify Bedrock, Composio, and Cloudinary creds BEFORE the jitter sleep.
+
+    Any of these failing after a 0-180 min sleep would waste hours of runtime.
+    Cloudinary and Bedrock raise on bad creds; Composio's preflight logs+raises.
+    """
+    bedrock.verify_auth(text_model_id)
+    composio.verify_auth()
+    cloudinary_host.verify_auth()
+
+
 def run(*, dry_run: bool = False) -> None:
     """Generate and publish one piece of content to Instagram."""
-    configure_cloudinary()
+    cloudinary_host.configure()
     config = load_config()
 
     pillar = get_todays_pillar(config)
@@ -36,9 +47,9 @@ def run(*, dry_run: bool = False) -> None:
         log.info("No pillar scheduled for today. Skipping.")
         return
 
-    # Fail fast on expired Bedrock bearer tokens BEFORE sleeping 0-180 min
-    # for jitter -- otherwise a bad token wastes 3 hours of runtime.
-    verify_auth(config["models"]["text"])
+    # Fail fast on expired creds BEFORE sleeping 0-180 min for jitter --
+    # otherwise a bad token wastes hours of runtime.
+    _preflight_all_auth(config["models"]["text"])
 
     # Randomize actual post time inside the engagement window so the
     # account does not look bot-scheduled. Skipped on dry-run.
@@ -54,6 +65,12 @@ def run(*, dry_run: bool = False) -> None:
 
     caption = caption_data["caption"] + "\n\n" + caption_data["hashtags"]
     log.info("X post: %s", caption_data["x_post"])
+
+    # Record BEFORE publishing so a publish failure does not let us retry
+    # the same topic/scenes tomorrow. Skipped on dry-run so we do not
+    # pollute history with experiments.
+    if not dry_run:
+        record_post(topic, caption_data.get("image_prompts", []))
 
     if dry_run:
         log.info("=== DRY RUN ===")

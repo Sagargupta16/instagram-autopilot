@@ -9,6 +9,11 @@ from src.settings import settings
 
 log = logging.getLogger(__name__)
 
+# Reels take longer to transcode server-side than images; give Composio
+# more headroom in its poll loop.
+REEL_PUBLISH_MAX_WAIT_SECONDS = 120
+REEL_POLL_INTERVAL_SECONDS = 5
+
 
 def publish_reel(video_url: str, caption: str) -> str:
     """Publish a Reel. Returns the Instagram media ID."""
@@ -32,8 +37,8 @@ def publish_reel(video_url: str, caption: str) -> str:
         params={
             "ig_user_id": settings.instagram_user_id,
             "creation_id": creation_id,
-            "max_wait_seconds": 120,
-            "poll_interval_seconds": 5,
+            "max_wait_seconds": REEL_PUBLISH_MAX_WAIT_SECONDS,
+            "poll_interval_seconds": REEL_POLL_INTERVAL_SECONDS,
         },
     )
     media_id: str = published["data"]["id"]

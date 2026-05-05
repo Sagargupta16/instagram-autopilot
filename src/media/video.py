@@ -1,4 +1,12 @@
-"""Generate short videos via Bedrock Nova Reel (async, S3 output)."""
+"""Generate short videos via Bedrock Nova Reel (async, S3 output).
+
+Nova Reel v1 only outputs 1280x720 landscape. Instagram Reels expect 9:16
+portrait and will letterbox landscape sources -- usable but sub-optimal.
+Once Nova Reel supports 720x1280 natively, swap the dimension below.
+An ffmpeg post-process step could also pad to 9:16, but that would require
+adding ffmpeg to the runner and is deferred until anyone actually switches
+a pillar to `content_format: "reel"` (all pillars are currently carousels).
+"""
 
 from __future__ import annotations
 
@@ -8,6 +16,10 @@ import time
 from src.adapters.bedrock import get_async_invocation_status, start_async_invocation
 
 log = logging.getLogger(__name__)
+
+# Nova Reel v1 supported output dimension. Do not change without checking
+# the model docs -- unsupported values fail the async job silently.
+NOVA_REEL_DIMENSION = "1280x720"
 
 
 def generate_video(
@@ -27,7 +39,7 @@ def generate_video(
             "videoGenerationConfig": {
                 "durationSeconds": duration_seconds,
                 "fps": 24,
-                "dimension": "1280x720",
+                "dimension": NOVA_REEL_DIMENSION,
             },
         },
         "outputDataConfig": {"s3OutputDataConfig": {"s3Uri": s3_output_uri}},

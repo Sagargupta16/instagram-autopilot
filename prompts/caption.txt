@@ -9,7 +9,13 @@ Tone: {tone}. Write like a creator texting a smart friend. No preamble, no "Did 
 <context>
 Content pillar: {pillar}
 Topic: "{topic}"
+Photoreal flavor for this pillar: {style_hint}
 </context>
+
+<recent_scenes_to_avoid>
+Slides we have already posted in recent days -- do NOT repeat their subject, environment, framing, or overall composition. Pick deliberately different settings, subjects, camera angles, and times of day:
+{recent_scenes}
+</recent_scenes_to_avoid>
 
 <task>
 Produce FOUR artifacts in one JSON response: an Instagram caption, an X post, an array of exactly 5 photorealistic image prompts for a carousel, and a video prompt.
@@ -30,7 +36,7 @@ Produce FOUR artifacts in one JSON response: an Instagram caption, an X post, an
 </x_post_rules>
 
 <image_prompts_rules>
-Exactly 5 prompts, each rendered independently by Amazon Nova Canvas at 1024x1024. ALL FIVE MUST BE PHOTOREALISTIC. Reference: National Geographic, Magnum Photos, Annie Leibovitz, Steve McCurry, editorial documentary, street photography, candid fashion editorial.
+Exactly 5 prompts, each rendered independently by Amazon Nova Canvas at 1024x1024. Photorealism is already enforced by Nova Canvas's native `style: "PHOTOREALISM"` parameter -- you do NOT need to repeat words like "photorealistic" / "photoreal" / "realistic photo" inside the prompt text. Spend that budget on subject + environment + lighting specificity instead. Reference aesthetic: National Geographic, Magnum Photos, Annie Leibovitz, Steve McCurry, editorial documentary, street photography, candid fashion editorial.
 
 Each prompt MUST follow this canonical order (this is how Nova Canvas was trained -- order matters):
 1. Subject (real person, object, or scene -- concrete, not abstract)
@@ -57,7 +63,7 @@ Each prompt MUST follow this canonical order (this is how Nova Canvas was traine
 </positive_framing_rules>
 
 <variation_rules>
-Across the 5 slides, VARY: setting (don't put all 5 in the same room), subject (different person / angle / object), framing (close-up / medium / wide / overhead / low-angle), time of day (morning / noon / dusk / night). Keep ALL 5 photoreal. Do NOT repeat the same camera/lens on every slide.
+Across the 5 slides, VARY: setting (don't put all 5 in the same room), subject (different person / angle / object), framing (close-up / medium / wide / overhead / low-angle), time of day (morning / noon / dusk / night). Keep ALL 5 photoreal. Do NOT repeat the same camera/lens on every slide. Additionally, the 5 slides as a group must NOT echo any entry in `<recent_scenes_to_avoid>` above -- pick different subjects and environments so the account's feed looks varied across days, not just within today's carousel.
 </variation_rules>
 
 <hard_avoid>

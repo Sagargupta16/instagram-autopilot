@@ -9,13 +9,17 @@ from __future__ import annotations
 
 import io
 import logging
+from datetime import UTC, datetime
 
 import cloudinary
+import cloudinary.api
 import cloudinary.uploader
 
 from src.settings import settings
 
 log = logging.getLogger(__name__)
+
+BASE_FOLDER = "instagram-autopilot"
 
 
 def configure() -> None:
@@ -27,11 +31,30 @@ def configure() -> None:
     )
 
 
+def verify_auth() -> None:
+    """Ping the Cloudinary admin API to confirm credentials.
+
+    Fails fast so a bad cloud_name/api_key does not waste the jitter sleep.
+    Must be called after configure().
+    """
+    try:
+        cloudinary.api.ping()
+    except Exception as e:  # cloudinary raises its own exception types; re-wrap.
+        log.error("Cloudinary auth preflight FAILED: %s", e)
+        raise
+    log.info("Cloudinary auth preflight OK")
+
+
+def _current_folder() -> str:
+    """Bucket uploads by YYYY-MM so free-tier cleanup is trivial."""
+    return f"{BASE_FOLDER}/{datetime.now(UTC).strftime('%Y-%m')}"
+
+
 def upload_image(image_bytes: bytes) -> str:
     """Upload image bytes and return the public secure URL."""
     result = cloudinary.uploader.upload(
         io.BytesIO(image_bytes),
-        folder="instagram-autopilot",
+        folder=_current_folder(),
         resource_type="image",
     )
     url: str = result["secure_url"]

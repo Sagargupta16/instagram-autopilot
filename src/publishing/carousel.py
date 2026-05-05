@@ -14,6 +14,12 @@ from src.settings import settings
 
 log = logging.getLogger(__name__)
 
+# How long to let Instagram process a media container before we reference
+# it in the next step. Empirically 3s is enough for image containers;
+# carousel container processing is handled by max_wait_seconds below.
+CONTAINER_PROCESS_WAIT_SECONDS = 3
+PUBLISH_MAX_WAIT_SECONDS = 60
+
 
 def _create_child_container(image_url: str, index: int, total: int) -> str:
     log.info("Creating carousel child %d/%d...", index + 1, total)
@@ -34,7 +40,7 @@ def publish_carousel(image_urls: list[str], caption: str) -> str:
         _create_child_container(url, i, len(image_urls)) for i, url in enumerate(image_urls)
     ]
 
-    time.sleep(3)
+    time.sleep(CONTAINER_PROCESS_WAIT_SECONDS)
 
     log.info("Creating carousel container with %d children...", len(child_ids))
     carousel = execute_action(
@@ -48,7 +54,7 @@ def publish_carousel(image_urls: list[str], caption: str) -> str:
     carousel_id = carousel["data"]["id"]
     log.info("Carousel container created: %s", carousel_id)
 
-    time.sleep(3)
+    time.sleep(CONTAINER_PROCESS_WAIT_SECONDS)
 
     log.info("Publishing carousel to Instagram...")
     published = execute_action(
@@ -56,7 +62,7 @@ def publish_carousel(image_urls: list[str], caption: str) -> str:
         params={
             "ig_user_id": settings.instagram_user_id,
             "creation_id": carousel_id,
-            "max_wait_seconds": 60,
+            "max_wait_seconds": PUBLISH_MAX_WAIT_SECONDS,
         },
     )
     media_id: str = published["data"]["id"]

@@ -10,6 +10,9 @@ from src.settings import settings
 
 log = logging.getLogger(__name__)
 
+CONTAINER_PROCESS_WAIT_SECONDS = 3
+PUBLISH_MAX_WAIT_SECONDS = 60
+
 
 def publish_image_post(image_url: str, caption: str) -> str:
     """Publish a single image post. Returns the Instagram media ID."""
@@ -25,7 +28,7 @@ def publish_image_post(image_url: str, caption: str) -> str:
     creation_id = container["data"]["id"]
     log.info("Container created: %s", creation_id)
 
-    time.sleep(3)
+    time.sleep(CONTAINER_PROCESS_WAIT_SECONDS)
 
     log.info("Publishing to Instagram...")
     published = execute_action(
@@ -33,7 +36,7 @@ def publish_image_post(image_url: str, caption: str) -> str:
         params={
             "ig_user_id": settings.instagram_user_id,
             "creation_id": creation_id,
-            "max_wait_seconds": 60,
+            "max_wait_seconds": PUBLISH_MAX_WAIT_SECONDS,
         },
     )
     media_id: str = published["data"]["id"]

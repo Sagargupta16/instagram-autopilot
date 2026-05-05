@@ -1,8 +1,14 @@
-"""Fetch trending AI/creativity topics from 4 sources in parallel.
+"""Fetch trending AI/creativity topics in parallel across 4 services / 8 tasks.
 
 Grounds daily post ideas in current conversations instead of Claude's
 training data alone. Degrades gracefully -- if a source fails, the rest
 still work.
+
+Services:
+    - HuggingFace daily papers (curated trending AI research)
+    - Product Hunt AI category atom feed
+    - GitHub search (3 topics: generative-ai, llm, diffusion-models)
+    - Hacker News Algolia search (3 queries)
 
 Reddit is intentionally excluded: GitHub Actions runner IPs are on
 Reddit's anti-bot blocklist and return 403 consistently. If this runs

@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from src.adapters.bedrock import extract_json, invoke_claude
-from src.content.dedup import load_posted_topics, save_posted_topic
+from src.content.dedup import load_posted_topics
 from src.content.trends import fetch_trending_topics
 from src.pillar import load_config
 from src.settings import settings
@@ -40,6 +40,5 @@ def generate_topic(pillar: dict[str, Any], content_type: str) -> str:
     raw = invoke_claude(config["models"]["text"], prompt)
     topic = extract_json(raw)["topic"]
 
-    save_posted_topic(topic)
     log.info("Generated topic: %s", topic)
     return topic

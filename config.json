@@ -10,7 +10,7 @@
       "label": "AI Art Techniques",
       "days": ["monday", "thursday"],
       "hashtags": ["#aiart", "#generativeart", "#aiartists", "#promptengineering", "#digitalart"],
-      "image_style": "lean photoreal but let the slide topic pick",
+      "image_style": "editorial documentary photography, Magnum Photos feel, muted natural colour, candid human moments",
       "content_format": "carousel"
     },
     {
@@ -18,7 +18,7 @@
       "label": "Prompt Engineering & Tips",
       "days": ["tuesday", "friday"],
       "hashtags": ["#promptengineering", "#aiprompts", "#midjourney", "#stablediffusion", "#creativeai"],
-      "image_style": "clean editorial -- vary per slide",
+      "image_style": "clean studio editorial, Annie Leibovitz portraiture, soft key light, shallow depth of field",
       "content_format": "carousel"
     },
     {
@@ -26,7 +26,7 @@
       "label": "New AI Tools & Models",
       "days": ["wednesday", "saturday"],
       "hashtags": ["#aitools", "#generativeai", "#machinelearning", "#aicommunity", "#futureofdesign"],
-      "image_style": "retrofuturist or 3D render -- vary per slide",
+      "image_style": "National Geographic reportage, environmental portrait, mid-day natural light, rich textural detail",
       "content_format": "carousel"
     },
     {
@@ -34,7 +34,7 @@
       "label": "Creative Experiments & Ideas",
       "days": ["sunday"],
       "hashtags": ["#creativecoding", "#aiart", "#experimentaldesign", "#generative", "#artoftheday"],
-      "image_style": "surreal or mixed-media collage -- vary per slide",
+      "image_style": "candid street photography, Garry Winogrand / Vivian Maier feel, 35mm grain, unposed moments",
       "content_format": "carousel"
     }
   ],

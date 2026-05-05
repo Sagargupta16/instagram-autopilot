@@ -1,5 +1,49 @@
 # Changelog
 
+## [0.7.1] - 2026-05-05
+
+### Fixed
+- **Nova Canvas `seed` was effectively constant.** The API default is `12` (not random), so every generation started from the same initial noise and images collapsed toward similar compositions across days. `generate_image()` now picks a fresh random seed from `[0, 2_147_483_646]` per call (unless one is explicitly passed).
+- **Photorealism was being enforced twice, imperfectly.** The caption prompt + a ~600-char negative prompt were fighting to keep output photoreal when Nova Canvas has a native `style: "PHOTOREALISM"` enum built for exactly this. Added `style: "PHOTOREALISM"` to the request body; trimmed `DEFAULT_NEGATIVE_PROMPT` from ~600 to ~400 chars by removing illustration/cartoon/3D-render exclusions that the style param handles. Caption prompt no longer forces Claude to repeat "photorealistic" in every slide prompt -- that budget now goes to subject/environment specificity.
+- **`cfgScale` default 6.5 was smoothing per-slide differences.** Bumped to 7.5 so Claude's 5 deliberately-different prompts render with actually-different compositions. Nova docs describe 4-7 as "balanced" and 8-10 as "strict prompt adherence"; 7.5 is the strict edge without oversaturation.
+- **RAI content filter could IndexError.** `result["images"]` can be empty or absent if AWS RAI strips the output. Now raises `RuntimeError` with the upstream error message instead of `IndexError` on `images[0]`.
+
+### Added
+- `src/media/image.py`: `style: "PHOTOREALISM"` param, `seed: int | None` kwarg (random per call when None), `SEED_MIN`/`SEED_MAX` constants, defensive RAI-empty handling.
+- Tests: `test_image.py` gains `test_sends_photorealism_style`, `test_randomizes_seed_by_default`, `test_different_calls_use_different_seeds`, `test_explicit_seed_is_respected`, `test_raises_when_rai_strips_all_images`, `test_raises_when_images_key_missing`.
+- CLAUDE.md: two new "non-obvious contract" sections — "Photorealism comes from the `style` enum, not prompt text" and "Seed must be randomized per call or images collapse".
+
+### Changed
+- `prompts/caption.txt`: image_prompts_rules no longer says `ALL FIVE MUST BE PHOTOREALISTIC` (handled by style param); instead tells Claude to spend prompt budget on subject + environment + lighting specificity and not repeat the word "photorealistic".
+- `pyproject.toml`: `0.7.0 -> 0.7.1`.
+
+## [0.7.0] - 2026-05-05
+
+### Fixed
+- **Images across days looked similar.** Dedup only tracked topics; image prompts themselves had no history. Claude's few-shot examples in `prompts/caption.txt` biased it toward the same subjects/environments (coffee shops, window light, Leica). `dedup.py` now stores `image_prompts` per post, and `caption.py` injects the last ~15 recent prompts into the caption template as a `<recent_scenes_to_avoid>` block with an explicit "pick different subject/environment/framing" rule. **Note:** dedup persistence across CI runs is not wired up (GitHub Actions runners are ephemeral). The in-run variety rules + per-pillar `style_hint` still produce cross-day variety even without history; if topic/scene repeats become a problem, persist `data/posted_topics.json` via a workflow commit-back step, a GH Actions artifact cache, or an external store.
+- **`pillar.image_style` was dead config.** Values contradicted the photoreal rule (`"retrofuturist or 3D render -- vary per slide"` vs. the prompt's `ALL FIVE MUST BE PHOTOREALISTIC`), and nothing consumed the field. Replaced all four values with distinct photoreal sub-style flavors (Magnum, Annie Leibovitz, National Geographic, Garry Winogrand) and wired them into the caption prompt as `{style_hint}` so each pillar has a structurally different look.
+- **Preflight only covered Bedrock.** A bad Composio key or Cloudinary secret still forced a 0-180 min jitter sleep before failing. Added `composio.verify_auth()` + `cloudinary_host.verify_auth()`, all three called before `apply_jitter()`.
+- **No retries on transient publish failures.** One 502 from Composio killed the day. `execute_action()` now retries 5xx and network errors up to 3 times with exponential backoff. Semantic errors (`ComposioActionError` / `successful: false`) are NOT retried.
+- **Non-atomic dedup write.** A process kill mid-save could corrupt `posted_topics.json` and lose all history. Writes now use temp-file + rename.
+- **Dry runs polluted history.** `generate_topic` saved to history regardless of `--dry-run`. Save now happens in `main.run()` after caption generation and only when `dry_run=False`.
+- Version drift: `pyproject.toml` bumped `0.3.0 -> 0.7.0` to match CHANGELOG.
+- Docstring drift: `content/trends.py` said "4 sources", actually aggregates from 4 services / 8 tasks.
+
+### Added
+- `src/content/dedup.py::load_recent_image_prompts(limit)` -- newest-first flattened list of recent slide prompts for Claude's variety rule.
+- `src/content/dedup.py::record_post(topic, image_prompts)` -- single atomic entry point replacing `save_posted_topic`. Automatically migrates legacy list[str] format.
+- `prompts/caption.txt` now takes `{style_hint}` (pillar flavor) and `{recent_scenes}` (what to avoid).
+- `src/adapters/composio.py::verify_auth()` + `_post_with_retry()`.
+- `src/adapters/cloudinary_host.py::verify_auth()` (calls `cloudinary.api.ping`).
+- `src/media/image.py::MAX_PROMPT_CHARS` (1000) + truncation guard. Nova Canvas caps at 1024 -- prompts slightly over could silently truncate mid-sentence; now we truncate cleanly with a warning.
+- Cloudinary uploads bucketed by `instagram-autopilot/YYYY-MM/` folder for easy cleanup on the free tier.
+- Named constants `CONTAINER_PROCESS_WAIT_SECONDS`, `PUBLISH_MAX_WAIT_SECONDS`, `REEL_PUBLISH_MAX_WAIT_SECONDS` in `publishing/*.py` replace magic `time.sleep(3)` / `max_wait_seconds=60` / `120`.
+- `src/media/video.py::NOVA_REEL_DIMENSION` constant + module docstring explaining the 1280x720 constraint (Nova Reel v1 does not support 9:16; Instagram Reels will letterbox landscape sources -- acceptable for now since all pillars are currently carousels).
+- Tests: new `tests/content/test_dedup.py` (7 cases: empty, record+load, image prompts, limits, MAX_HISTORY cap, legacy migration, atomic write). Retry-path tests in `test_composio.py`. Prompt-truncation tests in `test_image.py`.
+
+### Changed
+- `src/main.py::run()` order: preflight all auth -> apply_jitter -> generate topic -> generate caption -> record_post (if not dry_run) -> publish. Previously saved on topic gen, before caption was known.
+
 ## [0.6.0] - 2026-05-02
 
 ### Changed
