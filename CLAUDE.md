@@ -1,5 +1,15 @@
 # CLAUDE.md
 
+> This file stacks on top of the workspace root at `C:\Code\GitHub\`:
+> - Root [`CLAUDE.md`](../../CLAUDE.md) -- voice, rules, routing map, references, skills, slash commands, conventions.
+> - Root [`MEMORY.md`](../../MEMORY.md) -- live facts across repos.
+> - Root [`STATUS.md`](../../STATUS.md) -- live PR/CI/security dashboard.
+> - [`.claude/resources/`](../../.claude/resources/README.md) -- deep reference for collaboration, workflow, git, OSS, debugging, voice.
+>
+> Read those first. The guidance below only adds **repo-specific context** -- it does not override anything in the root.
+
+# CLAUDE.md
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
@@ -147,4 +157,4 @@ Instagram's Graph API fetches images server-side from the URL we provide. **Meta
 - f-strings, `pathlib` over `os.path`
 - Pydantic for settings; plain dicts for `config.json` (no schema class)
 - Conventional commits: `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:`
-- No `Co-Authored-By` trailers
+- No `Co-Authored-By` trailers
