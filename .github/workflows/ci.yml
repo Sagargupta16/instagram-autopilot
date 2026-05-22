@@ -1,13 +1,13 @@
 name: CI
-
 on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
-
 jobs:
-  python:
+  build:
     uses: Sagargupta16/shared-workflows/.github/workflows/python-ci.yml@main
-    with:
-      python-version: "3.14"
+  security:
+    uses: Sagargupta16/shared-workflows/.github/workflows/security-scan.yml@main
+    permissions:
+      contents: read
+      security-events: write
