@@ -2,18 +2,18 @@
 
 Fully automated Instagram content creation and posting powered by AWS Bedrock AI + Composio v3 API.
 
-Generates topics, captions, premium AI images (neon/cinematic style via Nova Canvas), and optional Reels (Nova Reel) daily -- then publishes them automatically via GitHub Actions. Set it up once, it runs every day.
+Generates topics, captions, premium photoreal AI images (Stable Image Ultra), and optional Reels (Luma Ray 2) daily -- then publishes them automatically via GitHub Actions. Set it up once, it runs every day.
 
 ## How It Works
 
 1. **GitHub Actions** triggers daily on a cron schedule (9 AM IST)
 2. **Config** determines today's content pillar and format (image or reel)
 3. **AWS Bedrock Claude** generates topic, caption, and a detailed image prompt (neon, cinematic, futuristic styling)
-4. **AWS Bedrock Nova Canvas** generates a premium 1024x1024 AI image (cfgScale 9.0, aggressive negative prompts)
+4. **AWS Bedrock Stable Image Ultra** generates a premium 1:1 photoreal image (random seed per slide, aggressive negative prompts)
 5. **Cloudinary** hosts the image at a public URL (trusted by Instagram's CDN)
 6. **Composio v3 API** publishes to Instagram via two-step container flow
 
-For reel-format pillars, **Bedrock Nova Reel** generates a 6-second video via async S3 output, then publishes as an Instagram Reel.
+For reel-format pillars, **Bedrock Luma Ray 2** generates a 5s/9s 9:16 video via async S3 output (bucket must be in us-west-2), then publishes as an Instagram Reel.
 
 ## Content Pillars
 
@@ -46,7 +46,7 @@ python -m src.main --dry-run # Generate without publishing
 
 | Service | Purpose | Cost |
 |---------|---------|------|
-| [AWS Bedrock](https://aws.amazon.com/bedrock/) | AI text (Claude), images (Nova Canvas), video (Nova Reel) | ~$3-10/mo |
+| [AWS Bedrock](https://aws.amazon.com/bedrock/) | AI text (Claude Sonnet 4.6), images (Stable Image Ultra), video (Luma Ray 2) | ~$5-15/mo |
 | [Composio](https://composio.dev/) | Instagram publishing via v3 REST API | Free tier |
 | [Cloudinary](https://cloudinary.com/) | Image hosting (Instagram needs URLs from trusted CDNs) | Free tier |
 | [GitHub Actions](https://github.com/features/actions) | Daily cron automation | Free tier |
@@ -66,7 +66,7 @@ Add these in your repo Settings > Secrets and variables > Actions:
 | `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name |
 | `CLOUDINARY_API_KEY` | Cloudinary API key |
 | `CLOUDINARY_API_SECRET` | Cloudinary API secret |
-| `S3_VIDEO_BUCKET` | S3 bucket for Nova Reel output (optional) |
+| `S3_VIDEO_BUCKET` | S3 bucket (us-west-2) for Luma Ray 2 output (optional) |
 
 ### One-Time Composio Setup
 
@@ -84,8 +84,8 @@ src/
   main.py                    # Orchestrator: pillar -> generate -> image/reel -> publish
   generator/
     text.py                  # Bedrock Claude: topics, captions, image/video prompts
-    image.py                 # Bedrock Nova Canvas: AI image generation (in-memory)
-    reel.py                  # Bedrock Nova Reel: async video generation (S3 output)
+    image.py                 # Bedrock Stable Image Ultra: AI image generation (in-memory)
+    reel.py                  # Bedrock Luma Ray 2: async video generation (S3 output)
   publisher/
     instagram.py             # Composio v3 REST API: image posts + Reels
   utils/
@@ -113,8 +113,8 @@ data/                        # Runtime state (posted_topics.json for dedup)
 | Service | Free Tier | Estimated Cost |
 |---------|-----------|---------------|
 | AWS Bedrock (Claude Sonnet) | Pay per use | ~$2-5/mo |
-| AWS Bedrock (Nova Canvas) | Pay per use | ~$1-3/mo |
-| AWS Bedrock (Nova Reel) | Pay per use | ~$1-5/mo (optional) |
+| AWS Bedrock (Stable Image Ultra) | Pay per use (~$0.14/image) | ~$3-7/mo |
+| AWS Bedrock (Luma Ray 2) | Pay per use | ~$1-5/mo (optional) |
 | Composio | Free tier | $0 |
 | Cloudinary | 25 credits/mo | $0 |
 | GitHub Actions | 2000 min/mo | $0 |

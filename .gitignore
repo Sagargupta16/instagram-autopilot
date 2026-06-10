@@ -24,7 +24,6 @@ build/
 Thumbs.db
 
 # Project specific
-data/posted_topics.json
 data/analytics.json
 output/
 *.mp4

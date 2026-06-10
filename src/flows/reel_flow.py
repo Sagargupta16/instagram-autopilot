@@ -1,6 +1,6 @@
 """Generate an AI video and publish as an Instagram Reel.
 
-Falls back to image_flow if S3_VIDEO_BUCKET is unset (Nova Reel requires S3).
+Falls back to image_flow if S3_VIDEO_BUCKET is unset (Luma Ray 2 requires S3).
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ def post_reel(
     *,
     dry_run: bool,
 ) -> None:
-    """Generate video via Nova Reel and publish as Reel, or fall back to image."""
+    """Generate video via Luma Ray 2 and publish as Reel, or fall back to image."""
     video_prompt = caption_data["video_prompt"]
     log.info("Video prompt: %s", video_prompt)
 

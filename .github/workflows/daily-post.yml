@@ -19,6 +19,8 @@ jobs:
   post:
     runs-on: ubuntu-latest
     timeout-minutes: 240
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v6
@@ -48,3 +50,20 @@ jobs:
           CONTENT_TYPES: ${{ vars.CONTENT_TYPES || 'tip,trick,showcase,tutorial,insight' }}
           # Schedule runs always jitter; manual runs skip unless force_jitter is checked.
           POST_JITTER_MAX_MINUTES: ${{ (github.event_name == 'schedule' || inputs.force_jitter) && (vars.POST_JITTER_MAX_MINUTES || '180') || '0' }}
+
+      # Dedup history must survive the ephemeral runner, otherwise every run
+      # starts blind and repeats topics/scenes. Runs even if publish failed
+      # (history is recorded before publish, intentionally).
+      - name: Persist post history
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/posted_topics.json
+          if git diff --cached --quiet; then
+            echo "No history changes to commit"
+          else
+            git commit -m "chore: record posted topic [skip ci]"
+            git pull --rebase origin main
+            git push origin main
+          fi

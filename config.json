@@ -2,49 +2,98 @@
   "persona": {
     "name": "Creativity Prompt",
     "tone": "curious, playful, lightly nerdy -- like a designer friend showing you their latest experiment",
-    "cta_styles": ["save this for your next render", "try this prompt and tag me", "which slide hit hardest?", "follow for daily AI creative fuel", "steal this for your workflow"]
+    "cta_styles": [
+      "save this for your next render",
+      "try this prompt and tag me",
+      "which slide hit hardest?",
+      "follow for daily AI creative fuel",
+      "steal this for your workflow"
+    ]
   },
   "pillars": [
     {
       "id": "ai_art_techniques",
       "label": "AI Art Techniques",
-      "days": ["monday", "thursday"],
-      "hashtags": ["#aiart", "#generativeart", "#aiartists", "#promptengineering", "#digitalart"],
+      "days": [
+        "monday",
+        "thursday"
+      ],
+      "hashtags": [
+        "#aiart",
+        "#generativeart",
+        "#aiartists",
+        "#promptengineering",
+        "#digitalart"
+      ],
       "image_style": "editorial documentary photography, Magnum Photos feel, muted natural colour, candid human moments",
       "content_format": "carousel"
     },
     {
       "id": "prompt_engineering",
       "label": "Prompt Engineering & Tips",
-      "days": ["tuesday", "friday"],
-      "hashtags": ["#promptengineering", "#aiprompts", "#midjourney", "#stablediffusion", "#creativeai"],
+      "days": [
+        "tuesday",
+        "friday"
+      ],
+      "hashtags": [
+        "#promptengineering",
+        "#aiprompts",
+        "#midjourney",
+        "#stablediffusion",
+        "#creativeai"
+      ],
       "image_style": "clean studio editorial, Annie Leibovitz portraiture, soft key light, shallow depth of field",
       "content_format": "carousel"
     },
     {
       "id": "tools_and_models",
       "label": "New AI Tools & Models",
-      "days": ["wednesday", "saturday"],
-      "hashtags": ["#aitools", "#generativeai", "#machinelearning", "#aicommunity", "#futureofdesign"],
+      "days": [
+        "wednesday",
+        "saturday"
+      ],
+      "hashtags": [
+        "#aitools",
+        "#generativeai",
+        "#machinelearning",
+        "#aicommunity",
+        "#futureofdesign"
+      ],
       "image_style": "National Geographic reportage, environmental portrait, mid-day natural light, rich textural detail",
       "content_format": "carousel"
     },
     {
       "id": "creative_experiments",
       "label": "Creative Experiments & Ideas",
-      "days": ["sunday"],
-      "hashtags": ["#creativecoding", "#aiart", "#experimentaldesign", "#generative", "#artoftheday"],
+      "days": [
+        "sunday"
+      ],
+      "hashtags": [
+        "#creativecoding",
+        "#aiart",
+        "#experimentaldesign",
+        "#generative",
+        "#artoftheday"
+      ],
       "image_style": "candid street photography, Garry Winogrand / Vivian Maier feel, 35mm grain, unposed moments",
       "content_format": "carousel"
     }
   ],
   "posting": {
     "time_utc": "03:30",
-    "days": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+    "days": [
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday",
+      "sunday"
+    ]
   },
   "models": {
-    "text": "us.anthropic.claude-sonnet-4-20250514-v1:0",
-    "image": "amazon.nova-canvas-v1:0",
-    "video": "amazon.nova-reel-v1:0"
+    "text": "us.anthropic.claude-sonnet-4-6",
+    "image": "stability.stable-image-ultra-v1:1",
+    "video": "luma.ray-v2:0"
   }
 }

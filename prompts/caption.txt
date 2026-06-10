@@ -36,9 +36,9 @@ Produce FOUR artifacts in one JSON response: an Instagram caption, an X post, an
 </x_post_rules>
 
 <image_prompts_rules>
-Exactly 5 prompts, each rendered independently by Amazon Nova Canvas at 1024x1024. Photorealism is already enforced by Nova Canvas's native `style: "PHOTOREALISM"` parameter -- you do NOT need to repeat words like "photorealistic" / "photoreal" / "realistic photo" inside the prompt text. Spend that budget on subject + environment + lighting specificity instead. Reference aesthetic: National Geographic, Magnum Photos, Annie Leibovitz, Steve McCurry, editorial documentary, street photography, candid fashion editorial.
+Exactly 5 prompts, each rendered independently by Stable Image Ultra at 1:1. Photorealism comes from photographic specificity -- concrete camera, lens, film stock, and lighting cues (the vocabulary below), NOT from words like "photorealistic" / "photoreal" / "realistic photo". Spend that budget on subject + environment + lighting specificity instead. Reference aesthetic: National Geographic, Magnum Photos, Annie Leibovitz, Steve McCurry, editorial documentary, street photography, candid fashion editorial.
 
-Each prompt MUST follow this canonical order (this is how Nova Canvas was trained -- order matters):
+Each prompt MUST follow this canonical order (subject-first ordering keeps the model anchored -- order matters):
 1. Subject (real person, object, or scene -- concrete, not abstract)
 2. Environment / location (coffee shop, studio, street, bedroom, garden, office)
 3. Action / pose (candid, unposed preferred)
@@ -56,9 +56,9 @@ Each prompt MUST follow this canonical order (this is how Nova Canvas was traine
 
 <positive_framing_rules>
 - Write prompts as CAPTIONS describing the photo, not as commands. "A woman in a Tokyo cafe, leaning over her laptop, window light from the left, shot on Leica M11, 35mm f/1.4, Portra 400, subtle grain" -- NOT "Draw a woman using AI."
-- NEVER use negation words ("no", "not", "without") inside the prompt -- Nova Canvas inverts negations. Exclusions go in the negativeText field at the image-generation layer, not in your prompt text.
+- NEVER use negation words ("no", "not", "without") inside the prompt -- diffusion models invert negations. Exclusions go in the negative_prompt field at the image-generation layer, not in your prompt text.
 - Specify attributes explicitly (age range, clothing, time of day, weather) -- unspecified details get auto-filled into generic/plastic shapes.
-- Keep each prompt 400-600 characters. Nova Canvas hard-caps at 1024; leave headroom for the negative prompt.
+- Keep each prompt 400-600 characters so the subject stays dominant and slides stay visually distinct.
 - Put the most important detail FIRST (subject). Least important (film stock cue) last.
 </positive_framing_rules>
 
@@ -67,7 +67,7 @@ Across the 5 slides, VARY: setting (don't put all 5 in the same room), subject (
 </variation_rules>
 
 <hard_avoid>
-Do not include any of these words in the prompt text -- they push Nova Canvas toward the AI look: illustration, drawing, painting, cartoon, anime, 3D render, CGI, digital art, vector, sketch, stylized, airbrushed, plastic skin, perfect skin, perfect symmetry, HDR, oversaturated, 8K, ultra HD, hyperrealistic, masterpiece, award-winning, trending on ArtStation.
+Do not include any of these words in the prompt text -- they push the model toward the AI look: illustration, drawing, painting, cartoon, anime, 3D render, CGI, digital art, vector, sketch, stylized, airbrushed, plastic skin, perfect skin, perfect symmetry, HDR, oversaturated, 8K, ultra HD, hyperrealistic, masterpiece, award-winning, trending on ArtStation.
 </hard_avoid>
 </image_prompts_rules>
 

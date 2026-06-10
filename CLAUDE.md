@@ -14,7 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Fully automated Instagram content bot. A daily cron in GitHub Actions generates an AI topic (grounded in live trends from 5 sources: HuggingFace papers, Product Hunt, GitHub, Hacker News, Reddit), writes a one-liner caption, generates 5 photorealistic AI images via AWS Bedrock Nova Canvas, and publishes a 5-slide carousel via the Composio v3 API.
+Fully automated Instagram content bot. A daily cron in GitHub Actions generates an AI topic (grounded in live trends from 5 sources: HuggingFace papers, Product Hunt, GitHub, Hacker News, Reddit), writes a one-liner caption, generates 5 photorealistic AI images via AWS Bedrock Stable Image Ultra, and publishes a 5-slide carousel via the Composio v3 API.
 
 ## Commands
 
@@ -57,8 +57,8 @@ src/
 │   └── dedup.py       # posted_topics.json (last 500)
 │
 ├── media/             # AI media generation (uses adapters/bedrock)
-│   ├── image.py       # Nova Canvas (cfgScale 6.5, aggressive negative prompt)
-│   └── video.py       # Nova Reel async + poll
+│   ├── image.py       # Stable Image Ultra (random seed, aggressive negative prompt)
+│   └── video.py       # Luma Ray 2 async + poll
 │
 ├── publishing/        # Instagram publishing (uses adapters/composio)
 │   ├── image_post.py  # 2-step: container -> publish
@@ -82,19 +82,19 @@ src/
 - `load_recent_image_prompts(limit=25)` -> newest-first flattened prompts, injected into `prompts/caption.txt` as `<recent_scenes_to_avoid>` so Claude picks structurally different subjects/environments across days
 - `record_post(topic, image_prompts)` -> atomic append (temp + rename), called ONCE from `main.run()` after caption generation, skipped on `--dry-run`
 
-Legacy list-of-strings format is read transparently and migrated on next write. **Dedup is NOT persisted across CI runs** -- the GitHub Actions runner filesystem is ephemeral, so in production the history is effectively empty on each run. Cross-day variety comes from (a) live trend grounding in `content/topic.py` and (b) per-pillar `style_hint` flavors in `config.json`. If repeats become a real problem, persist `data/` via a workflow commit-back step, a GH Actions artifact cache, or an external store.
+Legacy list-of-strings format is read transparently and migrated on next write. **Dedup IS persisted across CI runs**: `data/posted_topics.json` is committed (no longer gitignored) and the daily workflow's "Persist post history" step commits it back with `[skip ci]` after each run. Cross-day variety comes from this history plus (a) live trend grounding in `content/topic.py` and (b) per-pillar `style_hint` flavors in `config.json`.
 
 ### Claude returns `image_prompts` as a LIST of 5 PHOTOREAL prompts
-`prompts/caption.txt` instructs Claude to return `image_prompts: [s1, s2, s3, s4, s5]` (a JSON array, not a string). **ALL FIVE must be photorealistic** (National Geographic / Magnum / Annie Leibovitz references). The template enforces Nova Canvas canonical order: subject -> environment -> pose -> lighting -> camera+lens -> texture. Slides vary across setting/subject/framing/time-of-day but all stay photoreal. Don't reintroduce the old 12-style palette — we ripped it out because mixed styles broke visual coherence.
+`prompts/caption.txt` instructs Claude to return `image_prompts: [s1, s2, s3, s4, s5]` (a JSON array, not a string). **ALL FIVE must be photorealistic** (National Geographic / Magnum / Annie Leibovitz references). The template enforces canonical subject-first order: subject -> environment -> pose -> lighting -> camera+lens -> texture. Slides vary across setting/subject/framing/time-of-day but all stay photoreal. Don't reintroduce the old 12-style palette — we ripped it out because mixed styles broke visual coherence.
 
-### Nova Canvas inverts negations — exclusions belong only in negativeText
-The caption prompt explicitly forbids `no`/`not`/`without` inside image prompt text. Nova Canvas (and many diffusion models) treats negation words as *keywords to include*, not exclude. Put exclusions in `negativeText` at the image-generation layer (see `src/media/image.py::DEFAULT_NEGATIVE_PROMPT`). If you see `"no text in image"` inside a prompt string, that's a bug.
+### Diffusion models invert negations — exclusions belong only in negative_prompt
+The caption prompt explicitly forbids `no`/`not`/`without` inside image prompt text. Diffusion models treat negation words as *keywords to include*, not exclude. Put exclusions in `negative_prompt` at the image-generation layer (see `src/media/image.py::DEFAULT_NEGATIVE_PROMPT`). If you see `"no text in image"` inside a prompt string, that's a bug.
 
-### Photorealism comes from the `style` enum, not prompt text
-`src/media/image.py` sets `style: "PHOTOREALISM"` (a native Nova Canvas enum). That's what keeps output photoreal, not the word "photorealistic" inside the prompt text. The negative prompt does NOT need to list "illustration, cartoon, 3D render, CGI" — the style param handles that. Keep `negativeText` focused on photo-specific failure modes (text artifacts, plastic skin, bad anatomy). If you find yourself re-adding "no cartoon" to negatives, check the style param is still being sent.
+### Photorealism comes from photographic prompt vocabulary + negative prompt
+Stable Image Ultra has NO native style enum (Nova Canvas's `PHOTOREALISM` is gone with the model). Photorealism is enforced two ways: (1) the caption template forces concrete camera/lens/film-stock/lighting cues into every prompt, and (2) `DEFAULT_NEGATIVE_PROMPT` in `src/media/image.py` leads with the anti-illustration guard ("illustration, cartoon, anime, 3D render, CGI, painting..."). Do NOT trim that guard — it is now the only thing stopping stylized output.
 
 ### Seed must be randomized per call or images collapse
-Nova Canvas's default `seed` is `12`, NOT random. Without explicit randomization, every call across every day starts from the same initial noise and output tends toward visually similar compositions. `generate_image()` picks a fresh random seed per call unless the caller passes one explicitly (useful when iterating on a single prompt).
+`generate_image()` picks a fresh random seed per call unless the caller passes one explicitly (useful when iterating on a single prompt). Stability treats seed 0 as server-side random, but we always send an explicit non-zero seed so the value is logged and a good slide can be reproduced.
 
 ### Trends grounding spans 4 services / 8 sources
 `content/topic.py` calls `fetch_trending_topics()` which parallel-fetches from: HuggingFace daily papers, Product Hunt AI, GitHub (topic:generative-ai + topic:llm + topic:diffusion-models), HN search (3 queries). Reddit adapter exists but is **disabled** because GitHub Actions runner IPs are on Reddit's anti-bot blocklist (consistent 403s). The topic prompt template contains `{trending_topics}` -- Claude uses fresh headlines to pick angles. If any/all sources fail, the code silently passes partial or `[]` results. Don't add "required" error handling here -- graceful degradation is intentional. All sources are **no-auth** (no API key, no OAuth) -- if adding a new source needs auth, rethink.
@@ -145,11 +145,11 @@ Instagram's Graph API fetches images server-side from the URL we provide. **Meta
 ## Important Constraints
 
 - Instagram API: 25 publishes per 24 hours
-- Nova Canvas dimensions must be divisible by 16 (repo uses 1024x1024)
-- Nova Reel requires an S3 bucket — no workaround, async output only
+- Stable Image Ultra takes aspect_ratio (repo uses 1:1), not width/height
+- Luma Ray 2 requires an S3 bucket IN us-west-2 — no workaround, async output only; durations are 5s or 9s only
 - Composio v3 rejects `ck_` prefix keys (legacy v1/v2) — must be `ak_`
 - Cloudinary free tier: 25 credits/month (~30+ daily posts)
-- Image prompts must avoid text/words/letters — Nova Canvas hallucinates gibberish text otherwise (see aggressive `DEFAULT_NEGATIVE_PROMPT` in `src/media/image.py`)
+- Image prompts must avoid text/words/letters — diffusion models hallucinate gibberish text otherwise (see aggressive `DEFAULT_NEGATIVE_PROMPT` in `src/media/image.py`)
 
 ## Coding Conventions
 
@@ -157,4 +157,4 @@ Instagram's Graph API fetches images server-side from the URL we provide. **Meta
 - f-strings, `pathlib` over `os.path`
 - Pydantic for settings; plain dicts for `config.json` (no schema class)
 - Conventional commits: `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:`
-- No `Co-Authored-By` trailers
+- No `Co-Authored-By` trailers

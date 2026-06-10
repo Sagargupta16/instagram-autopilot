@@ -1,11 +1,9 @@
-"""Generate short videos via Bedrock Nova Reel (async, S3 output).
+"""Generate short videos via Bedrock Luma Ray 2 (async, S3 output).
 
-Nova Reel v1 only outputs 1280x720 landscape. Instagram Reels expect 9:16
-portrait and will letterbox landscape sources -- usable but sub-optimal.
-Once Nova Reel supports 720x1280 natively, swap the dimension below.
-An ffmpeg post-process step could also pad to 9:16, but that would require
-adding ffmpeg to the runner and is deferred until anyone actually switches
-a pillar to `content_format: "reel"` (all pillars are currently carousels).
+Luma Ray 2 accepts "9:16" natively, so reels render portrait directly --
+no letterboxing (Nova Reel only did 1280x720 landscape; that model is now
+AWS-legacy and was dropped). Output is 720p at 5s or 9s. The output S3
+bucket must live in the SAME region as the model (us-west-2).
 """
 
 from __future__ import annotations
@@ -17,9 +15,8 @@ from src.adapters.bedrock import get_async_invocation_status, start_async_invoca
 
 log = logging.getLogger(__name__)
 
-# Nova Reel v1 supported output dimension. Do not change without checking
-# the model docs -- unsupported values fail the async job silently.
-NOVA_REEL_DIMENSION = "1280x720"
+# Luma Ray 2 only accepts "5s" or "9s".
+_VALID_DURATIONS = {5, 9}
 
 
 def generate_video(
@@ -27,26 +24,30 @@ def generate_video(
     model_id: str,
     s3_output_uri: str,
     *,
-    duration_seconds: int = 6,
+    duration_seconds: int = 5,
+    aspect_ratio: str = "9:16",
     poll_interval: int = 15,
     max_wait: int = 600,
 ) -> str:
     """Start an async video job, poll until complete, return the S3 URI."""
+    if duration_seconds not in _VALID_DURATIONS:
+        raise ValueError(
+            f"Luma Ray 2 supports durations {sorted(_VALID_DURATIONS)}s, got {duration_seconds}"
+        )
+
     body = {
         "modelInput": {
-            "taskType": "TEXT_VIDEO",
-            "textToVideoParams": {"text": prompt},
-            "videoGenerationConfig": {
-                "durationSeconds": duration_seconds,
-                "fps": 24,
-                "dimension": NOVA_REEL_DIMENSION,
-            },
+            "prompt": prompt,
+            "aspect_ratio": aspect_ratio,
+            "duration": f"{duration_seconds}s",
+            "resolution": "720p",
+            "loop": False,
         },
         "outputDataConfig": {"s3OutputDataConfig": {"s3Uri": s3_output_uri}},
     }
 
     invocation_arn = start_async_invocation(model_id, body)
-    log.info("Nova Reel job started: %s", invocation_arn)
+    log.info("Luma Ray 2 job started: %s", invocation_arn)
 
     elapsed = 0
     while elapsed < max_wait:
@@ -55,7 +56,7 @@ def generate_video(
 
         status_data = get_async_invocation_status(invocation_arn)
         status = status_data["status"]
-        log.info("Nova Reel status: %s (%ds elapsed)", status, elapsed)
+        log.info("Luma Ray 2 status: %s (%ds elapsed)", status, elapsed)
 
         if status == "Completed":
             output_uri = status_data["outputDataConfig"]["s3OutputDataConfig"]["s3Uri"]
@@ -63,6 +64,6 @@ def generate_video(
             return output_uri + "/output.mp4"
         if status == "Failed":
             msg = status_data.get("failureMessage", "Unknown error")
-            raise RuntimeError(f"Nova Reel generation failed: {msg}")
+            raise RuntimeError(f"Luma Ray 2 generation failed: {msg}")
 
-    raise TimeoutError(f"Nova Reel job did not complete within {max_wait}s")
+    raise TimeoutError(f"Luma Ray 2 job did not complete within {max_wait}s")

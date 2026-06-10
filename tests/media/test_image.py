@@ -1,4 +1,4 @@
-"""Tests for Nova Canvas image generation."""
+"""Tests for Stable Image Ultra image generation."""
 
 from __future__ import annotations
 
@@ -9,9 +9,11 @@ import pytest
 
 from src.media.image import MAX_PROMPT_CHARS, SEED_MAX, SEED_MIN, generate_image
 
+MODEL = "stability.stable-image-ultra-v1:1"
+
 
 def _fake_response(body: bytes = b"x") -> dict:
-    return {"images": [base64.b64encode(body).decode()]}
+    return {"images": [base64.b64encode(body).decode()], "finish_reasons": [None]}
 
 
 class TestGenerateImage:
@@ -19,38 +21,26 @@ class TestGenerateImage:
     def test_returns_image_bytes(self, mock_invoke: MagicMock) -> None:
         fake_image = b"\x89PNG fake image"
         mock_invoke.return_value = _fake_response(fake_image)
-        result = generate_image(prompt="test", model_id="amazon.nova-canvas-v1:0")
+        result = generate_image(prompt="test", model_id=MODEL)
         assert result == fake_image
 
     @patch("src.media.image.invoke_model")
-    def test_sends_photorealism_style(self, mock_invoke: MagicMock) -> None:
+    def test_sends_stability_request_shape(self, mock_invoke: MagicMock) -> None:
         mock_invoke.return_value = _fake_response()
-        generate_image(prompt="a cool image", model_id="amazon.nova-canvas-v1:0")
+        generate_image(prompt="a cool image", model_id=MODEL)
         body = mock_invoke.call_args[0][1]
-        assert body["taskType"] == "TEXT_IMAGE"
-        assert body["textToImageParams"]["style"] == "PHOTOREALISM"
-        assert body["textToImageParams"]["text"] == "a cool image"
-
-    @patch("src.media.image.invoke_model")
-    def test_default_cfg_scale_is_strict_edge(self, mock_invoke: MagicMock) -> None:
-        mock_invoke.return_value = _fake_response()
-        generate_image(prompt="x", model_id="amazon.nova-canvas-v1:0")
-        body = mock_invoke.call_args[0][1]
-        # 7.5 sits at the stricter end of "balanced" per Nova docs,
-        # which helps enforce per-slide prompt differences.
-        assert body["imageGenerationConfig"]["cfgScale"] == pytest.approx(7.5)
-        assert body["imageGenerationConfig"]["width"] == 1024
-        assert body["imageGenerationConfig"]["height"] == 1024
-        assert body["imageGenerationConfig"]["quality"] == "premium"
+        assert body["prompt"] == "a cool image"
+        assert body["aspect_ratio"] == "1:1"
+        assert body["output_format"] == "png"
+        # No native style enum on Stability -- the anti-illustration guard
+        # must live in the negative prompt instead.
+        assert "illustration" in body["negative_prompt"]
 
     @patch("src.media.image.invoke_model")
     def test_randomizes_seed_by_default(self, mock_invoke: MagicMock) -> None:
         mock_invoke.return_value = _fake_response()
-        generate_image(prompt="x", model_id="amazon.nova-canvas-v1:0")
-        body = mock_invoke.call_args[0][1]
-        seed = body["imageGenerationConfig"]["seed"]
-        # Must be an int in Nova's valid range, and NOT the default 12 always
-        # (that's the bug we are fixing by randomizing).
+        generate_image(prompt="x", model_id=MODEL)
+        seed = mock_invoke.call_args[0][1]["seed"]
         assert isinstance(seed, int)
         assert SEED_MIN <= seed <= SEED_MAX
 
@@ -58,43 +48,44 @@ class TestGenerateImage:
     def test_different_calls_use_different_seeds(self, mock_invoke: MagicMock) -> None:
         mock_invoke.return_value = _fake_response()
         seeds: set[int] = set()
-        # With range 0..2**31-2, 20 draws colliding is astronomically unlikely.
+        # With range 1..2**32-2, 20 draws colliding is astronomically unlikely.
         for _ in range(20):
-            generate_image(prompt="x", model_id="amazon.nova-canvas-v1:0")
-            seeds.add(mock_invoke.call_args[0][1]["imageGenerationConfig"]["seed"])
+            generate_image(prompt="x", model_id=MODEL)
+            seeds.add(mock_invoke.call_args[0][1]["seed"])
         assert len(seeds) > 1, "seeds should vary across calls"
 
     @patch("src.media.image.invoke_model")
     def test_explicit_seed_is_respected(self, mock_invoke: MagicMock) -> None:
         mock_invoke.return_value = _fake_response()
-        generate_image(prompt="x", model_id="amazon.nova-canvas-v1:0", seed=42)
-        body = mock_invoke.call_args[0][1]
-        assert body["imageGenerationConfig"]["seed"] == 42
+        generate_image(prompt="x", model_id=MODEL, seed=42)
+        assert mock_invoke.call_args[0][1]["seed"] == 42
 
     @patch("src.media.image.invoke_model")
     def test_truncates_prompt_over_limit(self, mock_invoke: MagicMock) -> None:
         mock_invoke.return_value = _fake_response()
         oversized = "A" * (MAX_PROMPT_CHARS + 500)
-        generate_image(prompt=oversized, model_id="amazon.nova-canvas-v1:0")
-        sent = mock_invoke.call_args[0][1]["textToImageParams"]["text"]
+        generate_image(prompt=oversized, model_id=MODEL)
+        sent = mock_invoke.call_args[0][1]["prompt"]
         assert len(sent) == MAX_PROMPT_CHARS
 
     @patch("src.media.image.invoke_model")
     def test_does_not_truncate_short_prompt(self, mock_invoke: MagicMock) -> None:
         mock_invoke.return_value = _fake_response()
         short = "short prompt"
-        generate_image(prompt=short, model_id="amazon.nova-canvas-v1:0")
-        sent = mock_invoke.call_args[0][1]["textToImageParams"]["text"]
-        assert sent == short
+        generate_image(prompt=short, model_id=MODEL)
+        assert mock_invoke.call_args[0][1]["prompt"] == short
 
     @patch("src.media.image.invoke_model")
-    def test_raises_when_rai_strips_all_images(self, mock_invoke: MagicMock) -> None:
-        mock_invoke.return_value = {"images": [], "error": "Content blocked"}
-        with pytest.raises(RuntimeError, match="Content blocked"):
-            generate_image(prompt="x", model_id="amazon.nova-canvas-v1:0")
+    def test_raises_when_content_filtered(self, mock_invoke: MagicMock) -> None:
+        mock_invoke.return_value = {
+            "images": ["AAAA"],
+            "finish_reasons": ["Filter reason: prompt"],
+        }
+        with pytest.raises(RuntimeError, match="filtered"):
+            generate_image(prompt="x", model_id=MODEL)
 
     @patch("src.media.image.invoke_model")
     def test_raises_when_images_key_missing(self, mock_invoke: MagicMock) -> None:
         mock_invoke.return_value = {}
         with pytest.raises(RuntimeError, match="no images"):
-            generate_image(prompt="x", model_id="amazon.nova-canvas-v1:0")
+            generate_image(prompt="x", model_id=MODEL)
