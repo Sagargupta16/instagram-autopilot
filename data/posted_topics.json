@@ -1,1 +1,13 @@
-[]
+[
+  {
+    "topic": "How 'attention amnesia' is secretly ruining your long AI image prompt chains",
+    "image_prompts": [
+      "A prompt engineer in her late 30s, a cluttered home office with sticky notes and dual monitors at dusk, leaning close to read lines of dense text on a screen, blue-hour ambient glow mixing with the cool monitor light casting shadows under her chin, shot on Leica M11, 35mm f/1.4, Kodak Portra 400, natural skin texture with visible pores, subtle film grain, shallow depth of field with the sticky note wall soft behind her.",
+      "A mid-length printed text document spread across a weathered oak desk in a sunlit studio apartment, mid-morning, the first paragraph highlighted in yellow marker fading by the third page, hard directional sun slicing across the paper surface at a low angle emphasizing the texture of the page and ink bleed, shot on Hasselblad X2D, 100mm macro, Fuji Pro 400H, micro-contrast, fine grain, tight overhead close-up framing with visible coffee ring stain at the edge.",
+      "A man in his late 20s seated cross-legged on a rooftop in Oaxaca, golden afternoon light behind him, holding a phone and squinting at a long prompt chain scrolling on screen, surrounding rooftops and terracotta tiles visible in the wide background, hard golden hour backlight creating a rim around his silhouette, shot on Sony A7R V, 24mm wide-angle, Kodak Gold 200, analog halation around the bright sky, visible grain, full-body environmental framing showing scale of the open urban rooftop.",
+      "A close-up of two hands belonging to a woman in her 40s, a dark research lab environment at night, one finger pressing on a printed neural-attention diagram pinned to a corkboard, single tungsten lamp casting warm directional light from the upper right, deep shadows filling the frame edges, shot on Fujifilm X-T5, 85mm f/1.4 portrait, Cinestill 800T, strong analog halation around the lamp's edge, grain visible in the shadows, tight medium framing with diagram text slightly out of focus.",
+      "A wide environmental portrait of a young designer, early morning, sitting alone at a long communal table in an empty Tokyo co-working space, surrounded by scattered printouts of AI-generated images with handwritten margin notes, overcast diffused light from large north-facing windows washing the space evenly, shot on Fujifilm GFX 100, 50mm f/1.8, Fuji Pro 400H, soft natural skin texture, subtle film grain, low-angle framing from table height looking slightly upward to show the full expanse of the room."
+    ],
+    "ts": "2026-06-10T04:22:52+00:00"
+  }
+]
