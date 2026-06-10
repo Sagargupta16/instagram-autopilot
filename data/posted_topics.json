@@ -9,5 +9,16 @@
       "A wide environmental portrait of a young designer, early morning, sitting alone at a long communal table in an empty Tokyo co-working space, surrounded by scattered printouts of AI-generated images with handwritten margin notes, overcast diffused light from large north-facing windows washing the space evenly, shot on Fujifilm GFX 100, 50mm f/1.8, Fuji Pro 400H, soft natural skin texture, subtle film grain, low-angle framing from table height looking slightly upward to show the full expanse of the room."
     ],
     "ts": "2026-06-10T04:22:52+00:00"
+  },
+  {
+    "topic": "Hero Studio Photos vs real photographers: where AI headshots still get caught",
+    "image_prompts": [
+      "A Black woman in her early 50s, professional blazer slightly rumpled at the shoulder seam, standing in the doorway of a Lagos open-air market stall in late afternoon, glancing sideways at something off-frame, her collar catching hard directional sun that throws a sharp shadow across her neck and clavicle, shot on Hasselblad X2D, 85mm f/1.4 portrait, Kodak Portra 400, natural skin texture with visible pores, subtle film grain, shallow depth of field pulling the background into warm blur.",
+      "A wide medium shot of a South Asian man in his mid-40s seated at a bustling Mumbai tea counter at noon, collared linen shirt pulling across his upper back as he leans forward on both elbows with a glass in hand, overhead hard midday sun casting complex ear-to-jaw shadow geometry the AI typically smooths away, shot on Canon EOS R5, 35mm f/1.4, Fuji Pro 400H, micro-contrast on fabric texture, grain visible in the shadows, documentary candid framing.",
+      "Overhead low-angle looking up at a woman in her late 30s, cropped natural hair, standing under a corrugated metal awning in Medell\u00edn at dusk, collar of her linen shirt bunched and twisted at the back of her neck from movement, blue hour ambient light mixing with a warm tungsten lamp from a nearby stall, shot on Fujifilm X-T5, 24mm wide-angle, Cinestill 800T, analog halation around the tungsten source, visible grain, real fabric crease detail dominant in frame.",
+      "Tight environmental portrait of an older Japanese man, late 60s, seated on a low wooden stool outside a Kyoto ceramics workshop mid-morning, his work shirt collar stiff and unevenly buttoned, overcast diffused light rendering every skin fold and ear cartilage ridge with no flattering fill, shot on Leica M11, 50mm f/1.8, Ilford HP5 black and white, strong micro-contrast, visible pores and deep tonal range, background pots and kiln barely resolved.",
+      "A low-angle medium shot of a mixed-race woman in her late 20s walking briskly through a rainy S\u00e3o Paulo pedestrian arcade, trench coat collar turned up and visibly damp, catching window light from the left that makes the wet fabric texture and ear-to-jaw shadow line unmistakable, motion blur on her stride, shot on Sony A7R V, 35mm f/1.4, Kodak Gold 200, slight motion blur on coat hem, natural skin texture, subtle film grain."
+    ],
+    "ts": "2026-06-10T18:49:15+00:00"
   }
 ]
