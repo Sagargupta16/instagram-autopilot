@@ -20,5 +20,16 @@
       "A low-angle medium shot of a mixed-race woman in her late 20s walking briskly through a rainy S\u00e3o Paulo pedestrian arcade, trench coat collar turned up and visibly damp, catching window light from the left that makes the wet fabric texture and ear-to-jaw shadow line unmistakable, motion blur on her stride, shot on Sony A7R V, 35mm f/1.4, Kodak Gold 200, slight motion blur on coat hem, natural skin texture, subtle film grain."
     ],
     "ts": "2026-06-10T18:49:15+00:00"
+  },
+  {
+    "topic": "How visual token routing is changing what AI art models actually 'see' in your prompts",
+    "image_prompts": [
+      "A teenage boy in his mid-teens, sitting cross-legged on a concrete stairwell inside a Havana apartment block, mid-afternoon, holding a battered paperback open in his lap and glancing sideways off-frame, hard directional sun slicing through a narrow side window and striping across his forearm and the peeling painted wall behind him, shot on Fujifilm X-T5, 35mm f/1.4, Kodak Gold 200, subtle film grain, micro-contrast on the wall texture, shallow depth pulling the background paint into soft bokeh.",
+      "A woman in her early 60s, grey locs pinned loosely at the nape of her neck, standing at a fish market stall in Dakar at dawn, sorting small silver fish into a wide flat basket with both hands, cool blue-hour ambient light mixing with a single hanging tungsten bulb over the stall, wet market surfaces reflecting warm amber underneath, shot on Leica M11, 50mm f/1.8, Fuji Pro 400H, natural skin texture, analog halation around the tungsten source, candid mid-motion.",
+      "Wide shot of an empty primary-school classroom in rural Vietnam, low wooden desks in uneven rows, a chalkboard covered in half-erased lessons, overcast diffused light flooding through large louvred windows along one wall, a lone ceiling fan tilted slightly off-axis, shot on Hasselblad X2D, 24mm wide-angle, Kodak Portra 400, subtle film grain, micro-contrast on chalk dust and scuffed floor planks, no people present, scene anchored by geometry and texture.",
+      "Close-up, low-angle looking across a cluttered workbench in a Berlin electronics repair shop at night, a middle-aged man in his 50s with a headband magnifier pushed up on his forehead, soldering a circuit board, single tungsten lamp clamped to the bench casting hard shadows across his forearms and the components, background shelving of salvaged parts dissolving into darkness, shot on Canon EOS R5, 100mm macro, Cinestill 800T, visible grain, analog halation around the lamp filament, tight focus on his hands.",
+      "Medium shot of a young Andean woman in her late 20s, wool cardigan and work trousers, descending a steep cobblestone lane in Cusco at noon, carrying two stacked plastic crates and glancing back over one shoulder, hard directional sun overhead casting short dense shadows, ancient stone wall running the full left edge of the frame, shot on Sony A7R V, 85mm f/1.4, Kodak Portra 400, natural skin texture, visible pores, slight motion blur on her leading foot, background lane falling to soft focus."
+    ],
+    "ts": "2026-06-11T19:15:41+00:00"
   }
 ]
