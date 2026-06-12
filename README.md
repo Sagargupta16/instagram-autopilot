@@ -2,15 +2,15 @@
 
 Fully automated Instagram content creation and posting powered by AWS Bedrock AI + Composio v3 API.
 
-Generates topics, captions, premium photoreal AI images (Stable Image Ultra), and optional Reels (Luma Ray 2) daily -- then publishes them automatically via GitHub Actions. Set it up once, it runs every day.
+Generates topics, captions, premium photoreal AI image carousels (Stable Image Ultra), and optional Reels (Luma Ray 2) daily -- then publishes them automatically via GitHub Actions. Set it up once, it runs every day.
 
 ## How It Works
 
-1. **GitHub Actions** triggers daily on a cron schedule (9 AM IST)
-2. **Config** determines today's content pillar and format (image or reel)
-3. **AWS Bedrock Claude** generates topic, caption, and a detailed image prompt (neon, cinematic, futuristic styling)
-4. **AWS Bedrock Stable Image Ultra** generates a premium 1:1 photoreal image (random seed per slide, aggressive negative prompts)
-5. **Cloudinary** hosts the image at a public URL (trusted by Instagram's CDN)
+1. **GitHub Actions** triggers daily at 15:30 UTC (9 PM IST), then sleeps a random 0-180 min jitter so posts don't look bot-scheduled
+2. **Config** determines today's content pillar and format (carousel, image, or reel)
+3. **AWS Bedrock Claude** generates topic, caption, and 5 detailed slide image prompts (photoreal documentary/editorial styling per pillar)
+4. **AWS Bedrock Stable Image Ultra** generates a premium 1:1 photoreal image per slide (random seed per slide, aggressive negative prompts)
+5. **Cloudinary** hosts the images at public URLs (trusted by Instagram's CDN)
 6. **Composio v3 API** publishes to Instagram via two-step container flow
 
 For reel-format pillars, **Bedrock Luma Ray 2** generates a 5s/9s 9:16 video via async S3 output (bucket must be in us-west-2), then publishes as an Instagram Reel.
@@ -19,10 +19,10 @@ For reel-format pillars, **Bedrock Luma Ray 2** generates a 5s/9s 9:16 video via
 
 | Day | Pillar | Image Style | Format |
 |-----|--------|-------------|--------|
-| Monday, Thursday | Cognitive Biases | Cinematic photorealism, neon cyberpunk lighting | Image |
-| Tuesday, Friday | Relationship Psychology | Surreal 3D render, holographic, futuristic editorial | Image |
-| Wednesday, Saturday | Habits & Behavior Change | Hyper-realistic futuristic, neon rim lighting, chrome | Image |
-| Sunday | Rest | -- | No post |
+| Monday, Thursday | AI Art Techniques | Editorial documentary photography, Magnum Photos feel | Carousel |
+| Tuesday, Friday | Prompt Engineering & Tips | Clean studio editorial, Annie Leibovitz portraiture | Carousel |
+| Wednesday, Saturday | New AI Tools & Models | National Geographic reportage, environmental portrait | Carousel |
+| Sunday | Creative Experiments & Ideas | Candid street photography, 35mm grain, unposed moments | Carousel |
 
 Pillars, persona, tone, image styles, content format, and hashtags are all configurable in `config.json`.
 
@@ -80,33 +80,35 @@ Add these in your repo Settings > Secrets and variables > Actions:
 ```
 config.json                  # Content strategy: pillars, schedule, persona, models
 src/
-  config.py                  # Pydantic settings (.env) + config.json loader
-  main.py                    # Orchestrator: pillar -> generate -> image/reel -> publish
-  generator/
-    text.py                  # Bedrock Claude: topics, captions, image/video prompts
-    image.py                 # Bedrock Stable Image Ultra: AI image generation (in-memory)
-    reel.py                  # Bedrock Luma Ray 2: async video generation (S3 output)
-  publisher/
-    instagram.py             # Composio v3 REST API: image posts + Reels
-  utils/
-    image_host.py            # Cloudinary: bytes -> public URL
+  settings.py                # Pydantic settings (.env)
+  pillar.py                  # config.json loader + day-of-week pillar routing
+  schedule.py                # Random post-time jitter inside the engagement window
+  main.py                    # Orchestrator: pillar -> generate -> flow -> publish
+  adapters/                  # One external service each: bedrock, composio,
+                             # cloudinary_host + trend sources (hackernews,
+                             # github_trending, huggingface_papers, producthunt, reddit)
+  content/                   # topic, caption, trends aggregator, dedup history
+  media/                     # image (Stable Image Ultra), video (Luma Ray 2)
+  flows/                     # carousel_flow, image_flow, reel_flow
+  publishing/                # Composio v3 REST API: carousel, image_post, reel
 
 prompts/                     # AI prompt templates with {variable} placeholders
 data/                        # Runtime state (posted_topics.json for dedup)
+tests/                       # Mirrors src/ layout
 .github/workflows/
-  daily-post.yml             # Cron: daily 3:30 AM UTC (9 AM IST)
-  ci.yml                     # Ruff lint + pytest on push/PR
+  daily-post.yml             # Cron: daily 15:30 UTC (9 PM IST) + 0-180 min jitter
+  ci.yml                     # Shared Python CI + security scan on push/PR
 ```
 
 ## Customization
 
 - **Content strategy**: Edit `config.json` to change pillars, schedule, persona, tone, and image styles
-- **Content format**: Set `content_format` per pillar to `"image"` or `"reel"` in `config.json`
-- **Posting schedule**: Adjust cron in `.github/workflows/daily-post.yml`
-- **Niche**: Change `NICHE` in `.env` (default: `psychology_facts`)
-- **Content types**: Change `CONTENT_TYPES` in `.env` (default: `fact,tip`)
+- **Content format**: Set `content_format` per pillar to `"carousel"`, `"image"`, or `"reel"` in `config.json`
+- **Posting schedule**: Adjust cron in `.github/workflows/daily-post.yml` and jitter via `POST_JITTER_MAX_MINUTES`
+- **Niche**: Change `NICHE` in `.env` (default: `ai_creativity_and_prompts`)
+- **Content types**: Change `CONTENT_TYPES` in `.env` (default: `tip,trick,showcase,tutorial,insight`)
 - **AI models**: Change `models` in `config.json` (text, image, video)
-- **Image quality**: Tune `cfgScale` in `image.py` and negative prompts for different aesthetics
+- **Image quality**: Tune the negative prompt in `src/media/image.py` for different aesthetics
 
 ## Cost Breakdown (Monthly)
 
