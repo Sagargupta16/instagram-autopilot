@@ -31,5 +31,16 @@
       "Medium shot of a young Andean woman in her late 20s, wool cardigan and work trousers, descending a steep cobblestone lane in Cusco at noon, carrying two stacked plastic crates and glancing back over one shoulder, hard directional sun overhead casting short dense shadows, ancient stone wall running the full left edge of the frame, shot on Sony A7R V, 85mm f/1.4, Kodak Portra 400, natural skin texture, visible pores, slight motion blur on her leading foot, background lane falling to soft focus."
     ],
     "ts": "2026-06-11T19:15:41+00:00"
+  },
+  {
+    "topic": "Why your text-to-image prompts fail at defect feedback \u2014 and how to fix it",
+    "image_prompts": [
+      "A South Asian woman in her early 40s, textile quality inspector at a well-lit factory floor in Ahmedabad, mid-morning, holding a bolt of printed fabric up toward a row of industrial skylights, squinting along the weave to find flaws, hard directional sun cutting through the skylight grid and casting sharp parallel shadows across the cloth and her forearms, shot on Hasselblad X2D, 85mm f/1.4 portrait, Kodak Portra 400, natural skin texture, micro-contrast, subtle film grain, shallow depth of field pulling focus to her eyes and the fabric edge.",
+      "An older white man in his late 60s, retired engineer type, seated at a wide drafting table in a sunlit Portland home studio late afternoon, red pen in hand marking a large printed technical schematic, reading glasses pushed up on his forehead, golden hour backlight spilling low through a west-facing window and rimming his silver hair, shot on Leica M11, 50mm f/1.8, Fuji Pro 400H, analog halation on the window edge, visible pores, warm shadow detail.",
+      "A Black woman in her late 30s, product designer, standing at a tall white wall covered in printed AI-generated image test strips in a sparse East London studio at dusk, arms crossed, head tilted slightly, studying one strip where a rendered hand shows extra fingers, blue hour ambient light from a large north-facing window mixing with a single tungsten lamp behind her, shot on Canon EOS R5, 35mm f/1.4, Cinestill 800T, slight film grain, analog color shift in the shadows, shallow focus on her expression.",
+      "Overhead close-up of a wide wooden worktable in a bright Copenhagen agency studio, mid-morning, five printed AI portrait outputs arranged in a row, each annotated in pencil \u2014 circles, arrows, and margin notes pointing at facial inconsistencies, a mechanical pencil resting diagonally across the sheets, overcast diffused light from a ceiling skylight washing the scene evenly, shot on Fujifilm GFX 100, tilt-shift lens, Kodak Gold 200, subtle grain, micro-contrast on the paper texture and pencil graphite.",
+      "A Filipino man in his early 30s, freelance prompt engineer, seated alone at a narrow caf\u00e9 counter in Manila at night, a large iced coffee beside his laptop, leaning back on a wooden stool and holding a printed prompt iteration sheet at arm's length, neon sign spill from the street-facing window painting warm magenta across one side of his face, shot on Fujifilm X-T5, 35mm f/1.4, Ilford HP5 black and white, visible grain, slight motion blur on the paper edge, deep natural shadows."
+    ],
+    "ts": "2026-06-12T16:40:04+00:00"
   }
 ]
