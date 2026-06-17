@@ -86,5 +86,16 @@
       "Tight environmental portrait of an Egyptian man in his early 50s, salt-and-pepper close beard, grey linen button-down, seated on a low stool on a sunlit Istanbul rooftop at golden hour, a tablet propped on his knee showing a split-screen of two near-identical AI portraits with visibly inconsistent lighting across them, his hand resting on the screen edge, golden hour backlight rimming his shoulders and the back of his head, shot on Sony A7R V, 85mm f/1.4, Kodak Gold 200, warm analog halation in the highlights, natural skin texture, subtle film grain"
     ],
     "ts": "2026-06-16T17:32:58+00:00"
+  },
+  {
+    "topic": "How multimodal agentic search is about to replace your visual reference workflow",
+    "image_prompts": [
+      "A mid-30s Moroccan woman with dark curly hair pulled back loosely, wearing a faded rust-orange field shirt, standing at a wide outdoor market stall in Marrakech mid-morning, sorting through stacked bolts of printed fabric, one hand lifting a deep indigo textile toward the light, hard directional sun casting sharp shadows across the canvas awning above her, shot on Fujifilm GFX 100, 50mm f/1.8, Fuji Pro 400H, natural skin texture, subtle film grain, warm ambient bounce from adjacent stall.",
+      "A teenage Chilean boy, around 16, cropped black hair, grey zip-up hoodie, seated on the steps of a concrete brutalist library in Santiago at blue hour, a battered tablet balanced on his knees, screen glow mixing with the deep cobalt sky behind him, leaning forward studying the display with focused concentration, shot on Leica M11, 35mm f/1.4, Cinestill 800T, analog halation around the screen edges, visible grain, micro-contrast on his face.",
+      "Wide shot of a sparse fishing dock on the coast of Kerala, India, at golden hour, an older Tamil man in his late 60s wearing a white dhoti and a faded plaid short-sleeve shirt, standing at the far end of the dock with his back to the camera, arms loose at his sides, looking out at a fleet of wooden trawlers backlit by low amber sun, water catching gold and copper reflections, shot on Canon EOS R5, 24mm wide-angle, Kodak Gold 200, slight halation on the water surface, subtle film grain.",
+      "Overhead medium shot looking straight down at a cluttered desk inside a compact Istanbul apartment, midday overcast light through a frosted window diffusing evenly across the surface, a pair of hands belonging to a woman in her early 40s \u2014 dark skin, short trimmed nails, sleeve of a black rollneck visible \u2014 arranging printed reference photographs into overlapping clusters beside an open sketchbook and a ceramic espresso cup, shot on Hasselblad X2D, 100mm macro, Kodak Portra 400, fine surface texture, subtle grain.",
+      "Low-angle medium shot looking up at a tall corrugated-iron wall painted in peeling turquoise in a quiet Accra side street at dusk, a Ghanaian man in his late 20s, short locs, wearing a white oversized tee tucked loosely into olive cargo trousers, leaning one shoulder against the wall and holding a phone at chest height, half-glancing down at the screen with an expression of mild curiosity, warm tungsten spill from a single bare bulb above a nearby doorway, shot on Fujifilm X-T5, 85mm f/1.4 portrait, Ilford HP5 black and white, visible grain, deep shadow contrast."
+    ],
+    "ts": "2026-06-17T16:53:36+00:00"
   }
 ]
