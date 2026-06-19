@@ -108,5 +108,16 @@
       "Overhead medium shot looking straight down at a narrow wooden dock on a grey lake in rural Finland at early morning, a middle-aged Finnish man in his early 50s with a salt-and-pepper beard, dark wax jacket, seated on the dock edge with his legs hanging over the water, a thermos beside him, overcast diffused pale light with no hard shadows, the lake surface flat and dark below, shot on Phase One XF, 100mm macro, Ilford HP5 black and white, subtle grain, high micro-contrast on the jacket texture and weathered dock planks."
     ],
     "ts": "2026-06-18T17:21:44+00:00"
+  },
+  {
+    "topic": "Why generative model scores lie: how hidden randomness kills your prompt benchmarks",
+    "image_prompts": [
+      "A Vietnamese woman in her early 30s, straight dark hair loose past her shoulders, wearing a faded olive utility jacket, seated at a high concrete counter inside a minimalist Hanoi co-working space at midday, staring at two printed sheets of data side by side with a faint crease between her brows, overcast diffused light from a wide skylight above, shot on Hasselblad X2D, 85mm f/1.4 portrait, Fuji Pro 400H, natural skin texture, micro-contrast, subtle film grain.",
+      "A wide shot of a sparse white-tiled university computer lab in Prague at night, rows of monitors casting cool blue-white glow across empty chairs, one lone Polish man in his late 20s, round wire-frame glasses, dark crewneck sweater, leaning close to a single screen filled with columns of numbers, fluorescent office ceiling light mixing with monitor spill, shot on Canon EOS R5, 24mm wide-angle, Cinestill 800T, analog halation along monitor edges, visible grain.",
+      "Tight close-up of a weathered wooden desk surface inside a dimly lit Cape Town home office, two handwritten notebooks open side by side showing graphs with wildly different trend lines, a half-drunk espresso cup and a mechanical pencil resting nearby, single tungsten lamp casting a warm pool of light from the right, shot on Leica M11, 100mm macro, Kodak Gold 200, micro-contrast on paper texture, subtle film grain, shallow depth of field.",
+      "Low-angle medium shot looking up at a tall Iranian man in his mid-40s, salt-and-pepper stubble, wearing a charcoal knit pullover, standing at a floor-to-ceiling whiteboard in a Tehran research office at late afternoon, mid-gesture writing a distribution curve with a red marker, hard directional sun cutting through venetian blinds and striping the board, shot on Fujifilm X-T5, 35mm f/1.4, Ilford HP5 black and white, strong shadow detail, visible grain.",
+      "Overhead medium shot looking straight down at a pale stone kitchen table in a sunlit Amsterdam apartment at morning, a Swedish woman in her early 50s, short silver hair, pale blue linen shirt, both hands pressing flat on the table as she stares down at a laptop screen displaying a scatter plot with a wide error band, window light from the left falling across her forearms and the table surface, shot on Phase One XF, 50mm f/1.8, Kodak Portra 400, natural skin texture, subtle film grain."
+    ],
+    "ts": "2026-06-19T18:10:09+00:00"
   }
 ]
