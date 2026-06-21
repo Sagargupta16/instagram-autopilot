@@ -130,5 +130,16 @@
       "A low wide-angle shot looking across a rain-slicked evening street in Osaka, a compact Japanese man in his early 40s with short dark hair, wearing a dark green anorak, seated on a concrete ledge outside a convenience store studying a printout dense with highlighted text and margin notes, the storefront's fluorescent interior light spilling amber and white across the wet pavement, neon sign spill in pink from the shop above adding a secondary colour cast to the scene, shot on Sony A7R V, 35mm f/1.4, Cinestill 800T, analog halation around the neon source, subtle film grain."
     ],
     "ts": "2026-06-20T16:23:04+00:00"
+  },
+  {
+    "topic": "How to build a context-aware prompt agent that rewrites itself mid-generation",
+    "image_prompts": [
+      "A tall Peruvian man in his early 50s, silver hair cropped close, wearing a rumpled white dress shirt with sleeves rolled to the elbows, standing at a wall-mounted whiteboard inside a small Santiago co-working space at midday, mid-motion writing a dense flowchart with a black marker, hard directional sun cutting in from a high side window casting sharp shadow across the board, shot on Canon EOS R5, 35mm f/1.4, Fuji Pro 400H, subtle film grain, natural skin texture, micro-contrast on the ink lines",
+      "A compact Turkish woman in her late 30s, dark curly hair tied loosely, wearing a mustard-yellow crewneck and dark jeans, seated cross-legged on a concrete floor inside a Berlin warehouse studio at dusk, a single open laptop glowing between her knees and handwritten index cards fanned out around her, blue hour light bleeding through industrial skylights above, shot on Fujifilm X-T5, 50mm f/1.8, Cinestill 800T, analog halation around the screen glow, visible grain",
+      "Tight close-up of a weathered spiral notebook lying open on a scratched formica caf\u00e9 table in Mexico City at noon, two columns of handwritten text in blue ink with arrows looping between them suggesting iterative rewrites, a ceramic espresso cup just entering the left edge of frame, hard directional sun from a street-facing window burning across the page, shot on Leica M11, 100mm macro, Kodak Gold 200, subtle film grain, micro-contrast on the ink texture",
+      "Wide overhead shot looking straight down at a long communal table inside a Copenhagen library reading room, late morning overcast light flooding in from floor-to-ceiling windows, a lean Danish man in his mid-30s with close-cropped blond hair and a grey quarter-zip seated alone at one end, several printed pages spread in a loose arc around his laptop, his hand raised mid-reach toward one sheet, shot on Hasselblad X2D, 24mm wide-angle, Kodak Portra 400, overcast diffused light, natural skin texture, slight motion blur on the reaching hand",
+      "Low-angle medium shot looking up at a young Ghanaian woman in her late 20s, natural hair in a high puff, wearing an oversized olive tech-fleece, standing at a tall wooden standing desk inside a dimly lit Lagos apartment at night, the monitor behind her casting cool blue-white light across her jaw and collar, a single tungsten lamp pooling amber on the desk surface below, shot on Sony A7R V, 85mm f/1.4 portrait, Ilford HP5 black and white, visible grain, deep shadow falloff, natural skin pores in the lit half of her face"
+    ],
+    "ts": "2026-06-21T18:49:52+00:00"
   }
 ]
