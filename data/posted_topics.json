@@ -229,5 +229,16 @@
       "Tight overhead close-up looking straight down at a large wooden drafting table in a Chicago apartment at night, four small inkjet test prints arranged in a neat row across the table surface, each showing a different color temperature rendering of the same architectural subject, a mechanical pencil and a loupe resting beside them, a single tungsten desk lamp casting a warm pool of light across the center, shot on Sony A7R V, 100mm macro, Kodak Gold 200, micro-contrast, visible paper grain and texture."
     ],
     "ts": "2026-06-29T18:32:00+00:00"
+  },
+  {
+    "topic": "How SAM2Matting changes the way you prompt subject isolation in video",
+    "image_prompts": [
+      "A tall South Korean woman in her early 30s, blunt-cut black hair falling past her jaw, wearing a loose white button-down tucked into wide-leg charcoal trousers, standing at a floor-to-ceiling glass window on a high floor of a Seoul office tower at midday, one hand raised and touching the glass, city grid visible far below through diffused overcast light, shot on Hasselblad X2D, 85mm f/1.4 portrait, Fuji Pro 400H, natural skin texture, micro-contrast, subtle film grain",
+      "Low-angle medium shot looking up at a compact Brazilian man in his late 30s, tight curly brown hair, wearing a faded denim jacket over a grey ribbed tank, crouching beside a large monitor on a low rolling cart in a bright S\u00e3o Paulo production studio in the early morning, blue-grey pre-noon light through industrial skylights above, one hand resting on his knee as he studies the screen, shot on Canon EOS R5, 35mm f/1.4, Kodak Gold 200, visible grain, shallow depth of field",
+      "Wide shot inside a spare glass-walled edit suite in Amsterdam at dusk, a single editor \u2014 a slender Dutch woman in her mid-40s, silver-streaked hair in a loose braid, wearing a dark olive zip fleece \u2014 seated at a curved desk facing three large monitors, blue hour light bleeding through the exterior window behind her, the room otherwise lit by the cool glow of the screens, shot on Fujifilm GFX 100, 24mm wide-angle, Cinestill 800T, analog halation on the screen edges, subtle motion blur",
+      "Tight close-up of two hands \u2014 belonging to a heavyset Nigerian man in his 50s, visible calluses and short nails \u2014 hovering over a graphics tablet stylus mid-stroke on a desk surface, a single tungsten desk lamp casting hard directional light from the right, pools of warm amber across the knuckles, the rest of the frame falling into soft shadow, shot on Leica M11, 100mm macro, Kodak Portra 400, visible pores and skin texture, extreme shallow depth of field",
+      "Overhead medium shot looking straight down at a small round caf\u00e9 table in a sunlit Melbourne laneway at late morning, a young mixed-race woman in her late 20s \u2014 natural hair gathered high, wearing a terracotta crewneck \u2014 leaning forward over an open laptop, a ceramic flat white beside her right hand, overcast diffused light from the open laneway above, terracotta and cream tones echoing each other, shot on Fujifilm X-T5, 50mm f/1.8, Fuji Pro 400H, subtle film grain, natural skin texture"
+    ],
+    "ts": "2026-06-30T17:11:27+00:00"
   }
 ]
