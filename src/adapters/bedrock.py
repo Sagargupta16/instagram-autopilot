@@ -6,6 +6,7 @@ import json
 import logging
 import re
 from typing import Any
+from urllib.parse import quote
 
 import requests
 
@@ -82,7 +83,10 @@ def start_async_invocation(model_id: str, body: dict[str, Any]) -> str:
 
 def get_async_invocation_status(invocation_arn: str) -> dict[str, Any]:
     """Poll the status of an async Bedrock job."""
-    url = ASYNC_STATUS_URL.format(region=settings.aws_region, arn=invocation_arn)
+    # The invocation ARN contains "/" and ":" which break the URL path unless
+    # percent-encoded (safe="" encodes those too), so the GET hits the right
+    # /async-invoke/{arn} route instead of a malformed 404 path.
+    url = ASYNC_STATUS_URL.format(region=settings.aws_region, arn=quote(invocation_arn, safe=""))
     resp = requests.get(url, headers=_auth_headers(), timeout=30)
     resp.raise_for_status()
     return resp.json()
