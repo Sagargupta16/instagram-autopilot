@@ -93,7 +93,7 @@ def curate(theme: str, count: int, api_key: str) -> None:
             }
         )
         picked += 1
-        print(f"[{theme}] {track_id}")  # noqa: T201 -- CLI script, prints are intentional
+        print(f"[{theme}] {track_id}")  # noqa: T201  # NOSONAR -- CLI script, prints intentional
     _write_manifest(manifest)
 
 
