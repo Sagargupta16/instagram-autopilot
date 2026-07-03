@@ -39,8 +39,8 @@ def verify_auth() -> None:
     """
     try:
         cloudinary.api.ping()
-    except Exception as e:  # cloudinary raises its own exception types; re-wrap.
-        log.error("Cloudinary auth preflight FAILED: %s", e)
+    except Exception:  # cloudinary raises its own exception types; re-wrap.
+        log.exception("Cloudinary auth preflight FAILED")
         raise
     log.info("Cloudinary auth preflight OK")
 
