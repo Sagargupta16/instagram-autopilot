@@ -16,9 +16,11 @@ from src.content import dedup
 def tmp_history(tmp_path: Path) -> Iterator[Path]:
     """Redirect dedup module to a temp history file for the test."""
     file = tmp_path / "posted_topics.json"
+    slots = tmp_path / "posted_slots.json"
     with (
         patch.object(dedup, "DATA_DIR", tmp_path),
         patch.object(dedup, "POSTED_TOPICS_FILE", file),
+        patch.object(dedup, "POSTED_SLOTS_FILE", slots),
     ):
         yield file
 
@@ -72,3 +74,23 @@ class TestRecordAndLoad:
         dedup.record_post("t", ["p"])
         tmps = list(tmp_history.parent.glob("*.tmp"))
         assert tmps == []
+
+
+class TestSlotIdempotency:
+    def test_unrecorded_slot_is_not_posted(self, tmp_history: Path) -> None:
+        assert dedup.slot_already_posted("2026-07-04", "06:00", "travel-cinematic-reel") is False
+
+    def test_recorded_slot_is_detected(self, tmp_history: Path) -> None:
+        dedup.record_slot("2026-07-04", "06:00", "travel-cinematic-reel")
+        assert dedup.slot_already_posted("2026-07-04", "06:00", "travel-cinematic-reel") is True
+
+    def test_different_slot_key_not_detected(self, tmp_history: Path) -> None:
+        dedup.record_slot("2026-07-04", "06:00", "travel-cinematic-reel")
+        assert dedup.slot_already_posted("2026-07-04", "12:00", "travel-cinematic-reel") is False
+        assert dedup.slot_already_posted("2026-07-05", "06:00", "travel-cinematic-reel") is False
+        assert dedup.slot_already_posted("2026-07-04", "06:00", "food-editorial-carousel") is False
+
+    def test_record_slot_is_idempotent(self, tmp_history: Path) -> None:
+        dedup.record_slot("2026-07-04", "06:00", "travel-cinematic-reel")
+        dedup.record_slot("2026-07-04", "06:00", "travel-cinematic-reel")
+        assert len(dedup.load_posted_slots()) == 1
