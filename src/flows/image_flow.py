@@ -6,6 +6,7 @@ import logging
 from typing import Any
 
 from src.adapters.cloudinary_host import upload_image
+from src.adapters.places import resolve_location_id
 from src.media.image import generate_image
 from src.publishing.image_post import publish_image_post
 
@@ -27,4 +28,5 @@ def post_image(
         return
 
     image_url = upload_image(image_bytes)
-    publish_image_post(image_url=image_url, caption=caption)
+    location_id = resolve_location_id(caption_data.get("location_query") or "")
+    publish_image_post(image_url=image_url, caption=caption, location_id=location_id)

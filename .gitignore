@@ -26,10 +26,14 @@ Thumbs.db
 # Project specific
 data/analytics.json
 output/
+assets/cache/
 *.mp4
 *.mp3
 *.wav
 *.png
+
+# Except curated audio tracks (Pixabay CC0, checked in via curate_audio.py)
+!assets/audio/**/*.mp3
 
 # Logs
 *.log

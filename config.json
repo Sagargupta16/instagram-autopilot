@@ -1,98 +1,93 @@
 {
   "persona": {
-    "name": "Creativity Prompt",
-    "tone": "curious, playful, lightly nerdy -- like a designer friend showing you their latest experiment",
+    "name": "Kaleidoscope",
+    "tone": "curious, cinematic, unafraid of stillness -- like a travel-mag columnist who also codes",
     "cta_styles": [
-      "save this for your next render",
-      "try this prompt and tag me",
+      "save this for later",
+      "tag someone who needs to see this",
       "which slide hit hardest?",
-      "follow for daily AI creative fuel",
+      "screenshot the one that stuck",
       "steal this for your workflow"
     ]
   },
+  "cadence": {
+    "max_posts_per_day": 3,
+    "post_probability": [0.15, 0.35, 0.35, 0.15],
+    "window_utc": {"start": "04:00", "end": "20:00"},
+    "min_gap_minutes": 90,
+    "skip_probability": 0.05
+  },
+  "categories": ["travel", "food", "fitness", "entertainment", "tech", "lifestyle"],
   "pillars": [
     {
-      "id": "ai_art_techniques",
-      "label": "AI Art Techniques",
-      "days": [
-        "monday",
-        "thursday"
-      ],
-      "hashtags": [
-        "#aiart",
-        "#generativeart",
-        "#aiartists",
-        "#promptengineering",
-        "#digitalart"
-      ],
-      "image_style": "editorial documentary photography, Magnum Photos feel, muted natural colour, candid human moments",
-      "content_format": "carousel"
+      "id": "travel-cinematic-reel",
+      "label": "Travel",
+      "category": "travel",
+      "content_format": "reel",
+      "audio_theme": "cinematic",
+      "image_style": "Steve McCurry / National Geographic reportage, mid-day natural light, environmental portrait, muted saturation",
+      "location": {"regions": ["Bali", "Tokyo", "Lisbon", "Reykjavik", "Kyoto", "Marrakech", "Patagonia"]},
+      "hashtags": ["#travel", "#wanderlust", "#reels", "#travelphotography"],
+      "weight": 1.5
     },
     {
-      "id": "prompt_engineering",
-      "label": "Prompt Engineering & Tips",
-      "days": [
-        "tuesday",
-        "friday"
-      ],
-      "hashtags": [
-        "#promptengineering",
-        "#aiprompts",
-        "#midjourney",
-        "#stablediffusion",
-        "#creativeai"
-      ],
-      "image_style": "clean studio editorial, Annie Leibovitz portraiture, soft key light, shallow depth of field",
-      "content_format": "carousel"
+      "id": "food-editorial-carousel",
+      "label": "Food",
+      "category": "food",
+      "content_format": "carousel",
+      "audio_theme": "upbeat",
+      "image_style": "Peter Menzel overhead flat-lay, natural window light, tactile textures, shallow depth",
+      "location": {"regions": ["New York", "Bangkok", "Tokyo", "Mumbai", "Naples"]},
+      "hashtags": ["#foodie", "#foodstagram", "#foodphotography"],
+      "weight": 1.2
     },
     {
-      "id": "tools_and_models",
-      "label": "New AI Tools & Models",
-      "days": [
-        "wednesday",
-        "saturday"
-      ],
-      "hashtags": [
-        "#aitools",
-        "#generativeai",
-        "#machinelearning",
-        "#aicommunity",
-        "#futureofdesign"
-      ],
-      "image_style": "National Geographic reportage, environmental portrait, mid-day natural light, rich textural detail",
-      "content_format": "carousel"
+      "id": "fitness-morning-reel",
+      "label": "Fitness",
+      "category": "fitness",
+      "content_format": "reel",
+      "audio_theme": "energetic",
+      "image_style": "Annie Leibovitz portraiture, morning golden hour, kinetic pose, cinestill 800T",
+      "location": {"regions": []},
+      "hashtags": ["#fitness", "#morningroutine", "#healthylifestyle"],
+      "weight": 1.0
     },
     {
-      "id": "creative_experiments",
-      "label": "Creative Experiments & Ideas",
-      "days": [
-        "sunday"
-      ],
-      "hashtags": [
-        "#creativecoding",
-        "#aiart",
-        "#experimentaldesign",
-        "#generative",
-        "#artoftheday"
-      ],
-      "image_style": "candid street photography, Garry Winogrand / Vivian Maier feel, 35mm grain, unposed moments",
-      "content_format": "carousel"
+      "id": "entertainment-carousel",
+      "label": "Entertainment",
+      "category": "entertainment",
+      "content_format": "carousel",
+      "audio_theme": "upbeat",
+      "image_style": "candid editorial, ambient venue lighting, unposed moments, Kodak Portra 400",
+      "location": {"regions": ["Los Angeles", "London", "Mumbai"]},
+      "hashtags": ["#reels", "#trending", "#viral", "#entertainment"],
+      "weight": 0.8
+    },
+    {
+      "id": "tech-carousel",
+      "label": "Tech",
+      "category": "tech",
+      "content_format": "carousel",
+      "audio_theme": "ambient",
+      "image_style": "clean product editorial, softbox at 45 degrees, shallow depth of field, matte surfaces",
+      "location": {"regions": []},
+      "hashtags": ["#tech", "#innovation", "#ai", "#futureofdesign"],
+      "weight": 1.3
+    },
+    {
+      "id": "lifestyle-image",
+      "label": "Lifestyle",
+      "category": "lifestyle",
+      "content_format": "carousel",
+      "audio_theme": "chill",
+      "image_style": "Magnum documentary, muted tones, candid moment, Fuji Pro 400H",
+      "location": {"regions": []},
+      "hashtags": ["#lifestyle", "#slowliving", "#everyday"],
+      "weight": 1.0
     }
   ],
-  "posting": {
-    "time_utc": "03:30",
-    "days": [
-      "monday",
-      "tuesday",
-      "wednesday",
-      "thursday",
-      "friday",
-      "saturday",
-      "sunday"
-    ]
-  },
   "models": {
-    "text": "us.anthropic.claude-sonnet-4-6",
+    "text": "us.anthropic.claude-fable-5",
     "image": "stability.stable-image-ultra-v1:1",
     "video": "luma.ray-v2:0"
   }

@@ -18,7 +18,7 @@ on:
 jobs:
   post:
     runs-on: ubuntu-latest
-    timeout-minutes: 240
+    timeout-minutes: 480
     permissions:
       contents: write
 
@@ -30,6 +30,9 @@ jobs:
           python-version: "3.14"
           cache: pip
 
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
       - name: Install dependencies
         run: pip install -r requirements.txt
 
@@ -38,6 +41,8 @@ jobs:
         env:
           AWS_BEARER_TOKEN_BEDROCK: ${{ secrets.AWS_BEARER_TOKEN_BEDROCK }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           COMPOSIO_API_KEY: ${{ secrets.COMPOSIO_API_KEY }}
           COMPOSIO_CONNECTED_ACCOUNT_ID: ${{ secrets.COMPOSIO_CONNECTED_ACCOUNT_ID }}
           COMPOSIO_USER_ID: ${{ secrets.COMPOSIO_USER_ID }}
@@ -46,10 +51,10 @@ jobs:
           CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
           CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
           S3_VIDEO_BUCKET: ${{ secrets.S3_VIDEO_BUCKET }}
-          NICHE: ${{ vars.NICHE || 'ai_creativity_and_prompts' }}
+          META_USER_ACCESS_TOKEN: ${{ secrets.META_USER_ACCESS_TOKEN }}
+          GUARDIAN_API_KEY: ${{ secrets.GUARDIAN_API_KEY }}
+          NICHE: ${{ vars.NICHE || 'wide_lifestyle' }}
           CONTENT_TYPES: ${{ vars.CONTENT_TYPES || 'tip,trick,showcase,tutorial,insight' }}
-          # Schedule runs always jitter; manual runs skip unless force_jitter is checked.
-          POST_JITTER_MAX_MINUTES: ${{ (github.event_name == 'schedule' || inputs.force_jitter) && (vars.POST_JITTER_MAX_MINUTES || '180') || '0' }}
 
       # Dedup history must survive the ephemeral runner, otherwise every run
       # starts blind and repeats topics/scenes. Runs even if publish failed

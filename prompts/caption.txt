@@ -18,7 +18,7 @@ Slides we have already posted in recent days -- do NOT repeat their subject, env
 </recent_scenes_to_avoid>
 
 <task>
-Produce FOUR artifacts in one JSON response: an Instagram caption, an X post, an array of exactly 5 photorealistic image prompts for a carousel, and a video prompt.
+Produce SIX artifacts in one JSON response: an Instagram caption, an X post, an array of exactly 5 photorealistic image prompts for a carousel, a video prompt, a location_query, and an audio_theme.
 </task>
 
 <rules>
@@ -75,6 +75,18 @@ Do not include any of these words in the prompt text -- they push the model towa
 Cinematic 6-second, 24fps, photorealistic, documentary style. Describe camera movement (handheld, dolly in, static, pan) AND subject action AND lighting. Under 400 characters. Same no-negation rule as images.
 </video_prompt_rules>
 
+<location_query_rules>
+- A REAL physical place that has a Facebook Page: "Eiffel Tower, Paris", "Coney Island, New York", "Kyoto, Japan".
+- NOT abstract concepts, brand names, or fictional locations.
+- If the topic has no natural location (abstract tech, philosophy, general lifestyle), return null.
+</location_query_rules>
+
+<audio_theme_rules>
+- Pick ONE theme that best matches the mood of this post: chill, upbeat, cinematic, ambient, or energetic.
+- Used to pick a matching royalty-free audio track for the reel.
+- If unsure, default to "cinematic".
+</audio_theme_rules>
+
 <hashtag_rules>
 Include these pillar hashtags: {pillar_hashtags}. Add 15-18 more (mix of 500K+, 50K-500K, and under 50K volume, skewed toward AI art / prompt engineering / creator-tools communities). All hashtags in the SEPARATE hashtags field. Space-separated, each starts with #.
 </hashtag_rules>
@@ -102,6 +114,8 @@ Respond with ONLY valid JSON, no prose outside the JSON:
   "hashtags": "#hashtag1 #hashtag2 ... (space-separated)",
   "x_post": "the X post under 250 chars",
   "image_prompts": ["slide 1 prompt 400-600 chars", "slide 2 ...", "slide 3 ...", "slide 4 ...", "slide 5 ..."],
-  "video_prompt": "documentary-style video prompt under 400 chars"
+  "video_prompt": "documentary-style video prompt under 400 chars",
+  "location_query": "physical place name or null",
+  "audio_theme": "chill | upbeat | cinematic | ambient | energetic"
 }}
 </output_format>

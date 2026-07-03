@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterator
 from pathlib import Path
 from unittest.mock import patch
 
@@ -12,7 +13,7 @@ from src.content import dedup
 
 
 @pytest.fixture()
-def tmp_history(tmp_path: Path) -> Path:
+def tmp_history(tmp_path: Path) -> Iterator[Path]:
     """Redirect dedup module to a temp history file for the test."""
     file = tmp_path / "posted_topics.json"
     with (

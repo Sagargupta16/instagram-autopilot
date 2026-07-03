@@ -39,8 +39,8 @@ def verify_auth() -> None:
     """
     try:
         cloudinary.api.ping()
-    except Exception as e:  # cloudinary raises its own exception types; re-wrap.
-        log.error("Cloudinary auth preflight FAILED: %s", e)
+    except Exception:  # cloudinary raises its own exception types; re-wrap.
+        log.exception("Cloudinary auth preflight FAILED")
         raise
     log.info("Cloudinary auth preflight OK")
 
@@ -59,4 +59,21 @@ def upload_image(image_bytes: bytes) -> str:
     )
     url: str = result["secure_url"]
     log.info("Image uploaded to Cloudinary: %s", url)
+    return url
+
+
+def upload_video(video_bytes: bytes) -> str:
+    """Upload video bytes and return the public secure URL.
+
+    Uses the same Cloudinary tenant as images -- IG's Graph API trusts
+    res.cloudinary.com for both. Free-tier accounts count video against
+    the same 25 credits/month bucket; 5s reels are ~1-3 credits each.
+    """
+    result = cloudinary.uploader.upload(
+        io.BytesIO(video_bytes),
+        folder=_current_folder(),
+        resource_type="video",
+    )
+    url: str = result["secure_url"]
+    log.info("Video uploaded to Cloudinary: %s", url)
     return url

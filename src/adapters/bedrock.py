@@ -95,7 +95,10 @@ def get_async_invocation_status(invocation_arn: str) -> dict[str, Any]:
 def extract_json(raw: str) -> Any:
     """Extract JSON from a Claude response, stripping markdown code fences."""
     raw = raw.strip()
-    match = re.search(r"```(?:json)?\s*\n?(.*?)\n?\s*```", raw, re.DOTALL)
+    # `[ \t]*` (specific whitespace classes) instead of `\s*` around the
+    # newlines avoids catastrophic backtracking on adversarial inputs --
+    # `\s*\n?` overlapped and made the pattern super-linear.
+    match = re.search(r"```(?:json)?[ \t]*\n(.*?)\n[ \t]*```", raw, re.DOTALL)
     if match:
         raw = match.group(1).strip()
     return json.loads(raw)

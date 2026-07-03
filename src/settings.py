@@ -29,6 +29,13 @@ class Settings(BaseSettings):
     # S3 bucket for Nova Reel video output (optional -- reels skip if empty)
     s3_video_bucket: str = ""
 
+    # Guardian Open Platform (dev-tier "test" key works without registration)
+    guardian_api_key: str = ""
+
+    # Meta Graph API (Places search -- direct call, not via Composio)
+    meta_user_access_token: str = ""
+    meta_graph_api_version: str = "v21.0"
+
     # Content strategy
     niche: str = "ai_creativity_and_prompts"
     content_types: str = "tip,trick,showcase,tutorial,insight"
