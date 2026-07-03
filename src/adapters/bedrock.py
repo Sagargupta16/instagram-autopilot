@@ -47,7 +47,12 @@ def verify_auth(model_id: str) -> None:
 
 
 def invoke_claude(model_id: str, prompt: str, max_tokens: int = 2048) -> str:
-    """Call a Claude model on Bedrock and return the response text."""
+    """Call a Claude model on Bedrock and return the concatenated text output.
+
+    Sonnet 5+ can emit multi-block responses (e.g. `thinking` + `text` when
+    extended thinking is enabled). Concatenate all text-type blocks so the
+    caller gets the model's actual answer, not a KeyError on content[0].
+    """
     url = INVOKE_URL.format(region=settings.aws_region, model=model_id)
     body = {
         "anthropic_version": "bedrock-2023-05-31",
@@ -58,7 +63,12 @@ def invoke_claude(model_id: str, prompt: str, max_tokens: int = 2048) -> str:
     if not resp.ok:
         log.error("Bedrock Claude returned %s: %s", resp.status_code, resp.text)
         resp.raise_for_status()
-    return resp.json()["content"][0]["text"]
+    blocks = resp.json().get("content", [])
+    text_parts = [b["text"] for b in blocks if b.get("type") == "text" and "text" in b]
+    if not text_parts:
+        log.error("Bedrock Claude returned no text blocks: %s", blocks)
+        raise ValueError(f"No text blocks in Claude response (got types: {[b.get('type') for b in blocks]})")
+    return "".join(text_parts)
 
 
 def invoke_model(model_id: str, body: dict[str, Any], timeout: int = 120) -> dict[str, Any]:
