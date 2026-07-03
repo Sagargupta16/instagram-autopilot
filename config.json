@@ -87,7 +87,7 @@
     }
   ],
   "models": {
-    "text": "us.anthropic.claude-sonnet-5",
+    "text": "us.anthropic.claude-opus-4-8",
     "image": "stability.stable-image-ultra-v1:1",
     "video": "luma.ray-v2:0"
   }

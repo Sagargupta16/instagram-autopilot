@@ -25,12 +25,12 @@ def _create_container(params: dict[str, Any], location_id: str | None) -> dict:
     if location_id:
         params = {**params, "location_id": location_id}
     try:
-        return execute_action("INSTAGRAM_POST_IG_USER_MEDIA", params=params)
+        return execute_action("INSTAGRAM_CREATE_MEDIA_CONTAINER", params=params)
     except ComposioActionError as e:
         if location_id and _is_invalid_location(e):
             log.warning("Reel container rejected location_id=%s -- retrying without", location_id)
             params = {k: v for k, v in params.items() if k != "location_id"}
-            return execute_action("INSTAGRAM_POST_IG_USER_MEDIA", params=params)
+            return execute_action("INSTAGRAM_CREATE_MEDIA_CONTAINER", params=params)
         raise
 
 

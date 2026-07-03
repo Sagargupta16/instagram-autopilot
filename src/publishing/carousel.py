@@ -33,7 +33,7 @@ def _is_invalid_location(err: ComposioActionError) -> bool:
 def _create_child_container(image_url: str, index: int, total: int) -> str:
     log.info("Creating carousel child %d/%d...", index + 1, total)
     result = execute_action(
-        "INSTAGRAM_POST_IG_USER_MEDIA",
+        "INSTAGRAM_CREATE_MEDIA_CONTAINER",
         params={
             "ig_user_id": settings.instagram_user_id,
             "image_url": image_url,
