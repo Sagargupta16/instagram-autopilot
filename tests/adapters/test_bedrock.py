@@ -37,16 +37,42 @@ class TestInvokeClaude:
     def test_returns_text_content(self, mock_post: MagicMock) -> None:
         mock_post.return_value = MagicMock(
             ok=True,
-            json=MagicMock(return_value={"content": [{"text": "hello world"}]}),
+            json=MagicMock(return_value={"content": [{"type": "text", "text": "hello world"}]}),
         )
         result = invoke_claude("model-x", "say hi")
         assert result == "hello world"
 
     @patch("src.adapters.bedrock.requests.post")
+    def test_concatenates_text_blocks_skipping_thinking(self, mock_post: MagicMock) -> None:
+        mock_post.return_value = MagicMock(
+            ok=True,
+            json=MagicMock(
+                return_value={
+                    "content": [
+                        {"type": "thinking", "thinking": "let me think..."},
+                        {"type": "text", "text": "part one "},
+                        {"type": "text", "text": "part two"},
+                    ]
+                }
+            ),
+        )
+        result = invoke_claude("model-x", "hi")
+        assert result == "part one part two"
+
+    @patch("src.adapters.bedrock.requests.post")
+    def test_raises_when_no_text_blocks(self, mock_post: MagicMock) -> None:
+        mock_post.return_value = MagicMock(
+            ok=True,
+            json=MagicMock(return_value={"content": [{"type": "thinking", "thinking": "..."}]}),
+        )
+        with pytest.raises(ValueError, match="No text blocks"):
+            invoke_claude("model-x", "hi")
+
+    @patch("src.adapters.bedrock.requests.post")
     def test_sends_messages_format(self, mock_post: MagicMock) -> None:
         mock_post.return_value = MagicMock(
             ok=True,
-            json=MagicMock(return_value={"content": [{"text": "ok"}]}),
+            json=MagicMock(return_value={"content": [{"type": "text", "text": "ok"}]}),
         )
         invoke_claude("model-x", "prompt text", max_tokens=500)
         body = mock_post.call_args.kwargs["json"]
@@ -70,7 +96,7 @@ class TestVerifyAuth:
     def test_passes_on_2xx(self, mock_post: MagicMock) -> None:
         mock_post.return_value = MagicMock(
             ok=True,
-            json=MagicMock(return_value={"content": [{"text": "ok"}]}),
+            json=MagicMock(return_value={"content": [{"type": "text", "text": "ok"}]}),
         )
         verify_auth("model-x")
         body = mock_post.call_args.kwargs["json"]
