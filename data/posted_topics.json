@@ -284,5 +284,16 @@
       "A young Congolese seamstress in her twenties, bright print headscarf, sitting at a manual sewing machine inside a small tin-roofed shop in Lubumbashi at dusk, single tungsten lamp glowing over her worktable stacked with folded national-team jerseys, shot on Sony A7R V, 100mm macro, Kodak Portra 400, natural skin texture, shallow depth of field on her hands and needle."
     ],
     "ts": "2026-07-03T12:34:38+00:00"
+  },
+  {
+    "topic": "Prompting the 2026 World Cup host cities: why AI keeps giving every stadium the same US skyline",
+    "image_prompts": [
+      "A stadium groundskeeper in his late 30s wearing a faded maroon polo, standing on the concourse ramp of Estadio Azteca in Mexico City at mid-morning, resting one hand on a metal railing while gazing across the empty bowl, overcast diffused light softening the concrete, shot on Fujifilm GFX 100, 50mm f/1.8, Kodak Portra 400, natural skin texture with visible pores, micro-contrast, subtle film grain.",
+      "Wide shot of downtown Guadalajara's Estadio Akron seen from a dusty parking lot at high noon, a lone security guard in navy uniform walking past parked pickup trucks, agave-dotted hills in the far background under hard directional sun, muted saturation, shot on Canon EOS R5, 24mm wide-angle, Kodak Gold 200, subtle film grain, deep focus across the lot.",
+      "Close-up of a Canadian construction worker in her 40s, blonde hair under a scuffed hard hat, forearms dusted with concrete, standing inside the steel skeleton of BC Place in Vancouver during grey overcast morning, exhaling into cold air, window light from the left through translucent roof panels, shot on Leica M11, 35mm f/1.4, Ilford HP5 black and white, visible grain, natural skin texture.",
+      "Low-angle medium shot looking up at a Mexican fan in his 20s wearing a green national jersey, standing on a Monterrey street corner at golden hour with the ridge of Cerro de la Silla behind him, neon taquer\u00eda sign spilling warm light onto his face, shot on Sony A7R V, 85mm f/1.4 portrait, Cinestill 800T, analog halation, natural skin texture.",
+      "Overhead shot of a wooden table in a Toronto apartment at dusk, four printed screenshots of nearly identical AI-generated stadiums each showing a generic American glass skyline, a hand holding a red pen circling the repeated towers, single tungsten lamp raking across the paper, shot on Fujifilm X-T5, 35mm f/1.4, Fuji Pro 400H, subtle film grain, visible paper fibre texture."
+    ],
+    "ts": "2026-07-03T12:40:12+00:00"
   }
 ]
