@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import re
-from defusedxml import ElementTree as ET
 
 import requests
+from defusedxml import ElementTree as ET
 
 FEED_URL = "https://www.producthunt.com/feed"
 HEADERS = {"User-Agent": "instagram-autopilot/0.5 (trends-fetcher)"}
