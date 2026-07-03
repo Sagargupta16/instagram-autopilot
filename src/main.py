@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import random
 import sys
 import time
@@ -70,7 +71,7 @@ def _run_slot(slot: SlotPlan, config: dict[str, Any], *, dry_run: bool) -> None:
         post_carousel(caption_data, caption, image_model, dry_run=dry_run)
 
 
-def run(*, dry_run: bool = False) -> None:
+def run(*, dry_run: bool = False, now: bool = False) -> None:
     cloudinary_host.configure()
     config = load_config()
 
@@ -100,7 +101,7 @@ def run(*, dry_run: bool = False) -> None:
                 slot.pillar["id"],
             )
             continue
-        if not dry_run:
+        if not dry_run and not now:
             _sleep_until_utc(slot.time_utc)
         try:
             _run_slot(slot, config, dry_run=dry_run)
@@ -116,11 +117,20 @@ def run(*, dry_run: bool = False) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Instagram Autopilot")
     parser.add_argument("--dry-run", action="store_true", help="Generate but don't publish")
+    parser.add_argument(
+        "--now",
+        action="store_true",
+        help="Skip the sleep-until-slot -- publish all planned slots back-to-back. Use for manual test/verify runs.",
+    )
     args = parser.parse_args()
 
     log.info("Starting Instagram Autopilot")
     log.info("Niche: %s | Types: %s", settings.niche, settings.content_type_list)
-    run(dry_run=args.dry_run)
+    # Manual workflow_dispatch runs should publish immediately, not sleep
+    # until the RNG-picked slot time (which can be 8+ hours away and blow
+    # past the 480-min runner cap). GITHUB_EVENT_NAME is set by GH Actions.
+    is_manual = os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch"
+    run(dry_run=args.dry_run, now=args.now or is_manual)
 
 
 if __name__ == "__main__":
