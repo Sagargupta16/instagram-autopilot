@@ -58,6 +58,10 @@ def invoke_claude(model_id: str, prompt: str, max_tokens: int = 2048) -> str:
         "anthropic_version": "bedrock-2023-05-31",
         "max_tokens": max_tokens,
         "messages": [{"role": "user", "content": prompt}],
+        # Explicitly disable extended thinking. Sonnet 5 defaults to
+        # thinking-on and can burn the entire max_tokens budget on the
+        # thinking block, returning zero text. We just want the answer.
+        "thinking": {"type": "disabled"},
     }
     resp = requests.post(url, json=body, headers=_auth_headers(), timeout=60)
     if not resp.ok:
