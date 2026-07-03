@@ -6,6 +6,7 @@ import logging
 from typing import Any
 
 from src.adapters.cloudinary_host import upload_image
+from src.adapters.places import resolve_location_id
 from src.media.image import generate_image
 from src.publishing.carousel import publish_carousel
 
@@ -30,4 +31,5 @@ def post_carousel(
         log.info("DRY RUN: Generated %d carousel slides", len(image_prompts))
         return
 
-    publish_carousel(image_urls=image_urls, caption=caption)
+    location_id = resolve_location_id(caption_data.get("location_query") or "")
+    publish_carousel(image_urls=image_urls, caption=caption, location_id=location_id)
