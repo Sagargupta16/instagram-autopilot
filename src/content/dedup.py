@@ -19,7 +19,9 @@ from typing import Any
 
 DATA_DIR = Path(__file__).resolve().parent.parent.parent / "data"
 POSTED_TOPICS_FILE = DATA_DIR / "posted_topics.json"
+POSTED_SLOTS_FILE = DATA_DIR / "posted_slots.json"
 MAX_HISTORY = 500
+MAX_SLOT_HISTORY = 90  # ~30 days at 3 slots/day
 
 
 def _load_raw() -> list[dict[str, Any]]:
@@ -71,3 +73,36 @@ def record_post(topic: str, image_prompts: list[str] | None = None) -> None:
     tmp = POSTED_TOPICS_FILE.with_suffix(".json.tmp")
     tmp.write_text(json.dumps(entries, indent=2))
     tmp.replace(POSTED_TOPICS_FILE)
+
+
+def _slot_key(date_iso: str, time_utc: str, pillar_id: str) -> str:
+    """Deterministic per-slot identifier used for same-day idempotency."""
+    return f"{date_iso}|{time_utc}|{pillar_id}"
+
+
+def load_posted_slots() -> set[str]:
+    """Return the set of slot keys already published today (and recent days)."""
+    if not POSTED_SLOTS_FILE.exists():
+        return set()
+    try:
+        return set(json.loads(POSTED_SLOTS_FILE.read_text()))
+    except json.JSONDecodeError:
+        return set()
+
+
+def slot_already_posted(date_iso: str, time_utc: str, pillar_id: str) -> bool:
+    """True if a slot with the same (date, time, pillar) has already published."""
+    return _slot_key(date_iso, time_utc, pillar_id) in load_posted_slots()
+
+
+def record_slot(date_iso: str, time_utc: str, pillar_id: str) -> None:
+    """Persist a slot key so re-runs on the same date skip it."""
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    slots = list(load_posted_slots())
+    key = _slot_key(date_iso, time_utc, pillar_id)
+    if key not in slots:
+        slots.append(key)
+    slots = slots[-MAX_SLOT_HISTORY:]
+    tmp = POSTED_SLOTS_FILE.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(slots, indent=2))
+    tmp.replace(POSTED_SLOTS_FILE)

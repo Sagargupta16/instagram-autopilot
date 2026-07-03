@@ -11,10 +11,10 @@
     ]
   },
   "cadence": {
-    "max_posts_per_day": 3,
-    "post_probability": [0.15, 0.35, 0.35, 0.15],
+    "max_posts_per_day": 2,
+    "post_probability": [0.20, 0.55, 0.25, 0.00],
     "window_utc": {"start": "04:00", "end": "20:00"},
-    "min_gap_minutes": 90,
+    "min_gap_minutes": 180,
     "skip_probability": 0.05
   },
   "categories": ["travel", "food", "fitness", "entertainment", "tech", "lifestyle"],
