@@ -48,7 +48,7 @@ class TestPublishCarousel:
         """LOAD-BEARING: Meta rejects location_id on carousel children. Must go on parent only."""
 
         def _stub(slug: str, params: dict) -> dict:
-            if slug == "INSTAGRAM_POST_IG_USER_MEDIA":
+            if slug == "INSTAGRAM_CREATE_MEDIA_CONTAINER":
                 assert "location_id" not in params, "location_id must NOT be on carousel children"
                 return {"data": {"id": f"child-{params.get('image_url', '?')[-1]}"}}
             if slug == "INSTAGRAM_CREATE_CAROUSEL_CONTAINER":
@@ -74,7 +74,7 @@ class TestPublishCarousel:
         parent_calls = {"count": 0}
 
         def _stub(slug: str, params: dict) -> dict:
-            if slug == "INSTAGRAM_POST_IG_USER_MEDIA":
+            if slug == "INSTAGRAM_CREATE_MEDIA_CONTAINER":
                 return {"data": {"id": "child-1"}}
             if slug == "INSTAGRAM_CREATE_CAROUSEL_CONTAINER":
                 parent_calls["count"] += 1

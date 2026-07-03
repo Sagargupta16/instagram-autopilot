@@ -22,7 +22,7 @@ class TestPublishImagePost:
         assert mock_exec.call_count == 2
 
         first_call = mock_exec.call_args_list[0]
-        assert first_call.args[0] == "INSTAGRAM_POST_IG_USER_MEDIA"
+        assert first_call.args[0] == "INSTAGRAM_CREATE_MEDIA_CONTAINER"
         assert first_call.kwargs["params"]["image_url"] == "https://example.com/img.png"
 
         second_call = mock_exec.call_args_list[1]
