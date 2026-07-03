@@ -40,8 +40,10 @@ def _load_cache() -> dict[str, dict]:
 
 
 def _save_cache(cache: dict[str, dict]) -> None:
+    # NOSONAR python:S6931 -- CACHE_PATH is a module-level constant derived
+    # from __file__, not user input. Not a path-injection surface.
     CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    CACHE_PATH.write_text(json.dumps(cache, indent=2))
+    CACHE_PATH.write_text(json.dumps(cache, indent=2))  # NOSONAR
 
 
 def _is_fresh(entry: dict) -> bool:

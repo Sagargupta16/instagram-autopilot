@@ -40,8 +40,10 @@ def _load_manifest() -> dict:
 
 
 def _write_manifest(m: dict) -> None:
+    # NOSONAR python:S6931 -- MANIFEST is a module-level constant derived
+    # from __file__, not user input. Not a path-injection surface.
     m.pop("_notes", None)
-    MANIFEST.write_text(json.dumps(m, indent=2))
+    MANIFEST.write_text(json.dumps(m, indent=2))  # NOSONAR
 
 
 def curate(theme: str, count: int, api_key: str) -> None:

@@ -90,6 +90,8 @@ def pick(theme: str) -> Path:
         candidates = [t for t in manifest if theme in t.get("theme_tags", [])]
     if not candidates:
         raise NoTrackAvailableError(f"No tracks matching theme '{theme}' in manifest")
-    chosen = random.choice(candidates)
+    # NOSONAR python:S2245 -- track selection is NOT a security context;
+    # we want easy variety across days, not cryptographic randomness.
+    chosen = random.choice(candidates)  # NOSONAR
     _append_history(chosen["track_id"])
     return AUDIO_ROOT / chosen["filename"]

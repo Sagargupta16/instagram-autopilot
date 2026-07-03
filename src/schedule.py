@@ -57,10 +57,13 @@ def plan_today(
     """Return today's SlotPlans, deterministic on `today`."""
     if not pillars:
         return []
-    rng = random.Random(int(today.strftime("%Y%m%d")))
+    # NOSONAR python:S2245 -- posting cadence is NOT a security context.
+    # We DELIBERATELY use seeded PRNG so a re-run on the same date yields
+    # the same plan (CI retries safe). `secrets` would break determinism.
+    rng = random.Random(int(today.strftime("%Y%m%d")))  # NOSONAR
     probs = cadence.get("post_probability", [0.15, 0.35, 0.35, 0.15])
     max_n = int(cadence.get("max_posts_per_day", 3))
-    n = min(rng.choices(list(range(len(probs))), weights=probs)[0], max_n)
+    n = min(rng.choices(list(range(len(probs))), weights=probs)[0], max_n)  # NOSONAR
     if n == 0:
         return []
     window = cadence.get("window_utc", {})
@@ -71,7 +74,7 @@ def plan_today(
     for _ in range(50):
         if len(slots) == n:
             break
-        cand = rng.randint(start, end)
+        cand = rng.randint(start, end)  # NOSONAR
         if all(abs(cand - s) >= gap for s in slots):
             slots.append(cand)
     slots.sort()
@@ -80,8 +83,8 @@ def plan_today(
     return [
         SlotPlan(
             time_utc=to_hhmm(m),
-            pillar=rng.choices(pillars, weights=weights)[0],
-            skip=(rng.random() < skip_p),
+            pillar=rng.choices(pillars, weights=weights)[0],  # NOSONAR
+            skip=(rng.random() < skip_p),  # NOSONAR
         )
         for m in slots
     ]
