@@ -22,6 +22,11 @@ from src.adapters.bedrock import invoke_model
 
 log = logging.getLogger(__name__)
 
+
+class ImageFilteredError(RuntimeError):
+    """Stability content-filtered the prompt. Recoverable -- skip this slide."""
+
+
 # Stability caps prompt and negative_prompt at 10k chars; we keep our own
 # lower cap so runaway template edits get flagged in logs instead of
 # silently producing bloated prompts that dilute the subject.
@@ -89,7 +94,7 @@ def generate_image(
 
     finish_reasons = result.get("finish_reasons") or []
     if finish_reasons and finish_reasons[0]:
-        raise RuntimeError(f"Stability filtered the image: {finish_reasons[0]}")
+        raise ImageFilteredError(f"Stability filtered the image: {finish_reasons[0]}")
 
     images = result.get("images") or []
     if not images:

@@ -1,4 +1,8 @@
-"""Generate one AI image and publish as a single Instagram post."""
+"""Generate one AI image and publish as a single Instagram post.
+
+Iterates through image_prompts until one survives Stability's filter,
+so a filter hit on prompt[0] doesn't kill the slot.
+"""
 
 from __future__ import annotations
 
@@ -7,7 +11,7 @@ from typing import Any
 
 from src.adapters.cloudinary_host import upload_image
 from src.adapters.places import resolve_location_id
-from src.media.image import generate_image
+from src.media.image import ImageFilteredError, generate_image
 from src.publishing.image_post import publish_image_post
 
 log = logging.getLogger(__name__)
@@ -16,12 +20,20 @@ log = logging.getLogger(__name__)
 def post_image(
     caption_data: dict[str, Any], caption: str, image_model: str, *, dry_run: bool
 ) -> None:
-    """Generate the first image from caption_data and publish it."""
-    prompts = caption_data.get("image_prompts", [caption_data.get("image_prompt", "")])
-    image_prompt = prompts[0]
-    log.info("Image prompt: %s", image_prompt)
+    """Generate the first non-filtered image and publish it."""
+    prompts = caption_data.get("image_prompts") or [caption_data.get("image_prompt", "")]
+    image_bytes: bytes | None = None
+    for i, prompt in enumerate(prompts):
+        log.info("Image prompt %d/%d: %s", i + 1, len(prompts), prompt[:120])
+        try:
+            image_bytes = generate_image(prompt=prompt, model_id=image_model)
+            break
+        except ImageFilteredError as e:
+            log.warning("Image prompt %d/%d filtered -- trying next: %s", i + 1, len(prompts), e)
+            continue
 
-    image_bytes = generate_image(prompt=image_prompt, model_id=image_model)
+    if image_bytes is None:
+        raise RuntimeError(f"All {len(prompts)} image prompts filtered by Stability")
 
     if dry_run:
         log.info("DRY RUN: Generated %d bytes of image data", len(image_bytes))
