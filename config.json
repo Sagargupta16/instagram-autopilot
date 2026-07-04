@@ -20,10 +20,10 @@
   "categories": ["travel", "food", "fitness", "entertainment", "tech", "lifestyle"],
   "pillars": [
     {
-      "id": "travel-cinematic-reel",
+      "id": "travel-cinematic",
       "label": "Travel",
       "category": "travel",
-      "content_format": "reel",
+      "content_format": "carousel",
       "audio_theme": "cinematic",
       "image_style": "Steve McCurry / National Geographic reportage, mid-day natural light, environmental portrait, muted saturation",
       "location": {"regions": ["Bali", "Tokyo", "Lisbon", "Reykjavik", "Kyoto", "Marrakech", "Patagonia"]},
@@ -42,10 +42,10 @@
       "weight": 1.2
     },
     {
-      "id": "fitness-morning-reel",
+      "id": "fitness-morning",
       "label": "Fitness",
       "category": "fitness",
-      "content_format": "reel",
+      "content_format": "carousel",
       "audio_theme": "energetic",
       "image_style": "Annie Leibovitz portraiture, morning golden hour, kinetic pose, cinestill 800T",
       "location": {"regions": []},
@@ -75,7 +75,7 @@
       "weight": 1.3
     },
     {
-      "id": "lifestyle-image",
+      "id": "lifestyle-documentary",
       "label": "Lifestyle",
       "category": "lifestyle",
       "content_format": "carousel",
