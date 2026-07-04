@@ -36,9 +36,9 @@ class Settings(BaseSettings):
     meta_user_access_token: str = ""
     meta_graph_api_version: str = "v21.0"
 
-    # Content strategy
-    niche: str = "ai_creativity_and_prompts"
-    content_types: str = "tip,trick,showcase,tutorial,insight"
+    # Content strategy (wide lifestyle: travel, food, fitness, entertainment, tech, lifestyle)
+    niche: str = "wide_lifestyle"
+    content_types: str = "tip,story,scene,guide,insight,list,how-to,showcase"
 
     # Scheduling: max random delay (minutes) before posting after cron fires.
     # Cron fires at the START of a known good engagement window; jitter
