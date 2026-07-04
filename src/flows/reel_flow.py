@@ -1,26 +1,31 @@
 """Generate a video, bake royalty-free audio, publish as Reel.
 
+S3 is a transient scratch buffer, not storage. Luma Ray 2 on Bedrock
+REQUIRES an S3 output target (no inline-response option), so we let
+Luma write there, immediately copy the mp4 down, bake music into it,
+upload to Cloudinary (that URL is what IG sees), then delete the S3
+copy. Total S3 lifetime per reel is ~60 seconds. A bucket-level
+1-day expiry rule cleans up anything missed.
+
+The scratch bucket should be PRIVATE. aws-cli uses the runner's
+AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY to authenticate the copy;
+IG only ever sees the Cloudinary URL of the baked mp4.
+
 Fallback chain when anything in the video pipeline fails, in order:
 1. S3_VIDEO_BUCKET unset -> post_carousel
 2. Luma generation fails -> post_carousel
-3. Video download from S3 fails (403 / private bucket) -> post_carousel
-4. Audio bake fails (ffmpeg missing, empty manifest, ffmpeg error) -> post_carousel
+3. S3 download / audio bake / Cloudinary upload fails -> post_carousel
 
-We fall back to post_carousel (not "publish silent reel with same broken URL")
-because handing Meta an unreachable URL always breaks the post. Cloudinary
-carousel is the proven publish path and keeps all 5 slide prompts (post_image
-would use only the first prompt, wasting the LLM's 5-slide story).
-
+Never hands Meta an unreachable URL -- degrades to carousel instead.
 """
 
 from __future__ import annotations
 
 import logging
+import subprocess
 import tempfile
 from pathlib import Path
 from typing import Any
-
-import requests
 
 from src.adapters.cloudinary_host import upload_video
 from src.adapters.places import resolve_location_id
@@ -37,34 +42,47 @@ class ReelPipelineError(Exception):
     """Any failure between Luma output and Cloudinary-hosted baked mp4."""
 
 
-def _s3_uri_to_https(s3_uri: str) -> str:
-    """Convert s3://bucket/key -> https://bucket.s3.amazonaws.com/key."""
-    if not s3_uri.startswith("s3://"):
-        return s3_uri
-    _, _, rest = s3_uri.partition("s3://")
-    bucket, _, key = rest.partition("/")
-    return f"https://{bucket}.s3.amazonaws.com/{key}"
+def _s3_cp(src: str, dst: str) -> None:
+    """Run `aws s3 cp` using runner AWS creds. Fails loudly on non-zero exit."""
+    result = subprocess.run(
+        ["aws", "s3", "cp", src, dst],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=180,
+    )
+    if result.returncode != 0:
+        raise ReelPipelineError(f"aws s3 cp failed (rc={result.returncode}): {result.stderr[-500:]}")
 
 
-def _bake_and_reupload(video_url: str, theme: str, duration_s: int) -> str:
-    """Download mp4 via https, bake audio, upload to Cloudinary, return URL.
+def _s3_rm(s3_uri: str) -> None:
+    """Best-effort cleanup of the transient scratch object. Never blocks publish."""
+    result = subprocess.run(
+        ["aws", "s3", "rm", s3_uri],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    if result.returncode != 0:
+        log.warning("aws s3 rm cleanup failed (rc=%d): %s", result.returncode, result.stderr[-300:])
+    else:
+        log.info("Cleaned up S3 scratch: %s", s3_uri)
+
+
+def _bake_from_s3(s3_uri: str, theme: str, duration_s: int) -> str:
+    """Pull Luma output from S3, bake audio, upload to Cloudinary, return URL.
 
     Raises ReelPipelineError on any failure so callers fall back cleanly.
     """
     try:
         with tempfile.TemporaryDirectory() as td:
             local_in = Path(td) / "in.mp4"
-            resp = requests.get(video_url, timeout=120)
-            resp.raise_for_status()
-            local_in.write_bytes(resp.content)
+            _s3_cp(s3_uri, str(local_in))
             track = audio_picker.pick(theme)
             baked = audio_bake.bake(local_in, track, duration_s)
             return upload_video(baked.read_bytes())
-    except (
-        audio_bake.AudioBakeError,
-        audio_picker.NoTrackAvailableError,
-        requests.RequestException,
-    ) as e:
+    except (audio_bake.AudioBakeError, audio_picker.NoTrackAvailableError) as e:
         raise ReelPipelineError(str(e)) from e
 
 
@@ -76,12 +94,7 @@ def post_reel(
     *,
     dry_run: bool,
 ) -> None:
-    """Generate video via Luma Ray 2, bake audio, publish as Reel.
-
-    Falls back to post_image on any failure -- handing Meta a URL it
-    cannot fetch always breaks the post, so we degrade to the proven
-    Cloudinary image path instead.
-    """
+    """Generate video via Luma Ray 2, bake audio, publish as Reel, cleanup S3."""
     video_prompt = caption_data["video_prompt"]
     log.info("Video prompt: %s", video_prompt)
 
@@ -103,19 +116,23 @@ def post_reel(
         post_carousel(caption_data, caption, image_model, dry_run=dry_run)
         return
 
-    video_https = _s3_uri_to_https(video_s3_uri)
     theme = caption_data.get("audio_theme") or "cinematic"
     try:
-        baked_url = _bake_and_reupload(video_https, theme, duration_s)
+        baked_url = _bake_from_s3(video_s3_uri, theme, duration_s)
     except ReelPipelineError as e:
         log.warning(
             "Reel pipeline failed (%s) -- falling back to carousel post to avoid publishing a broken URL",
             e,
         )
+        _s3_rm(video_s3_uri)  # cleanup even on failure
         post_carousel(caption_data, caption, image_model, dry_run=dry_run)
         return
 
     log.info("Baked audio, uploaded to Cloudinary: %s", baked_url)
+
+    # Cloudinary now has the baked mp4 -- S3 scratch is no longer needed.
+    # Cleanup runs regardless of publish success/failure below.
+    _s3_rm(video_s3_uri)
 
     if dry_run:
         log.info("DRY RUN: Reel at %s", baked_url)
