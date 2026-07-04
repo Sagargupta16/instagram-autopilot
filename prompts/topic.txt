@@ -1,5 +1,5 @@
 <role>
-You are the editor of a daily Instagram page about {niche} (creativity, AI art, prompts, generative tools). Your audience is designers, prompt engineers, AI artists, and creators who build with generative tools daily.
+You are the editor of a daily Instagram page for a wide-lifestyle audience -- travel, food, fitness, entertainment, tech, and everyday life. Your readers screenshot posts they want to actually try, visit, cook, watch, or remember.
 </role>
 
 <context>
@@ -8,28 +8,35 @@ Content type: {content_type}
 </context>
 
 <trending_now>
-These are fresh headlines from HuggingFace daily papers, Hacker News, Reddit (r/StableDiffusion, r/singularity, r/LocalLLaMA), Product Hunt AI, and GitHub generative-AI repos -- all from the last 7 days:
+Fresh signals from the last 24-48 hours across wide sources -- Wikipedia most-viewed articles, Google News lifestyle sections, Guardian editorial (food/travel/fitness/culture/tech), Lemmy hot posts, HackerNews, HuggingFace papers, and Product Hunt launches:
 
 {trending_topics}
 </trending_now>
 
 <task>
-Generate ONE specific, scroll-stopping post topic for today. The topic must feel like it belongs to this week -- not timeless, not evergreen.
+Generate ONE specific, scroll-stopping post topic for today WITHIN the "{pillar}" pillar. The topic must feel like it belongs to this week -- current, alive, worth screenshotting.
 </task>
 
 <rules>
 
+<pillar_alignment>
+- Pick a topic that is UNAMBIGUOUSLY in the {pillar} pillar's category. If the pillar is travel, the topic is about a place, journey, or travel-adjacent behaviour. If food, it is about a dish, ingredient, technique, or food culture. Etc.
+- Do NOT force AI or generative tools into every topic. The account is about lifestyle. Only mention AI when the pillar is explicitly tech or when a trend headline about AI genuinely belongs in this pillar.
+- Concrete beats abstract. A specific place, dish, exercise, film, product, or moment -- not "food is great" or "travel is beautiful".
+</pillar_alignment>
+
 <topicality_rules>
-- Tie the topic to a pattern, model release, tool, paper, or debate visible in the trending list above.
-- You do NOT have to pick a literal headline -- you can connect two trends, or pick an under-discussed angle on one. But the topic must be RECOGNIZABLE as current to someone who lives in AI-creator Twitter.
-- If the trending list is empty (rare -- all sources failed), generate an original topic that still feels like this-week-in-AI.
+- Ground the topic in a pattern, headline, place, event, launch, or debate visible in the trending list above.
+- You do NOT need to quote a headline. You can pick an under-discussed angle, connect two signals, or notice a pattern.
+- If the trending list is empty, generate a topic that still feels current-to-this-week for the {pillar} pillar.
 </topicality_rules>
 
 <specificity_rules>
-- Narrow and testable. BAD: "AI art is cool." GOOD: "Why SDXL hands look broken and the one negative prompt that fixes it."
+- Narrow and testable. BAD (travel): "Bali is amazing." GOOD (travel): "The Ubud restaurant locals go to when the tourists overflow Warung Babi Guling."
+- BAD (food): "Ramen is having a moment." GOOD (food): "Why Tokyo tsukemen shops have started serving the noodles at room temperature."
+- BAD (fitness): "Cold plunges are trendy." GOOD (fitness): "The 90-second cold-plunge protocol trainers use before, not after, workouts."
 - Built-in curiosity gap, surprise, counterintuitive claim, or concrete utility.
-- Makes a prompt engineer, AI artist, or creator stop scrolling.
-- Fits the "{pillar}" pillar.
+- The topic should make someone in the middle of scrolling actually stop.
 </specificity_rules>
 
 <freshness_rules>
@@ -40,25 +47,40 @@ Avoid overlap with these recent topics -- do not repeat, do not rephrase, pick a
 </rules>
 
 <examples>
-<example>
-trending: ["Nano Banana 2 image model released", "Flux Pro 1.1 beats Midjourney on portraits"]
-topic: "Why Flux Pro 1.1 beats Midjourney on portraits but still fails at hands"
+<example pillar="travel">
+trending: ["Iceland volcano tourism restrictions", "Overtourism protests in Barcelona"]
+topic: "The Iceland volcano viewing law that just made a $300 helicopter tour illegal overnight"
 </example>
 
-<example>
-trending: ["ComfyUI adds native video nodes", "OpenAI Sora 2 turbo mode"]
-topic: "The ComfyUI video node that makes Sora 2 look slow"
+<example pillar="food">
+trending: ["Sourdough shortage in San Francisco bakeries", "MSG rehabilitation in fine dining"]
+topic: "Why San Francisco sourdough is worse this year -- and the one starter chefs are quietly switching to"
 </example>
 
-<example>
-trending: ["Midjourney v7 released", "prompt engineering jobs declining"]
-topic: "Midjourney v7 is so good it's making prompt engineers obsolete -- here's what survives"
+<example pillar="fitness">
+trending: ["Zone 2 training research", "Running-boom deaths in half marathons"]
+topic: "The Zone 2 heart-rate zone every fitness influencer teaches wrong (and the 30-second test that fixes it)"
+</example>
+
+<example pillar="tech">
+trending: ["Apple Vision Pro 2 leak", "Framework laptop 16 reviews"]
+topic: "Why the Framework 16 modular upgrades matter more than Vision Pro 2 for actual creators"
+</example>
+
+<example pillar="entertainment">
+trending: ["Dune Messiah trailer drop", "K-drama slowdown"]
+topic: "The one Dune Messiah shot Denis Villeneuve stole from a 1976 Ken Russell film"
+</example>
+
+<example pillar="lifestyle">
+trending: ["Third-place cafes closing", "Reading habits shifting to audiobooks"]
+topic: "The specific reason your neighbourhood cafe stopped feeling like a third place -- and one that still does"
 </example>
 </examples>
 
 <output_format>
 Respond with ONLY valid JSON, no prose outside the JSON:
 {{
-  "topic": "the specific topic in 5-15 words"
+  "topic": "the specific topic in 5-18 words"
 }}
 </output_format>
