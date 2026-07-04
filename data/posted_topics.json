@@ -350,5 +350,29 @@
       "Low-angle shot of a lone traveler in a red scarf walking toward a lit stadium at dusk in a host city, empty plaza and long shadows, blue hour sky above the floodlit rim, distant crowd silhouettes streaming toward the gates, shot on Canon EOS R5, 85mm f/1.4 portrait, Cinestill 800T, analog halation, subtle grain."
     ],
     "ts": "2026-07-04T00:22:49+00:00"
+  },
+  {
+    "topic": "The 2025 film 'Obsession' opens with a shot that spoils the twist \u2014 if you pause frame 1",
+    "image_prompts": [
+      "A young woman in her late twenties in a charcoal turtleneck frozen mid-frame on a night train, city lights streaking past the window behind her, a faint pale reflection of a second figure ghosting in the glass beside her, cold neon spill from the platform outside, shot on Cinestill 800T, Sony A7R V, 35mm f/1.4, analog halation, subtle grain, natural skin texture.",
+      "Close-up of a film editor's hand paused on a scrub wheel over a bright edit monitor in a dim suite, a single frame of a train interior held on screen, warm skin lit by monitor glow, coffee cup out of focus behind, single tungsten lamp low and left, shot on Leica M11, 50mm f/1.8, Kodak Portra 400, visible pores, micro-contrast.",
+      "Wide shot of an empty modern cinema at midday, a lone man in his forties in a grey coat leaning far forward in a middle-row seat, blank white screen washing the room in cool light, rows of vacant red seats stretching either side, overcast diffused daylight through a rear door, shot on Fujifilm GFX 100, 24mm wide-angle, Fuji Pro 400H, subtle grain.",
+      "Overhead shot of a worn film script on a kitchen table at dusk, the opening scene page circled in red pen, a magnifying glass resting over the words 'window reflection', a cold mug of tea and reading glasses beside it, warm window light from the left fading, shot on Hasselblad X2D, 100mm macro, Kodak Gold 200, paper texture, subtle grain.",
+      "Low-angle candid of a couple in their thirties on a dim apartment sofa at night, both leaning toward a paused TV screen glowing blue on their faces, remote held mid-air, popcorn bowl tipping between them, neon sign spill from a window behind, shot on Fujifilm X-T5, 35mm f/1.4, Cinestill 800T, analog halation, natural skin texture."
+    ],
+    "ts": "2026-07-04T16:32:24+00:00",
+    "slot_key": "2026-07-04|06:32|entertainment-carousel"
+  },
+  {
+    "topic": "The Mexican border town with 6 World Cup stadiums within a 3-hour drive",
+    "image_prompts": [
+      "A stadium groundskeeper in his fifties in a faded polo shirt crouching at the edge of a floodlit pitch inside Estadio BBVA in Monterrey, checking turf by hand as the Cerro de la Silla mountain looms beyond the open stands, hard directional midday sun, shot on Canon EOS R5, 35mm f/1.4, Kodak Portra 400, natural skin texture, subtle grain.",
+      "A young Mexican family in replica jerseys walking across a sunlit plaza outside a football stadium in Monterrey at noon, father carrying a folded flag, daughter clutching a churro, long hard shadows on pale concrete, environmental wide framing, shot on Fujifilm X-T5, 24mm wide-angle, Kodak Gold 200, micro-contrast, subtle film grain.",
+      "Close-up of a weathered hand gripping a paper road map of northern Mexico and Texas spread on a truck dashboard, stadium cities circled in pen, dusty windshield reflecting a desert highway, warm overcast diffused light, shot on Leica M11, 50mm f/1.8, Cinestill 800T, natural texture, slight analog halation.",
+      "A taco vendor in her forties in an apron flipping carne asada on a street grill near a Guadalajara boulevard at dusk, football chatter and passing fans blurred behind her, smoke catching low golden hour backlight, shot on Sony A7R V, 85mm f/1.4 portrait, Fuji Pro 400H, visible pores, shallow depth of field.",
+      "Overhead shot of a filled Mexican football terrace at blue hour, thousands of green and white shirts under towering floodlights, a single vendor's tray of drinks cutting a diagonal through the crowd, cool diffused evening light, shot on Fujifilm GFX 100, tilt-shift, Kodak Portra 400, fine grain, micro-contrast."
+    ],
+    "ts": "2026-07-04T16:34:20+00:00",
+    "slot_key": "2026-07-04|13:29|travel-cinematic"
   }
 ]
