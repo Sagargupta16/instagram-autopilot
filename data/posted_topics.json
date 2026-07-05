@@ -374,5 +374,29 @@
     ],
     "ts": "2026-07-04T16:34:20+00:00",
     "slot_key": "2026-07-04|13:29|travel-cinematic"
+  },
+  {
+    "topic": "The Cape Verde tuna dish (atum grelhado) that explains why Atlantic island cooking beats Portuguese mainland seafood",
+    "image_prompts": [
+      "Overhead flat-lay of a charred tuna steak on a chipped enamel plate, ringed with lime wedges and a spoonful of molho cru onions and chili, on a weathered blue wooden table in a Mindelo courtyard, midday hard directional sun casting sharp shadows, shot on Hasselblad X2D, 100mm macro, Kodak Portra 400, tactile flesh texture, micro-contrast, shallow depth.",
+      "A Cape Verdean fisherman in his sixties in a faded orange shirt laying a whole yellowfin tuna across an open charcoal grill on a Sao Vicente harbour wall, late afternoon golden hour backlight, smoke curling off the coals, shot on Canon EOS R5, 35mm f/1.4, Cinestill 800T, natural skin texture, analog halation.",
+      "Close-up of two hands squeezing lime over a resting grilled tuna fillet on a banana leaf, glistening juices pooling, a small bowl of coarse sea salt beside it, on a rough concrete counter in a Santa Maria beach shack, window light from the left, shot on Sony A7R V, 85mm f/1.4, Kodak Gold 200, visible pores, subtle grain.",
+      "Wide shot of a modest island tasca at dusk, three plastic tables under a bare bulb, an old woman in an apron carrying two plates of atum grelhado toward a fishing family, faded pastel walls of Mindelo behind, blue hour spilling through the doorway, shot on Fujifilm X-T5, 24mm wide-angle, Fuji Pro 400H, warm tungsten practical, film grain.",
+      "Overhead of a rough wooden prep board with raw crimson tuna loin, sliced onions, garlic cloves, a lime halved, a green chili, and a bottle of local grogue, morning window light diffused across a tiled Cape Verdean kitchen counter, shot on Fujifilm GFX 100, 50mm f/1.8, Kodak Portra 400, deep flesh color, micro-contrast, tactile textures."
+    ],
+    "ts": "2026-07-05T16:35:15+00:00",
+    "slot_key": "2026-07-05|09:40|food-editorial-carousel"
+  },
+  {
+    "topic": "Why 2026 is the year to book shoulder-season trips: how extreme-weather travel rewrote peak season",
+    "image_prompts": [
+      "A woman in her early forties in a linen shirt walking an empty cobbled lane in a Puglia hill town in October, hand trailing along a sun-warmed limestone wall, mid-afternoon light raking across shuttered doorways, one shopkeeper sweeping in the distance, shot on Leica M11, 35mm f/1.4, Kodak Portra 400, muted saturation, natural skin texture, subtle grain.",
+      "Overhead of a weathered wooden cafe table on a quiet Lisbon terrace in late morning, a paper calendar with October dates circled in blue pen, a folded rail ticket, an espresso cup half drunk, an old sun hat resting to one side, overcast diffused light, shot on Fujifilm GFX 100, 100mm macro, Fuji Pro 400H, micro-contrast, soft grain.",
+      "Wide low-angle of two hikers in their thirties on a bare Dolomites ridge trail under a cool clear May sky, thin snow still clinging to distant peaks, dry grass in the foreground, one pausing to check a paper map, hard directional sun, long shadows across the rock, shot on Sony A7R V, 24mm wide-angle, Kodak Gold 200, subtle grain.",
+      "A boatman in his sixties in a faded navy jumper coiling rope on the stern of a small wooden ferry crossing a calm Greek strait at dusk, empty passenger benches behind him, the island headland dim on the horizon, blue hour light, quiet water, shot on Canon EOS R5, 50mm f/1.8, Cinestill 800T, analog halation, natural skin texture.",
+      "Close-up of a young man's hands scrolling a weather app on a phone showing a 24C October forecast, resting on a train windowsill with countryside blurring past behind the glass, warm morning window light from the left, a paper coffee cup beside his wrist, shot on Fujifilm X-T5, 35mm f/1.4, Kodak Portra 400, slight motion blur, subtle grain."
+    ],
+    "ts": "2026-07-05T16:37:11+00:00",
+    "slot_key": "2026-07-05|14:21|travel-cinematic"
   }
 ]
