@@ -158,5 +158,3 @@ Instagram's Graph API fetches images server-side from the URL we provide. **Meta
 - Type hints on all functions, `from __future__ import annotations` at file top
 - f-strings, `pathlib` over `os.path`
 - Pydantic for settings; plain dicts for `config.json` (no schema class)
-- Conventional commits: `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:`
-- No `Co-Authored-By` trailers
