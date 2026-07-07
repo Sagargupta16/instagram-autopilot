@@ -8,10 +8,6 @@
 >
 > Read those first. The guidance below only adds **repo-specific context** -- it does not override anything in the root.
 
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Project Overview
 
 Fully automated Instagram content bot. A daily cron in GitHub Actions generates an AI topic (grounded in live trends from 5 sources: HuggingFace papers, Product Hunt, GitHub, Hacker News, Reddit), writes a one-liner caption, generates 5 photorealistic AI images via AWS Bedrock Stable Image Ultra, and publishes a 5-slide carousel via the Composio v3 API.
@@ -45,10 +41,14 @@ src/
 │   ├── composio.py           # Composio v3 REST API + ComposioActionError
 │   ├── cloudinary_host.py    # Cloudinary image upload
 │   ├── hackernews.py         # HN Algolia search
-│   ├── reddit.py             # Reddit public JSON
 │   ├── huggingface_papers.py # HuggingFace daily papers (trending AI research)
 │   ├── producthunt.py        # Product Hunt AI-category atom feed
-│   └── github_trending.py    # GitHub search API (topic:generative-ai / llm)
+│   ├── github_trending.py    # GitHub search API (topic:generative-ai / llm)
+│   ├── google_news.py        # Google News RSS by category
+│   ├── guardian.py           # Guardian section feeds
+│   ├── lemmy.py              # Lemmy hot posts by community
+│   ├── wikipedia.py          # Wikipedia top articles
+│   └── places.py             # Location lookups (IG location tags)
 │
 ├── content/           # Text generation (uses adapters/bedrock)
 │   ├── topic.py       # generate_topic() with trend grounding
@@ -58,7 +58,9 @@ src/
 │
 ├── media/             # AI media generation (uses adapters/bedrock)
 │   ├── image.py       # Stable Image Ultra (random seed, aggressive negative prompt)
-│   └── video.py       # Luma Ray 2 async + poll
+│   ├── video.py       # Luma Ray 2 async + poll
+│   ├── audio_picker.py # Pick licensed audio track for reels
+│   └── audio_bake.py  # Bake audio into reel video (ffmpeg)
 │
 ├── publishing/        # Instagram publishing (uses adapters/composio)
 │   ├── image_post.py  # 2-step: container -> publish
@@ -74,7 +76,7 @@ src/
 ## Non-Obvious Cross-File Contracts
 
 ### Pillar routing
-`config.json` has `pillars[].content_format` which is `"carousel"`, `"image"`, or `"reel"`. `main.py::run()` dispatches to the matching `flows/*_flow.py`. **Default is carousel** — single-image mode is kept but unused by any pillar.
+`config.json` has `pillars[].content_format` which is `"carousel"`, `"image"`, or `"reel"`. `main.py::run()` dispatches to the matching `flows/*_flow.py`. **Default is carousel** -- single-image mode is kept but unused by any pillar.
 
 ### Dedup history structure (topics + recent image prompts)
 `data/posted_topics.json` is a list of entries `{"topic": ..., "image_prompts": [...], "ts": ...}`, capped at 500. `content/dedup.py` exposes:
@@ -85,37 +87,37 @@ src/
 Legacy list-of-strings format is read transparently and migrated on next write. **Dedup IS persisted across CI runs**: `data/posted_topics.json` is committed (no longer gitignored) and the daily workflow's "Persist post history" step commits it back with `[skip ci]` after each run. Cross-day variety comes from this history plus (a) live trend grounding in `content/topic.py` and (b) per-pillar `style_hint` flavors in `config.json`.
 
 ### Claude returns `image_prompts` as a LIST of 5 PHOTOREAL prompts
-`prompts/caption.txt` instructs Claude to return `image_prompts: [s1, s2, s3, s4, s5]` (a JSON array, not a string). **ALL FIVE must be photorealistic** (National Geographic / Magnum / Annie Leibovitz references). The template enforces canonical subject-first order: subject -> environment -> pose -> lighting -> camera+lens -> texture. Slides vary across setting/subject/framing/time-of-day but all stay photoreal. Don't reintroduce the old 12-style palette — we ripped it out because mixed styles broke visual coherence.
+`prompts/caption.txt` instructs Claude to return `image_prompts: [s1, s2, s3, s4, s5]` (a JSON array, not a string). **ALL FIVE must be photorealistic** (National Geographic / Magnum / Annie Leibovitz references). The template enforces canonical subject-first order: subject -> environment -> pose -> lighting -> camera+lens -> texture. Slides vary across setting/subject/framing/time-of-day but all stay photoreal. Don't reintroduce the old 12-style palette -- we ripped it out because mixed styles broke visual coherence.
 
-### Diffusion models invert negations — exclusions belong only in negative_prompt
+### Diffusion models invert negations -- exclusions belong only in negative_prompt
 The caption prompt explicitly forbids `no`/`not`/`without` inside image prompt text. Diffusion models treat negation words as *keywords to include*, not exclude. Put exclusions in `negative_prompt` at the image-generation layer (see `src/media/image.py::DEFAULT_NEGATIVE_PROMPT`). If you see `"no text in image"` inside a prompt string, that's a bug.
 
 ### Photorealism comes from photographic prompt vocabulary + negative prompt
-Stable Image Ultra has NO native style enum (Nova Canvas's `PHOTOREALISM` is gone with the model). Photorealism is enforced two ways: (1) the caption template forces concrete camera/lens/film-stock/lighting cues into every prompt, and (2) `DEFAULT_NEGATIVE_PROMPT` in `src/media/image.py` leads with the anti-illustration guard ("illustration, cartoon, anime, 3D render, CGI, painting..."). Do NOT trim that guard — it is now the only thing stopping stylized output.
+Stable Image Ultra has NO native style enum (Nova Canvas's `PHOTOREALISM` is gone with the model). Photorealism is enforced two ways: (1) the caption template forces concrete camera/lens/film-stock/lighting cues into every prompt, and (2) `DEFAULT_NEGATIVE_PROMPT` in `src/media/image.py` leads with the anti-illustration guard ("illustration, cartoon, anime, 3D render, CGI, painting..."). Do NOT trim that guard -- it is now the only thing stopping stylized output.
 
 ### Seed must be randomized per call or images collapse
 `generate_image()` picks a fresh random seed per call unless the caller passes one explicitly (useful when iterating on a single prompt). Stability treats seed 0 as server-side random, but we always send an explicit non-zero seed so the value is logged and a good slide can be reproduced.
 
-### Trends grounding spans 4 services / 8 sources
-`content/topic.py` calls `fetch_trending_topics()` which parallel-fetches from: HuggingFace daily papers, Product Hunt AI, GitHub (topic:generative-ai + topic:llm + topic:diffusion-models), HN search (3 queries). Reddit adapter exists but is **disabled** because GitHub Actions runner IPs are on Reddit's anti-bot blocklist (consistent 403s). The topic prompt template contains `{trending_topics}` -- Claude uses fresh headlines to pick angles. If any/all sources fail, the code silently passes partial or `[]` results. Don't add "required" error handling here -- graceful degradation is intentional. All sources are **no-auth** (no API key, no OAuth) -- if adding a new source needs auth, rethink.
+### Trends grounding spans 9 services / ~21 parallel fetch tasks
+`content/topic.py` calls `fetch_trending_topics()` which parallel-fetches (ThreadPoolExecutor) from: HuggingFace daily papers, Product Hunt AI, GitHub trending (generative-ai + llm), HN search, Wikipedia top articles, Google News (5 categories), Guardian (6 sections), and Lemmy (4 communities). Reddit was removed entirely (GitHub Actions runner IPs are on Reddit's anti-bot blocklist; the adapter was deleted, Lemmy replaced it). The topic prompt template contains `{trending_topics}` -- Claude uses fresh headlines to pick angles. If any/all sources fail, the code silently passes partial or `[]` results. Don't add "required" error handling here -- graceful degradation is intentional. All sources are **no-auth** (no API key, no OAuth) -- if adding a new source needs auth, rethink.
 
 ### Post-time jitter
 `main.py::run()` calls `apply_jitter(settings.post_jitter_max_minutes)` (default 180 min) before publishing. The GitHub Actions cron fires at 15:30 UTC (start of US lunch engagement window); the jitter sleeps 0-180 min so the actual post time varies day-to-day and does not look bot-scheduled. Skipped on `--dry-run`. Workflow `timeout-minutes` must cover jitter + generation (currently 240).
 
 ### Composio auth comes from settings
-`adapters/composio.py::execute_action(slug, params)` reads `composio_api_key`, `composio_connected_account_id`, `composio_user_id` from `src.settings` directly. Publisher functions pass ONLY the action-specific params. Don't add auth parameters back — that's what the old code did and it's what we just simplified away.
+`adapters/composio.py::execute_action(slug, params)` reads `composio_api_key`, `composio_connected_account_id`, `composio_user_id` from `src.settings` directly. Publisher functions pass ONLY the action-specific params. Don't add auth parameters back -- that's what the old code did and it's what we just simplified away.
 
 ### Composio v3 wraps Instagram errors in 200 responses
-When Instagram's Graph API rejects something (bad URL, rate limit, etc.), Composio v3 returns HTTP 200 with `{"successful": false, "error": "..."}`. `execute_action()` raises `ComposioActionError`. Don't assume `data.id` exists — callers should let the error propagate.
+When Instagram's Graph API rejects something (bad URL, rate limit, etc.), Composio v3 returns HTTP 200 with `{"successful": false, "error": "..."}`. `execute_action()` raises `ComposioActionError`. Don't assume `data.id` exists -- callers should let the error propagate.
 
 ### Bedrock uses bearer token, not boto3
 All three Bedrock calls (`adapters/bedrock.py`) use `requests.post` with `Authorization: Bearer <AWS_BEARER_TOKEN_BEDROCK>`. The ABSK token is a newer Bedrock auth mechanism. **If you see boto3 being added, that's wrong.**
 
 ### Cloudinary is required (not imgbb)
-Instagram's Graph API fetches images server-side from the URL we provide. **Meta blocks `i.ibb.co`** with error 9004. `res.cloudinary.com` is trusted. If you swap hosts, verify Meta can fetch the URL *before* rewriting anything — the fail mode is silent until publish time. Don't add retry/fallback logic; fix the host.
+Instagram's Graph API fetches images server-side from the URL we provide. **Meta blocks `i.ibb.co`** with error 9004. `res.cloudinary.com` is trusted. If you swap hosts, verify Meta can fetch the URL *before* rewriting anything -- the fail mode is silent until publish time. Don't add retry/fallback logic; fix the host.
 
 ### Settings load at import time
-`src/settings.py` instantiates `Settings()` at module level. Missing env vars raise ValidationError before any code runs. `tests/conftest.py` uses `os.environ.setdefault()` at the top — before any `from src.*` import — so test collection works.
+`src/settings.py` instantiates `Settings()` at module level. Missing env vars raise ValidationError before any code runs. `tests/conftest.py` uses `os.environ.setdefault()` at the top -- before any `from src.*` import -- so test collection works.
 
 ## Project Rules
 
@@ -127,7 +129,7 @@ Instagram's Graph API fetches images server-side from the URL we provide. **Meta
 - `adapters/` = one file per external service, does nothing but HTTP.
 - `content/`, `media/`, `publishing/` = each wraps one external service via its adapter.
 - `flows/` = zero external deps, just composes other layers.
-- Don't cross the streams (e.g., publisher modules don't call image hosts directly — that's what `flows/` is for).
+- Don't cross the streams (e.g., publisher modules don't call image hosts directly -- that's what `flows/` is for).
 
 ### Function length
 - Target <40 lines per function. If it needs scrolling, split it.
@@ -146,10 +148,10 @@ Instagram's Graph API fetches images server-side from the URL we provide. **Meta
 
 - Instagram API: 25 publishes per 24 hours
 - Stable Image Ultra takes aspect_ratio (repo uses 1:1), not width/height
-- Luma Ray 2 requires an S3 bucket IN us-west-2 — no workaround, async output only; durations are 5s or 9s only
-- Composio v3 rejects `ck_` prefix keys (legacy v1/v2) — must be `ak_`
+- Luma Ray 2 requires an S3 bucket IN us-west-2 -- no workaround, async output only; durations are 5s or 9s only
+- Composio v3 rejects `ck_` prefix keys (legacy v1/v2) -- must be `ak_`
 - Cloudinary free tier: 25 credits/month (~30+ daily posts)
-- Image prompts must avoid text/words/letters — diffusion models hallucinate gibberish text otherwise (see aggressive `DEFAULT_NEGATIVE_PROMPT` in `src/media/image.py`)
+- Image prompts must avoid text/words/letters -- diffusion models hallucinate gibberish text otherwise (see aggressive `DEFAULT_NEGATIVE_PROMPT` in `src/media/image.py`)
 
 ## Coding Conventions
 
