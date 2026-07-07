@@ -398,5 +398,17 @@
     ],
     "ts": "2026-07-05T16:37:11+00:00",
     "slot_key": "2026-07-05|14:21|travel-cinematic"
+  },
+  {
+    "topic": "The pre-match ritual World Cup players use to fall asleep in a new time zone every 3 days",
+    "image_prompts": [
+      "A male footballer in his mid-twenties in a grey team tracksuit sitting on the edge of a crisp white hotel bed, forearms on knees, blackout curtains cracked open with a thin blade of dawn light crossing the floor, dim room, single lamp glow, shot on Canon EOS R5, 35mm f/1.4, Cinestill 800T, subtle grain, natural skin texture, tired expression.",
+      "Close-up of a bedside table in a darkened hotel room, a small thermostat panel reading 18 degrees, a glass of water, folded eye mask, and a phone face-down on airplane mode, cool blue hour light seeping past the curtain edge, shot on Sony A7R V, 50mm f/1.8, Fuji Pro 400H, micro-contrast, subtle grain.",
+      "A young athletic woman in a hoodie standing at a wide hotel window at sunrise, city skyline in soft haze beyond the glass, morning sun on her face as she deliberately soaks in the light, silhouette rim lighting, shot on Fujifilm GFX 100, 24mm wide-angle, Kodak Portra 400, analog halation, natural skin texture.",
+      "Overhead flat-lay of a wooden hotel desk with a herbal tea in a white cup, a paper sleep-schedule chart with time zones penciled in, noise-cancelling earbuds, and a banana, warm afternoon window light from the left, shot on Fujifilm X-T5, 50mm f/1.8, Kodak Gold 200, subtle grain, soft shadows.",
+      "A team sleep coach in his forties in a navy polo adjusting blackout curtains in a quiet hotel room, a player resting on the bed in the background out of focus, low tungsten lamp warmth against cool exterior dusk light, shot on Leica M11, 35mm f/1.4, Cinestill 800T, subtle grain, candid documentary framing."
+    ],
+    "ts": "2026-07-07T17:33:39+00:00",
+    "slot_key": "2026-07-07|16:29|lifestyle-documentary"
   }
 ]
