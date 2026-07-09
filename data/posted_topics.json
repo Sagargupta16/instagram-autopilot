@@ -410,5 +410,17 @@
     ],
     "ts": "2026-07-07T17:33:39+00:00",
     "slot_key": "2026-07-07|16:29|lifestyle-documentary"
+  },
+  {
+    "topic": "Yandex quietly open-sourced a model that trains 2x cheaper -- here's what it means for indie devs",
+    "image_prompts": [
+      "A developer in his early thirties in a charcoal hoodie hunched over a mechanical keyboard in a dim home office at night, terminal windows glowing on a matte black monitor, single tungsten desk lamp raking across his face, mug of cold coffee beside him, shot on Sony A7R V, 35mm f/1.4, Cinestill 800T, subtle film grain, natural skin texture, shallow depth of field.",
+      "Close-up of a single green graphics card resting on a matte grey studio surface, dust-free fans and copper heat pipes catching the light, faint reflection beneath it, softbox at 45 degrees from the right, shot on Hasselblad X2D, 100mm macro, micro-contrast, subtle grain, deep shadows on a clean editorial backdrop.",
+      "Overhead of a walnut desk with an open laptop showing a scrolling training log, a paper notebook with GPU cost figures scratched in pencil, a pair of wired earbuds coiled, and a half-eaten pastry on a napkin, cool morning window light from the left, shot on Fujifilm GFX 100, 50mm f/1.8, Kodak Portra 400, natural texture, soft shadows.",
+      "A young woman in her late twenties in a linen shirt sitting cross-legged on a worn sofa in a plant-filled apartment at dusk, laptop balanced on her knees, face lit blue by the screen, warm lamp glow behind her, quiet focus, shot on Leica M11, 35mm f/1.4, Kodak Gold 200, analog halation, subtle grain, shallow depth of field.",
+      "Wide low-angle of a compact home server rack in the corner of a garage workspace, two GPUs stacked behind mesh panels, cables braided neatly, a small fan spinning, hard directional afternoon sun cutting through a high window onto the concrete floor, shot on Canon EOS R5, 24mm wide-angle, Ilford HP5 black and white, visible grain, strong contrast."
+    ],
+    "ts": "2026-07-09T17:29:52+00:00",
+    "slot_key": "2026-07-09|09:56|tech-carousel"
   }
 ]
