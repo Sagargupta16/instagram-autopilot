@@ -422,5 +422,29 @@
     ],
     "ts": "2026-07-09T17:29:52+00:00",
     "slot_key": "2026-07-09|09:56|tech-carousel"
+  },
+  {
+    "topic": "The pre-match speed drill Erling Haaland does that builds explosive first steps in 4 minutes",
+    "image_prompts": [
+      "A powerfully built male footballer in his early twenties in a sky-blue training kit, mid-air during a short pogo hop on a dewy practice pitch, calves taut, arms driving upward, morning golden hour backlight rimming his shoulders and the grass, shot on Canon EOS R5, 85mm f/1.4 portrait, Cinestill 800T, subtle film grain, natural skin texture, shallow depth of field.",
+      "Low-angle wide shot of a lone athlete crouched into a falling-start lean on a chalk-marked five-meter line, empty stadium seats blurred behind, long shadows stretching across the turf at 7am, hard directional sun raking from the right, shot on Sony A7R V, 24mm wide-angle, Kodak Portra 400, micro-contrast, slight motion blur on the front foot.",
+      "Close-up of a footballer's lower legs and neon boots mid-push off the grass, blades of turf kicking up behind the studs, water droplets scattering in golden light, tight framing on the ankle drive, morning golden hour backlight, shot on Fujifilm GFX 100, 100mm macro, Fuji Pro 400H, visible grain, analog halation on the highlights.",
+      "A young sprint coach in his forties in a grey polo kneeling beside a row of yellow floor cones on a fenced training ground, stopwatch in hand, gesturing toward an athlete, overcast diffused morning light, damp pitch, shot on Leica M11, 35mm f/1.4, Ilford HP5 black and white, natural skin texture, documentary framing.",
+      "Overhead flat-lay on wet grass of two neon cleats, a coiled resistance band, a chalk-drawn five-meter start line, a folded towel and a steel water bottle catching early sun, dew beading on the blades, hard directional morning sun casting sharp cone shadows, shot on Fujifilm X-T5, 50mm f/1.8, Kodak Gold 200, subtle grain."
+    ],
+    "ts": "2026-07-10T17:20:00+00:00",
+    "slot_key": "2026-07-10|06:34|fitness-morning"
+  },
+  {
+    "topic": "Why FIFA's official World Cup 2026 app quietly moved to a .xyz-style domain \u2014 and what it means for your ticket security",
+    "image_prompts": [
+      "A close-up of a smartphone held in a man's hand showing a football ticketing website address bar, browser lock icon visible, resting on a matte grey desk beside a passport and a printed itinerary, soft afternoon window light from the left, shot on Sony A7R V, 100mm macro, Kodak Portra 400, natural skin texture, micro-contrast, shallow depth of field.",
+      "A woman in her early thirties in a mustard sweater sitting at a small kitchen table in a bright apartment at midday, leaning toward her laptop with a slight frown as she reads a ticketing page, coffee cooling beside her, overcast diffused light through a large window, shot on Fujifilm X-T5, 35mm f/1.4, Fuji Pro 400H, subtle grain, visible pores.",
+      "Overhead flat-lay on a walnut table of a laptop showing a browser URL bar, a magnifying glass resting over the domain text, a stack of two match tickets, a debit card face-down, and a pen mid-note on a sticky pad, warm single tungsten lamp raking across the surface, shot on Hasselblad X2D, 50mm f/1.8, Kodak Gold 200, matte surfaces, subtle grain.",
+      "A low-angle shot of a young man in a denim jacket standing on a city sidewalk at dusk, phone raised to his face as neon signage from a sports bar spills orange and blue across his cheek, checking a ticket confirmation, blue hour sky behind him, shot on Leica M11, 35mm f/1.4, Cinestill 800T, analog halation, natural skin texture.",
+      "Close-up of a modern router and a small note card reading a full website address propped against a coffee mug on a home office shelf, a plant blurred behind, early morning golden hour backlight through nearby blinds casting thin bands of warm light, shot on Canon EOS R5, 85mm f/1.4 portrait, Kodak Portra 400, micro-contrast, shallow depth of field."
+    ],
+    "ts": "2026-07-10T17:22:05+00:00",
+    "slot_key": "2026-07-10|15:33|tech-carousel"
   }
 ]
