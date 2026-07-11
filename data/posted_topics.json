@@ -446,5 +446,17 @@
     ],
     "ts": "2026-07-10T17:22:05+00:00",
     "slot_key": "2026-07-10|15:33|tech-carousel"
+  },
+  {
+    "topic": "The Morocco stopover trick: how to turn a Casablanca layover into a free 48-hour Marrakech detour",
+    "image_prompts": [
+      "A woman in her early thirties in a linen shirt and canvas backpack standing on a marble train platform at Casa-Voyageurs station, checking a paper ticket as a double-decker train waits, mid-morning light spilling through tall arched windows, other travellers blurred behind, shot on Leica M11, 35mm f/1.4, Kodak Portra 400, subtle film grain, natural skin texture.",
+      "An overhead flat-lay on a weathered wooden cafe table of a Royal Air Maroc boarding pass, a folded Marrakech train timetable, a small glass of mint tea, sunglasses and a worn passport, hard midday sun casting sharp shadows across the grain, shot on Fujifilm GFX 100, 100mm macro, Kodak Gold 200, micro-contrast, subtle grain.",
+      "A wide low-angle view of the pink ramparts and Koutoubia minaret of Marrakech rising against a hazy noon sky, a lone cyclist crossing the empty foreground road, palm fronds framing the top edge, muted warm tones, hard directional sun, shot on Sony A7R V, 24mm wide-angle, Fuji Pro 400H, subtle grain, micro-contrast.",
+      "A close-up environmental portrait of a Marrakech spice vendor in his sixties in a grey djellaba scooping saffron from a burlap sack in a shaded souk stall, mounds of ochre and red powders around him, soft light filtering through slatted roofing, shot on Fujifilm X-T5, 50mm f/1.8, Kodak Portra 400, visible pores, natural skin texture.",
+      "A medium shot of two young travellers on a rooftop terrace overlooking Jemaa el-Fnaa square at dusk, leaning on the low wall as blue hour settles over the smoke and lanterns of the food stalls below, warm lamplight on their faces, shot on Canon EOS R5, 85mm f/1.4, Cinestill 800T, analog halation, subtle grain."
+    ],
+    "ts": "2026-07-11T16:26:30+00:00",
+    "slot_key": "2026-07-11|12:49|travel-cinematic"
   }
 ]
