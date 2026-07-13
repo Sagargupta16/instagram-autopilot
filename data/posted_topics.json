@@ -458,5 +458,17 @@
     ],
     "ts": "2026-07-11T16:26:30+00:00",
     "slot_key": "2026-07-11|12:49|travel-cinematic"
+  },
+  {
+    "topic": "The 1980s TV actor Randolph Mantooth invented the paramedic role Hollywood still copies wrong",
+    "image_prompts": [
+      "A man in his early thirties in a dark blue 1970s paramedic uniform kneeling calmly beside a training dummy on a suburban Los Angeles driveway at dawn, radio handset raised to his mouth mid-transmission, soft golden hour backlight raking across the asphalt, shot on Leica M11, 35mm f/1.4, Kodak Portra 400, natural skin texture, subtle film grain.",
+      "Close-up of a vintage orange fiberglass rescue box open on a station floor, coiled tubing, glass ampoules and a worn clipboard inside, weathered hands reaching in to check inventory, single tungsten lamp glow from a work bench, shot on Sony A7R V, 100mm macro, Kodak Gold 200, micro-contrast, visible dust motes.",
+      "A wide low-angle view of a red 1970s squad truck parked outside a brick fire station at midday, two uniformed crew members loading equipment through open rear doors, hard directional sun casting long shadows across the concrete apron, shot on Canon EOS R5, 24mm wide-angle, Fuji Pro 400H, subtle grain.",
+      "Overhead flat-lay on a scuffed metal locker-room table of a folded paramedic shirt, a laminated protocol card, a coiled stethoscope and a black-and-white shift roster clipped to a board, cool overcast diffused light from a high window, shot on Fujifilm GFX 100, 50mm f/1.8, Ilford HP5 black and white, fine grain.",
+      "A woman paramedic in her forties in period uniform sitting on the back step of a rescue rig at dusk, writing on a run sheet with a ballpoint pen, exhausted but focused, neon emergency-room sign spilling red light across her face, shot on Fujifilm X-T5, 85mm f/1.4 portrait, Cinestill 800T, analog halation, natural skin texture."
+    ],
+    "ts": "2026-07-13T17:31:24+00:00",
+    "slot_key": "2026-07-13|19:18|entertainment-carousel"
   }
 ]
