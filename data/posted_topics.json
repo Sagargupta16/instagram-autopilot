@@ -494,5 +494,29 @@
     ],
     "ts": "2026-07-17T16:41:42+00:00",
     "slot_key": "2026-07-17|07:05|fitness-morning"
+  },
+  {
+    "topic": "The Argentine asado cut Messi's hometown grills for World Cup wins that Buenos Aires steakhouses ignore",
+    "image_prompts": [
+      "Overhead flat-lay of a long slab of tira de asado con cuero, ribs cut crosswise with the hide still on, resting on a battered wooden board dusted with coarse salt, a wooden-handled knife and a chipped enamel plate of chimichurri beside it, weathered farmhouse table, midday window light raking from the left, shot on Hasselblad X2D, 100mm macro, Kodak Portra 400, tactile fat marbling, subtle grain, shallow depth.",
+      "A parrillero in his sixties in a stained white apron leaning over a low brick asado grill in a Rosario backyard, turning long rib strips over glowing wood embers with iron tongs, smoke curling around his weathered hands, late afternoon golden hour backlight through a fig tree, shot on Fujifilm X-T5, 35mm f/1.4, Cinestill 800T, natural skin texture, analog halation.",
+      "Close-up of blistered beef ribs cooking hide-side down over red quebracho embers, fat rendering in slow droplets onto the coals, thin blue smoke rising, deep char and amber crust, hard directional dusk sun catching the sizzle, shot on Sony A7R V, 100mm macro, Cinestill 800T, micro-contrast, slight motion blur on the smoke.",
+      "Wide low-angle view of a working-class asado gathering in a Rosario patio at dusk, a folding table crowded with cut ribs, bread, a jug of red wine and mismatched glasses, three friends in their thirties reaching in mid-laugh under a bare bulb, string lights overhead, blue hour sky above the brick wall, shot on Canon EOS R5, 24mm wide-angle, Kodak Gold 200, warm practical spill, subtle grain.",
+      "A young woman's hands in a rustic kitchen slicing a portion of cooked tira de asado con cuero on a marble counter, the crisp hide crackling under a serrated knife, juices pooling, a bowl of parsley chimichurri and a squeezed lemon half nearby, soft morning overcast diffused light from a side window, shot on Fujifilm GFX 100, 50mm f/1.8, Fuji Pro 400H, visible pores, natural texture."
+    ],
+    "ts": "2026-07-18T16:27:27+00:00",
+    "slot_key": "2026-07-18|05:03|food-editorial-carousel"
+  },
+  {
+    "topic": "The 2007 Mooninite panic playbook: how streaming shows now stage 'accidental' city scares to trend",
+    "image_prompts": [
+      "A cluster of small LED light boxes zip-tied to a metal underpass girder in downtown Boston, glowing faint green in early dawn fog, dew beading on the wiring, empty road curving beneath, low-angle from the wet asphalt, blue hour light, shot on Sony A7R V, 24mm wide-angle, Cinestill 800T, subtle grain, analog halation.",
+      "Two city maintenance workers in reflective vests crouched examining an unmarked black device taped to a subway station column, morning commuters blurred behind the turnstiles, harsh fluorescent ceiling light overhead, tiled walls, candid documentary framing, shot on Leica M11, 35mm f/1.4, Ilford HP5 black and white, natural skin texture, micro-contrast.",
+      "Close-up of a smartphone screen held in a young woman's hand showing a breaking-news alert about a mysterious device downtown, her thumb mid-scroll, coffee shop window blurred behind, warm window light from the left, chipped nail polish and visible pores, shot on Fujifilm X-T5, 50mm f/1.8, Kodak Portra 400, subtle grain, shallow depth of field.",
+      "Overhead flat-lay on a marketing agency desk of a printed street-map with red circles, a torn press-release draft, a pager-sized LED prop, an empty cold brew cup and a walkie-talkie, midday softbox light from above, coffee ring stains on paper, shot on Hasselblad X2D, 100mm macro, Kodak Gold 200, micro-contrast, subtle grain.",
+      "Wide shot of a quiet city plaza cordoned with yellow tape at dusk, a lone police cruiser parked with lights off, curious pedestrians filming on phones from behind the line, neon sign spill from a nearby diner tinting the pavement, shot on Canon EOS R5, 35mm f/1.4, Cinestill 800T, slight motion blur, analog halation."
+    ],
+    "ts": "2026-07-18T16:29:24+00:00",
+    "slot_key": "2026-07-18|19:18|entertainment-carousel"
   }
 ]
