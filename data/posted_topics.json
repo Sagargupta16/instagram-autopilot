@@ -518,5 +518,29 @@
     ],
     "ts": "2026-07-18T16:29:24+00:00",
     "slot_key": "2026-07-18|19:18|entertainment-carousel"
+  },
+  {
+    "topic": "The Odyssey films in 2026: the real Greek harbor Nolan used that lets you walk the set for free",
+    "image_prompts": [
+      "A weathered stone causeway leading to the Methoni Venetian fortress gate on the Messenian coast, an elderly Greek man in a flat cap walking his bicycle across the arch, hard midday sun raking across sandstone blocks and casting sharp shadows, distant turquoise sea, shot on Leica M11, 35mm f/1.4, Kodak Portra 400, muted saturation, subtle film grain, natural skin texture.",
+      "The Bourtzi octagonal sea tower of Methoni jutting into calm Ionian water on a stone spit, a lone fisherman in his sixties casting a line from the rocks below, overcast diffused light softening the pale masonry, muted blues and ochres, shot on Hasselblad X2D, 50mm f/1.8, Fuji Pro 400H, micro-contrast, analog halation.",
+      "Overhead view of the vast grassy interior courtyard of Methoni fortress dotted with ruined column bases and wildflowers, two backpackers in linen shirts walking a worn dirt path at midday, hard directional sun flattening the field, muted greens, shot on Fujifilm GFX 100, tilt-shift, Kodak Gold 200, subtle grain, environmental scale.",
+      "Close-up of a Venetian coat-of-arms carved into a crumbling limestone gate lintel at Methoni, salt weathering and lichen mottling the stone, hard raking afternoon sun catching the eroded relief, warm ochre tones against shaded recess, shot on Sony A7R V, 100mm macro, Kodak Portra 400, visible stone texture, micro-contrast.",
+      "Wide low-angle view of the Methoni fortress ramparts at blue hour, a young woman in a wind-tugged dress standing on the sea wall silhouetted against a fading violet sky, waves breaking on the rocks below, cool muted tones with warm lamp glow from a distant taverna, shot on Canon EOS R5, 24mm wide-angle, Cinestill 800T, subtle grain."
+    ],
+    "ts": "2026-07-19T16:27:47+00:00",
+    "slot_key": "2026-07-19|09:21|travel-cinematic"
+  },
+  {
+    "topic": "The $8 juice at Seattle events: why venue food is priced 4x higher, explained by vendors",
+    "image_prompts": [
+      "A cold-pressed orange juice in a clear plastic cup with a price tag reading eight dollars taped to a stainless vendor counter, event crowd blurred behind, condensation beading down the cup, late-afternoon hard directional sun raking across the counter, shot on Sony A7R V, 85mm f/1.4, Kodak Portra 400, natural skin texture on the vendor's hand mid-pour, shallow depth of field, subtle grain.",
+      "Overhead flat-lay on a battered aluminum prep table of halved oranges, a manual citrus press, a stack of clear cups, a curling vendor permit, and a handwritten cost sheet with numbers, natural window light from the left, tactile pith and pulp textures, shot on Hasselblad X2D, 100mm macro, Kodak Gold 200, micro-contrast, subtle film grain.",
+      "A juice vendor in her forties in an apron and gloves stacking bags of crushed ice into a cooler behind a folding booth at an outdoor Seattle festival, string lights and food stalls behind her, blue hour settling over the grounds, shot on Fujifilm X-T5, 35mm f/1.4, Cinestill 800T, analog halation off the lights, natural skin texture.",
+      "Low-angle wide view of a food vendor row at a packed daytime Seattle event, banners and menu boards lining the walkway, a long queue of attendees waiting under overcast sky, paper cups and receipts in hand, shot on Canon EOS R5, 24mm wide-angle, Fuji Pro 400H, subtle grain, deep field, documentary framing.",
+      "Close-up of a vendor's hands counting cash into a lockbox on a cluttered counter at dusk, a receipt roll and a card reader beside it, a half-emptied juice cup catching neon sign spill from a nearby stall, warm and cool light mixing, shot on Leica M11, 50mm f/1.8, Cinestill 800T, visible pores, subtle grain, shallow depth."
+    ],
+    "ts": "2026-07-19T16:29:42+00:00",
+    "slot_key": "2026-07-19|13:25|food-editorial-carousel"
   }
 ]
