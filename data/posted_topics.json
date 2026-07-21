@@ -542,5 +542,17 @@
     ],
     "ts": "2026-07-19T16:29:42+00:00",
     "slot_key": "2026-07-19|13:25|food-editorial-carousel"
+  },
+  {
+    "topic": "The World Cup 2026 ticket app forces facial recognition entry \u2014 here's the setting to turn off first",
+    "image_prompts": [
+      "A young man in his late twenties in a red jersey holding a smartphone up to a matte black facial-recognition turnstile at a stadium entrance gate, mid-scan with a soft green light on his face, late afternoon overcast diffused light, shot on Sony A7R V, 35mm f/1.4, Kodak Portra 400, natural skin texture, subtle film grain, shallow depth of field.",
+      "Close-up of a smartphone screen resting on a matte grey table showing a ticketing app settings menu with a facial-recognition toggle switched off and a QR entry option highlighted, a coffee cup edge blurred behind, softbox at 45 degrees, shot on Fujifilm GFX 100, 100mm macro, micro-contrast, crisp screen glare, subtle grain.",
+      "Overhead flat-lay on a pale oak desk of a paper stadium ticket, a passport, a lanyard, and a phone displaying a QR code, morning window light from the left casting soft long shadows, shot on Hasselblad X2D, 50mm f/1.8, Kodak Gold 200, matte surfaces, fine analog texture.",
+      "A woman in her forties in a denim jacket pausing at a stadium concourse rail at dusk, glancing down at her phone with a concerned expression, blurred crowd and floodlight glow behind her, blue hour with neon sign spill, shot on Leica M11, 35mm f/1.4, Cinestill 800T, analog halation, natural skin texture.",
+      "Low-angle wide view of a row of gleaming biometric entry gates at a modern stadium under an open evening sky, staff in orange vests guiding a thin line of fans through, hard directional floodlight raking across the metal, shot on Canon EOS R5, 24mm wide-angle, Fuji Pro 400H, subtle grain, deep shadows."
+    ],
+    "ts": "2026-07-21T16:55:53+00:00",
+    "slot_key": "2026-07-21|10:26|tech-carousel"
   }
 ]
