@@ -554,5 +554,17 @@
     ],
     "ts": "2026-07-21T16:55:53+00:00",
     "slot_key": "2026-07-21|10:26|tech-carousel"
+  },
+  {
+    "topic": "The Casablanca train-station trick that turns a 90-minute layover into free luggage storage",
+    "image_prompts": [
+      "A uniformed Moroccan station attendant in his fifties handing a paper claim tag to a young female traveller across a tiled left-luggage counter inside Casa-Voyageurs station, stacked duffel bags and hard-shell cases behind him, mid-day light spilling from a high clerestory window, shot on Leica M11, 35mm f/1.4, Kodak Portra 400, natural skin texture, subtle grain.",
+      "A worn leather backpack and a wheeled suitcase sitting on a scuffed tiled floor beside a numbered storage cubby wall inside a Moroccan train station, warm afternoon light raking across the geometric zellige tiles, a chalkboard tariff sign leaning against the counter, shot on Fujifilm GFX 100, 50mm f/1.8, Kodak Gold 200, micro-contrast, subtle grain.",
+      "Wide low-angle view of the vaulted concrete concourse of Casa-Voyageurs station at noon, travellers crossing shafts of hard directional sun through slatted skylights, a departures board glowing overhead, a porter pushing a cart of luggage, shot on Sony A7R V, 24mm wide-angle, Fuji Pro 400H, analog halation, subtle grain.",
+      "A twenty-something backpacker in a linen shirt walking unburdened into the Casablanca medina at golden hour, hands free in his pockets, market stalls of brass lanterns and spices flanking a narrow alley, warm golden hour backlight framing him, shot on Canon EOS R5, 85mm f/1.4 portrait, Cinestill 800T, shallow depth of field, subtle grain.",
+      "Overhead flat-lay of a Moroccan left-luggage claim ticket, a folded train timetable, a handful of dirham coins, and a set of keys on a battered wooden bench, dappled overcast diffused light from a station window, faint scratches in the varnish, shot on Hasselblad X2D, 100mm macro, Kodak Portra 400, visible grain, micro-contrast."
+    ],
+    "ts": "2026-07-22T16:56:28+00:00",
+    "slot_key": "2026-07-22|10:50|travel-cinematic"
   }
 ]
