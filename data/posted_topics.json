@@ -566,5 +566,17 @@
     ],
     "ts": "2026-07-22T16:56:28+00:00",
     "slot_key": "2026-07-22|10:50|travel-cinematic"
+  },
+  {
+    "topic": "ChatGPT's new group-chat mode leaks your side messages \u2014 the setting to check before you invite anyone",
+    "image_prompts": [
+      "A woman in her early thirties in a grey knit sweater sitting at a pale oak kitchen table at night, frowning at her phone held in both hands, the screen glow lighting her face, a cold cup of tea beside her, single tungsten lamp warm from the right, shot on Sony A7R V, 85mm f/1.4, Cinestill 800T, natural skin texture, shallow depth of field, subtle grain.",
+      "Close-up of a matte black smartphone resting on a slate grey desk showing a settings menu with a memory toggle switch, a pair of reading glasses folded beside it and a ceramic coffee mug out of focus behind, softbox at 45 degrees, shot on Canon EOS R5, 100mm macro, micro-contrast, subtle film grain, clean product editorial framing.",
+      "Overhead flat-lay on a walnut coffee table of two phones side by side showing overlapping message bubbles, a tangled pair of earbuds, a sticky note with a scribbled password, and a half-eaten croissant on a small plate, soft overcast diffused window light, shot on Fujifilm GFX 100, 50mm f/1.8, Kodak Portra 400, natural texture.",
+      "Two friends in their late twenties on a worn linen sofa in a sunlit living room, one leaning over to show the other a phone screen, both mid-laugh turning cautious, late afternoon golden hour backlight through sheer curtains, shot on Leica M11, 35mm f/1.4, Kodak Gold 200, natural skin texture, subtle grain, shallow depth of field.",
+      "A man in his forties in a navy shirt standing at a kitchen counter at dawn, phone in one hand, coffee in the other, pausing mid-sip with a wary sideways glance, cool blue hour light through the window mixing with a warm under-cabinet strip, shot on Fujifilm X-T5, 35mm f/1.4, Cinestill 800T, visible skin texture, analog halation."
+    ],
+    "ts": "2026-07-23T16:58:30+00:00",
+    "slot_key": "2026-07-23|10:05|tech-carousel"
   }
 ]
