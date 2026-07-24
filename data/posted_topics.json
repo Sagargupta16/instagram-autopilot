@@ -578,5 +578,29 @@
     ],
     "ts": "2026-07-23T16:58:30+00:00",
     "slot_key": "2026-07-23|10:05|tech-carousel"
+  },
+  {
+    "topic": "The Ithaca harbor Nolan skipped for 'The Odyssey' \u2014 the real Odysseus port you can sail into today",
+    "image_prompts": [
+      "A weathered Greek fisherman in his sixties in a faded blue shirt coiling rope on the stone quay of Vathy harbor, Ithaca, small wooden caiques bobbing behind him, midday hard directional sun off the water, whitewashed houses climbing the hillside, shot on Leica M11, 35mm f/1.4, Kodak Portra 400, natural skin texture, subtle film grain.",
+      "Wide view of Vathy harbor curving around a still turquoise bay, moored sailboats and fishing boats reflected on glassy water, pastel houses stacked against green hills under an open noon sky, distant mountains framing the inlet, shot on Fujifilm GFX 100, 24mm wide-angle, Fuji Pro 400H, micro-contrast, soft haze on the horizon.",
+      "Overhead flat-lay on a sun-bleached wooden dock plank of a folded Ionian sailing chart, brass boat keys, a coil of frayed rope, a ripe fig, and a worn paperback of the Odyssey, hard midday sun casting sharp shadows, shot on Hasselblad X2D, 100mm macro, Kodak Gold 200, visible wood grain, subtle film grain.",
+      "A young woman in a linen sundress leaning over the bow rail of a small sailboat gliding into Vathy harbor, wind lifting her hair as the town comes into view, late afternoon golden hour backlight glinting off the wake, low angle from the deck, shot on Sony A7R V, 50mm f/1.8, Cinestill 800T, analog halation, slight motion blur.",
+      "A taverna table at the harbor's edge in early evening, grilled octopus on a white plate, a carafe of local wine, empty chairs facing moored boats, string lights just switched on against blue hour dusk, warm tungsten spill from the doorway, shot on Fujifilm X-T5, 35mm f/1.4, Kodak Portra 400, subtle grain, natural texture."
+    ],
+    "ts": "2026-07-24T17:07:08+00:00",
+    "slot_key": "2026-07-24|13:27|travel-cinematic"
+  },
+  {
+    "topic": "Christopher Nolan's 'The Odyssey' filmed at Sicily's Favignana tuna caves \u2014 you can dive them now",
+    "image_prompts": [
+      "A diver in a black wetsuit floating just below the surface inside a flooded limestone sea cave off Favignana, sunlight lancing through a submerged entrance and cutting the turquoise water into blue shafts, bubbles trailing upward, shot from below on Sony A7R V, 24mm wide-angle, hard directional sun refracting through water, Kodak Portra 400, micro-contrast, subtle grain.",
+      "A weathered Sicilian tuna fisherman in his sixties, deep tan and grey stubble, standing on a stone quay of the old Favignana tonnara, mending a heavy black net draped over his forearms, morning haze behind moored wooden boats, overcast diffused light, shot on Leica M11, 50mm f/1.8, Kodak Gold 200, natural skin texture, visible pores, subtle grain.",
+      "Interior of the abandoned Florio tonnara cannery on Favignana, tall arched brick vaults and rusted iron rails running toward a bright doorway, a lone rope coil on the dusty floor, midday sun spilling through high windows, wide low-angle view, shot on Fujifilm GFX 100, 24mm wide-angle, muted saturation, analog halation, subtle film grain.",
+      "Overhead flat-lay on sun-bleached blue wood of a diving mask, a coiled regulator hose, a worn Egadi Islands map, a dive log with pencil, and a scattering of dried sea salt, hard midday sun casting sharp shadows, shot on Hasselblad X2D, 35mm f/1.4, Fuji Pro 400H, micro-contrast, subtle grain.",
+      "A young woman in a coral rash guard sitting on the tiled edge of a small dive boat at dusk, pulling off her fins with wet hair clinging to her face, the pastel harbour of Favignana glowing behind her, golden hour backlight, shot on Canon EOS R5, 85mm f/1.4 portrait, Cinestill 800T, shallow depth of field, natural skin texture, subtle grain."
+    ],
+    "ts": "2026-07-24T17:09:05+00:00",
+    "slot_key": "2026-07-24|18:06|travel-cinematic"
   }
 ]
