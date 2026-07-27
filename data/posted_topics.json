@@ -602,5 +602,29 @@
     ],
     "ts": "2026-07-24T17:09:05+00:00",
     "slot_key": "2026-07-24|18:06|travel-cinematic"
+  },
+  {
+    "topic": "The Audos Summer Camp model: why 'work-from-camp' retreats are quietly replacing the digital-nomad hostel",
+    "image_prompts": [
+      "A cluster of six adults in their late twenties and thirties around a long reclaimed-wood table on a shaded outdoor terrace of a rural stone farmhouse, laptops open, one man gesturing mid-explanation while others lean in, mid-day natural light filtered through olive branches, muted greens and warm stone, shot on Leica M11, 35mm f/1.4, Kodak Portra 400, natural skin texture, subtle film grain.",
+      "A young woman in a faded green t-shirt sitting cross-legged on a woven rug against a whitewashed wall of a converted barn, laptop balanced on her knees, notebook and half-drunk coffee beside her, soft overcast light through a tall open window, muted palette, shot on Fujifilm X-T5, 50mm f/1.8, Fuji Pro 400H, visible pores, micro-contrast.",
+      "Overhead flat-lay on a weathered pine picnic table of three laptops with tangled charging cables, a printed six-week cohort schedule, a chipped enamel mug, sunglasses, and a handwritten name tag reading 'Cohort 4', dappled mid-day sun and leaf shadows across the surface, muted tones, shot on Sony A7R V, 24mm wide-angle, Kodak Gold 200, subtle grain.",
+      "A wide view of a low Mediterranean stone compound with a shared open-air workspace under a pergola, a dozen people scattered at tables and hammocks, dry hills and cypress trees behind, hard directional noon sun casting short shadows, muted earth tones, shot on Fujifilm GFX 100, 24mm wide-angle, Kodak Portra 400, fine grain, environmental reportage.",
+      "A man in his forties in a linen shirt standing at a chalkboard wall in a rustic communal kitchen, sketching a rough diagram while two younger participants watch from bar stools, warm window light from the left, copper pans and ceramic bowls in soft focus behind, muted saturation, shot on Canon EOS R5, 85mm f/1.4 portrait, Cinestill 800T, natural skin texture, shallow depth of field."
+    ],
+    "ts": "2026-07-27T17:19:11+00:00",
+    "slot_key": "2026-07-27|09:30|travel-cinematic"
+  },
+  {
+    "topic": "The 4 home-workout habits that beat the gym for fat loss after 45",
+    "image_prompts": [
+      "A woman in her early fifties in a grey tank top pressing a single kettlebell overhead in a small sunlit home living room, bare feet on a worn oak floor, a rolled yoga mat and water bottle beside her, early morning light spilling through sheer curtains from the left, shot on Canon EOS R5, 85mm f/1.4, Kodak Portra 400, natural skin texture, subtle film grain, shallow depth of field.",
+      "A man in his late forties in a faded blue t-shirt mid push-up on a hardwood bedroom floor, sweat beading on his forehead, an unmade bed and open window behind him, soft overcast light filling the room at noon, shot from a low angle on Sony A7R V, 35mm f/1.4, Fuji Pro 400H, visible pores, micro-contrast, subtle grain.",
+      "Overhead flat-lay on a scratched wooden kitchen counter of two soft-boiled eggs, a bowl of Greek yogurt with berries, a scoop of protein powder, a battered measuring cup, and a black coffee, warm mid-morning window light raking across the surface, shot on Fujifilm GFX 100, 100mm macro, Kodak Gold 200, fine grain, natural texture.",
+      "A silver-haired woman in her sixties in a windbreaker walking briskly along a tree-lined suburban footpath at dawn, breath faintly visible, dew on the grass verge, low golden hour backlight through bare branches, shot from behind on Leica M11, 50mm f/1.8, Cinestill 800T, subtle halation, film grain.",
+      "A man in his fifties asleep in a dim bedroom, face turned on a white pillow, an alarm clock reading 6:12 glowing on the nightstand beside a glass of water, first pale blue hour light seeping under the curtains, shot from a low bedside angle on Fujifilm X-T5, 35mm f/1.4, Ilford HP5 black and white, natural grain, soft shadow."
+    ],
+    "ts": "2026-07-27T17:21:08+00:00",
+    "slot_key": "2026-07-27|18:56|lifestyle-documentary"
   }
 ]
