@@ -626,5 +626,29 @@
     ],
     "ts": "2026-07-27T17:21:08+00:00",
     "slot_key": "2026-07-27|18:56|lifestyle-documentary"
+  },
+  {
+    "topic": "The .xyz domain trap: why that cheap link in your DMs is the 2026 scam signal to screenshot",
+    "image_prompts": [
+      "A close-up of a young man's hands holding a matte black smartphone showing a text bubble with a suspicious shortened link ending in .xyz, sitting at a dark walnut desk at night, single tungsten lamp raking across the screen glow, faint reflection on the glass, shot on Sony A7R V, 100mm macro, Cinestill 800T, natural skin texture, subtle film grain, shallow depth of field.",
+      "A woman in her thirties in a grey knit sweater frowning at her laptop in a quiet home office at midday, one hand hovering over the trackpad, a browser warning banner faintly visible, overcast diffused light through a sheer-curtained window on the left, shot on Canon EOS R5, 50mm f/1.8, Kodak Portra 400, micro-contrast, natural skin texture.",
+      "Overhead flat-lay on a pale concrete surface of a cracked smartphone, a scattered stack of prepaid SIM cards, a cheap burner phone, and a printed spreadsheet of random domain names, softbox at 45 degrees casting a clean matte shadow, shot on Hasselblad X2D, 35mm f/1.4, subtle film grain, sharp micro-contrast.",
+      "A teenage girl in a hoodie sitting on the edge of an unmade bed in a dim room at dusk, thumb frozen mid-tap over a glowing message, blue hour light bleeding through a half-open blind behind her, warm phone glow on her face, shot on Fujifilm X-T5, 35mm f/1.4, Cinestill 800T, analog halation, natural skin texture.",
+      "A low-angle wide shot of an older man in a cardigan standing in a bright kitchen holding his phone at arm's length, squinting at a link, morning hard directional sun cutting across the counter and a half-drunk coffee, shot on Leica M11, 24mm wide-angle, Kodak Gold 200, subtle grain, shallow depth of field."
+    ],
+    "ts": "2026-07-28T16:59:42+00:00",
+    "slot_key": "2026-07-28|05:46|tech-carousel"
+  },
+  {
+    "topic": "Why 'Masters of the Universe' cast a Skeletor with no prosthetics -- and what that gamble tells you",
+    "image_prompts": [
+      "A character makeup artist in her forties in a black smock, leaning close to a seated actor in a dim backstage trailer, blending pale pigment along his jaw with a fine brush, mirror bulbs glowing behind them, single warm tungsten lamp raking across both faces, shot on Leica M11, 35mm f/1.4, Kodak Portra 400, natural skin texture, visible pores, subtle grain.",
+      "A cluttered practical-effects workshop bench holding a foam Skeletor bust, scattered sculpting tools, tins of pigment and half-used latex, a taped concept sketch pinned to the wall behind, cool overcast light through a dusty warehouse window at midday, shot on Fujifilm GFX 100, 100mm macro, Kodak Gold 200, micro-contrast, subtle grain.",
+      "A wide low-angle view of a film soundstage at night, a lone actor in dark villain wardrobe standing under a hanging practical lamp while crew members adjust a boom and monitor nearby, cables snaking across the concrete floor, hard directional key light from the right, blue shadow spill, shot on Sony A7R V, 24mm wide-angle, Cinestill 800T, analog halation.",
+      "Close-up of an older director in a grey hoodie studying a small playback monitor on set, brow furrowed, hand resting on his chin, the screen glowing on his face in a darkened corner, faint neon sign spill from a distant prop light, shot on Canon EOS R5, 85mm f/1.4 portrait, Cinestill 800T, shallow depth of field, natural skin texture.",
+      "Overhead flat-lay on a scratched steel makeup table of a call sheet, a torn Skeletor storyboard panel, three worn brushes, a cracked compact of grey-green cream paint, and a cold takeaway coffee ring, soft window light from the left at dawn, shot on Fujifilm X-T5, 35mm f/1.4, Ilford HP5 black and white, subtle film grain."
+    ],
+    "ts": "2026-07-28T17:01:28+00:00",
+    "slot_key": "2026-07-28|12:07|entertainment-carousel"
   }
 ]
