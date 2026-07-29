@@ -650,5 +650,29 @@
     ],
     "ts": "2026-07-28T17:01:28+00:00",
     "slot_key": "2026-07-28|12:07|entertainment-carousel"
+  },
+  {
+    "topic": "The Greek island seafood dish Nolan's 'Odyssey' crew ate daily -- and how tavernas make it",
+    "image_prompts": [
+      "A charred whole octopus resting on a rustic white ceramic plate scattered with oregano, lemon wedges and a slick of green olive oil, on a weathered blue taverna table by the sea, late-morning window light from the left catching the blistered suckers, shot on Hasselblad X2D, 100mm macro, Kodak Portra 400, visible char texture, micro-contrast, shallow depth of field.",
+      "An older Greek fisherman in his sixties in a faded linen shirt beating a raw octopus against a wet grey harbor rock, water droplets flying mid-motion, hard directional Aegean sun casting sharp shadows on the stone quay, fishing boats blurred behind, shot on Leica M11, 35mm f/1.4, Cinestill 800T, slight motion blur, natural skin texture, deep creases on his hands.",
+      "Overhead flat-lay on a scrubbed wooden taverna prep table of octopus arms curling over glowing charcoal in a small grill grate, tongs, a halved lemon, a tin of coarse salt and a sprig of oregano arranged loosely, midday overcast diffused light, faint smoke drifting, shot on Fujifilm GFX 100, 50mm f/1.8, Kodak Gold 200, subtle grain, tactile grill marks.",
+      "A young taverna cook in her twenties in a white apron plating a portion of sliced grilled octopus onto a chipped ceramic dish inside a shaded stone kitchen, warm afternoon light spilling through an open doorway behind her, copper pots on the wall, shot on Sony A7R V, 85mm f/1.4 portrait, Fuji Pro 400H, natural skin texture, shallow depth of field.",
+      "A wide low-angle view of a whitewashed island taverna terrace at dusk, a small table set with grilled octopus, a carafe of ouzo and a glass of water clouding milky, string lights glowing overhead against a deepening blue sky, the harbor water dark below, shot on Canon EOS R5, 24mm wide-angle, Cinestill 800T, analog halation, subtle grain."
+    ],
+    "ts": "2026-07-29T16:51:09+00:00",
+    "slot_key": "2026-07-29|12:04|food-editorial-carousel"
+  },
+  {
+    "topic": "The Greek island fish stew Nolan's 'Odyssey' cast ate cold \u2014 why it tastes better the next day",
+    "image_prompts": [
+      "Overhead flat-lay of a wide clay pot of Greek kakavia fish stew, chunks of white fish, potato and tomato in cloudy golden broth on a scrubbed pale wood table, a torn hunk of bread and a lemon half beside it, soft window light from the left, shot on Hasselblad X2D, 100mm macro, Kodak Portra 400, tactile textures, subtle film grain, shallow depth.",
+      "Close-up of a chilled bowl of leftover fish stew from the fridge, the broth set into a trembling amber jelly clinging to flakes of fish, a spoon lifting one wobbling edge, cold morning light through a kitchen window, condensation on the ceramic rim, shot on Sony A7R V, 100mm macro, Fuji Pro 400H, micro-contrast, natural grain.",
+      "A weathered Greek fisherman in his sixties in a salt-stained shirt ladling steaming stew into a battered enamel pot on a stone harbor wall at midday, small boats behind him, hard directional sun raking the broth's surface, shot on Fujifilm X-T5, 35mm f/1.4, Kodak Gold 200, visible skin texture, subtle grain.",
+      "A medium shot of a rustic taverna table at dusk on a Greek island, two mismatched bowls of cold fish stew, a chipped water jug and a single candle burning low, warm candle practical light against blue evening beyond the doorway, shot on Leica M11, 50mm f/1.8, Cinestill 800T, analog halation, subtle grain.",
+      "Overhead of a marble kitchen counter with the raw makings of kakavia: whole scorpionfish on ice, sliced onion, potatoes, a glass of white wine and a bundle of parsley, cool overcast diffused light from a nearby window, water droplets on the fish skin, shot on Fujifilm GFX 100, 50mm f/1.8, Ilford HP5 black and white, fine grain."
+    ],
+    "ts": "2026-07-29T16:53:10+00:00",
+    "slot_key": "2026-07-29|15:28|food-editorial-carousel"
   }
 ]
