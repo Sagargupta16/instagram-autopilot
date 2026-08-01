@@ -686,5 +686,17 @@
     ],
     "ts": "2026-07-30T17:01:14+00:00",
     "slot_key": "2026-07-30|06:59|food-editorial-carousel"
+  },
+  {
+    "topic": "The room-temperature tsukemen trick Tokyo shops now use so noodles never go rubbery mid-meal",
+    "image_prompts": [
+      "Close-up of a mound of thick room-temperature wheat noodles coiled neatly in a shallow ceramic dish beside a smaller bowl of dark glossy tsukemen broth, on a worn lacquered counter inside a narrow Tokyo shop, single warm pendant light directly overhead, faint steam only off the broth, shot on Sony A7R V, 100mm macro, Kodak Gold 200, micro-contrast, subtle grain, shallow depth of field.",
+      "A man in his forties in a navy shop apron dipping a bundle of pale noodles into a steaming bowl of pork broth at a counter seat in a cramped Ikebukuro ramen bar, chopsticks mid-lift, evening neon sign spill through the doorway behind him, shot on Fujifilm X-T5, 35mm f/1.4, Cinestill 800T, natural skin texture, analog halation, slight motion blur.",
+      "Overhead flat-lay on a scrubbed pale-wood counter of a full tsukemen set: coiled cool noodles, dark dipping broth flecked with fat, a soft-boiled egg halved, menma, chopped scallion and a wedge of chashu, morning window light from the left, shot on Hasselblad X2D, 24mm wide-angle, Kodak Portra 400, tactile textures, subtle grain.",
+      "A young cook in a white bandana lifting a nest of freshly rinsed noodles from a strainer and laying it to rest on a stainless prep tray to cool, inside a steamy open kitchen behind the counter, hard directional afternoon sun cutting through a side window, shot on Canon EOS R5, 50mm f/1.8, Fuji Pro 400H, visible pores, faint steam, shallow depth of field.",
+      "Low-angle view across a wooden ramen counter at dusk, two stools occupied by diners' hands and bowls, a row of dipping-broth bowls steaming while noodle dishes sit still and matte beside them, warm tungsten lamp glow above, a glass of barley tea sweating, shot on Leica M11, 35mm f/1.4, Cinestill 800T, subtle grain, analog halation."
+    ],
+    "ts": "2026-08-01T16:29:41+00:00",
+    "slot_key": "2026-08-01|15:20|food-editorial-carousel"
   }
 ]
