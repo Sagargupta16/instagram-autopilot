@@ -698,5 +698,29 @@
     ],
     "ts": "2026-08-01T16:29:41+00:00",
     "slot_key": "2026-08-01|15:20|food-editorial-carousel"
+  },
+  {
+    "topic": "Spider-Man's 'Brand New Day' filmed on real Glasgow streets dressed as NYC \u2014 walk the set now",
+    "image_prompts": [
+      "A wide view down Cochrane Street in Glasgow dressed as New York, yellow taxi cabs parked beside sandstone facades with NYPD banners and fake storefront signage, a pedestrian crossing mid-frame in a raincoat, overcast diffused midday light flattening the stone, shot on Sony A7R V, 24mm wide-angle, Kodak Portra 400, muted saturation, subtle film grain, micro-contrast.",
+      "A film crew member in a hi-vis vest and beanie in his thirties adjusting a mounted American street sign against a Glasgow tenement corner, coils of cable at his feet, hard directional sun raking the sandstone behind him, candid unposed stance, shot on Leica M11, 35mm f/1.4, Kodak Gold 200, natural skin texture, visible pores, subtle grain.",
+      "Close-up of a battered yellow New York taxi's hood ornament and windshield reflecting Glasgow's grey sky, a parking meter and cobblestones just visible in the foreground, mid-morning overcast light, shallow depth of field, shot on Fujifilm GFX 100, 100mm macro, Fuji Pro 400H, analog halation, micro-contrast.",
+      "A woman in her twenties in a wool coat pausing on a Glasgow street corner, phone raised to photograph a mock American diner facade with painted brick and neon, dusk blue hour settling over the sandstone, warm shop light spilling onto the pavement, shot on Canon EOS R5, 50mm f/1.8, Cinestill 800T, neon spill, subtle grain.",
+      "A low-angle wide shot up George Square's Victorian buildings at golden hour, an out-of-place fire hydrant and hand-lettered New York deli sign in the foreground, long shadows stretching across the tarmac, a lone dog-walker in the distance, shot on Fujifilm X-T5, 24mm wide-angle, Kodak Portra 400, golden hour backlight, muted tones, subtle grain."
+    ],
+    "ts": "2026-08-02T16:29:54+00:00",
+    "slot_key": "2026-08-02|04:24|travel-cinematic"
+  },
+  {
+    "topic": "The 'Baywatch' slow-motion run: how a 1989 camera trick still fools your eye today",
+    "image_prompts": [
+      "A lifeguard in a red one-piece swimsuit in her late twenties running along wet sand at the tideline of a wide California beach, mid-stride with arms swinging and hair lifting, hard directional sun casting a long shadow across the sand at late afternoon, shot on Canon EOS R5, 85mm f/1.4, Cinestill 800T, subtle film grain, natural skin texture, slight motion blur trailing her heels.",
+      "A vintage 1980s film camera mounted on a heavy tripod on a wooden beach boardwalk, focus ring and frame-rate dial in sharp detail, an out-of-focus stretch of ocean behind, golden hour backlight rimming the metal body, shot on Leica M11, 100mm macro, Kodak Portra 400, micro-contrast, visible dust on the lens barrel.",
+      "A camera operator in a faded grey T-shirt and cap in his forties crouched behind a tracking dolly on rails laid across sand, one hand on the follow-focus, squinting toward the water at midday, hard directional sun overhead, crew members blurred in the background, shot on Sony A7R V, 35mm f/1.4, Kodak Gold 200, natural skin texture, sweat sheen.",
+      "Overhead flat-lay on a sun-bleached wooden table of a filmstrip contact sheet, a stopwatch, a clapperboard chalked with a scene number, and a paper frame-rate chart, morning light raking across from the left creating soft edge shadows, shot on Fujifilm GFX 100, 50mm f/1.8, Ilford HP5 black and white, subtle grain, tactile paper texture.",
+      "A young couple in their twenties watching an old tube television in a dim wood-panelled living room at night, both leaning forward laughing at a slow-motion beach scene glowing on the screen, single tungsten lamp warm on their faces plus blue screen spill, shot on Fujifilm X-T5, 35mm f/1.4, Cinestill 800T, analog halation, visible pores."
+    ],
+    "ts": "2026-08-02T16:31:48+00:00",
+    "slot_key": "2026-08-02|13:24|entertainment-carousel"
   }
 ]
