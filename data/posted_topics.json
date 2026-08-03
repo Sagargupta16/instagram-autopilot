@@ -722,5 +722,29 @@
     ],
     "ts": "2026-08-02T16:31:48+00:00",
     "slot_key": "2026-08-02|13:24|entertainment-carousel"
+  },
+  {
+    "topic": "The Odyssey's Tom Holland shot Nolan filmed in real IMAX 70mm that theaters can't fully show",
+    "image_prompts": [
+      "A massive IMAX 70mm film camera the size of a microwave mounted on a heavy geared head on a rocky Mediterranean coastline, crew hands threading a wide film magazine, late afternoon sun raking across the metal body, ocean spray in the background, shot on Sony A7R V, 50mm f/1.8, Kodak Portra 400, micro-contrast, natural metal texture, subtle grain.",
+      "Close-up of a strip of exposed 70mm film held to the light between a technician's fingers in a dim editing suite, sprocket holes and frame borders razor-sharp, warm single tungsten lamp glow on the desk, dust motes drifting, shot on Fujifilm GFX 100, 100mm macro, Kodak Gold 200, analog halation, visible grain.",
+      "A young man in his late twenties in a linen tunic standing on a Greek clifftop at golden hour, wind pulling his hair sideways as he gazes toward the sea, warm backlight rimming his shoulders, distant crew silhouettes out of focus, shot on Canon EOS R5, 85mm f/1.4 portrait, Cinestill 800T, natural skin texture, shallow depth of field.",
+      "Wide interior of an empty IMAX cinema at night, the towering screen glowing pale grey with a projected film frame, rows of red seats descending in silhouette, a lone projectionist in the back booth window, ambient screen light spilling across the aisles, shot on Leica M11, 24mm wide-angle, Fuji Pro 400H, subtle grain.",
+      "Overhead flat-lay on a scratched steel workbench of two film gauges side by side, a wide 70mm strip beside a narrower standard reel, a loupe, cotton gloves and a grease pencil, cool overcast diffused light from a high window, shot on Hasselblad X2D, 50mm f/1.8, Ilford HP5 black and white, fine grain, micro-contrast."
+    ],
+    "ts": "2026-08-03T17:27:36+00:00",
+    "slot_key": "2026-08-03|08:06|entertainment-carousel"
+  },
+  {
+    "topic": "The 3 pantry swaps to make now before UK drought triggers real vegetable shortages",
+    "image_prompts": [
+      "Overhead flat-lay of three pantry swaps on a pale scrubbed oak table: a glass jar of frozen diced onions frosted with ice crystals, an open tin of whole San Marzano tomatoes in red juice, and a halved green cabbage showing tight pale layers, scattered thyme sprigs between them, soft overcast diffused light from a nearby window, shot on Fujifilm GFX 100, 100mm macro, Kodak Portra 400, micro-contrast, subtle grain.",
+      "A woman in her forties in a linen apron tipping frozen diced onions from a freezer bag into a warm cast-iron skillet in a bright cottage kitchen, steam curling upward, morning window light from the left catching the rising vapour, shot on Canon EOS R5, 50mm f/1.8, Kodak Gold 200, natural skin texture, shallow depth of field.",
+      "Close-up of a wooden chopping board with a green cabbage sliced into fine ribbons beside a heavy chef's knife, a bowl of shredded leaves catching the light, water beads on the cut edges, hard directional sun raking across the grain of the board, shot on Sony A7R V, 85mm f/1.4 portrait, Fuji Pro 400H, visible fibre texture, subtle grain.",
+      "Low-angle shot of a stocked storecupboard shelf lined with tins of San Marzano tomatoes and jars of preserves, a hand in its thirties reaching for a tin, warm single tungsten lamp spilling from the side, dust motes drifting in the beam, shot on Leica M11, 35mm f/1.4, Cinestill 800T, analog halation, subtle grain.",
+      "A pot of tomato sauce simmering on a hob at dusk, tinned San Marzano tomatoes breaking down into a deep red bubble with a wooden spoon resting across the rim, blue hour light through the kitchen window behind, steam rising, shot on Fujifilm X-T5, 24mm wide-angle, Kodak Portra 400, micro-contrast, subtle grain."
+    ],
+    "ts": "2026-08-03T17:29:16+00:00",
+    "slot_key": "2026-08-03|13:03|food-editorial-carousel"
   }
 ]
