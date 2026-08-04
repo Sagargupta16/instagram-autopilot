@@ -746,5 +746,17 @@
     ],
     "ts": "2026-08-03T17:29:16+00:00",
     "slot_key": "2026-08-03|13:03|food-editorial-carousel"
+  },
+  {
+    "topic": "The .xyz domain trick spam texts now use to fake package-delivery links -- and the one URL check that catches it in 2 seconds",
+    "image_prompts": [
+      "A smartphone held in a man's hand in his thirties showing a fake package-delivery text with a highlighted .xyz link, resting on a matte grey desk beside a set of car keys, softbox at 45 degrees raking across the screen glare, shot on Sony A7R V, 100mm macro, Kodak Portra 400, natural skin texture, micro-contrast, shallow depth of field.",
+      "Overhead flat-lay on a dark walnut table of a cracked-open cardboard delivery box, a phone displaying a spoofed tracking page, and a magnifying glass hovering over the address bar, morning window light from the left, muted matte surfaces, shot on Fujifilm GFX 100, 50mm f/1.8, Kodak Gold 200, subtle film grain, fine paper texture.",
+      "Close-up of a young woman's face in her late twenties lit only by her phone screen at night in a dim hallway, brow furrowed reading a suspicious link, blue phone glow on her cheeks, Cinestill 800T tungsten warmth from a distant lamp, shot on Canon EOS R5, 85mm f/1.4 portrait, analog halation, visible pores, shallow depth of field.",
+      "A hand tapping the corner of a smartphone screen to preview a URL before opening it, on a light oak kitchen counter with a coffee mug and reading glasses nearby, soft overcast diffused daylight through a nearby window, shot on Leica M11, 35mm f/1.4, Fuji Pro 400H, subtle grain, natural skin texture, matte finish.",
+      "Wide low-angle of an older man in his sixties in a knit cardigan sitting at a cluttered home-office desk, holding his phone at arm's length squinting at a delivery text, a desk lamp casting single tungsten light across scattered mail, shot on Fujifilm X-T5, 24mm wide-angle, Kodak Portra 400, warm grain, micro-contrast."
+    ],
+    "ts": "2026-08-04T17:13:31+00:00",
+    "slot_key": "2026-08-04|15:16|tech-carousel"
   }
 ]
