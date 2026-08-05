@@ -758,5 +758,17 @@
     ],
     "ts": "2026-08-04T17:13:31+00:00",
     "slot_key": "2026-08-04|15:16|tech-carousel"
+  },
+  {
+    "topic": "The voice-notetaker habit replacing typed to-do lists \u2014 why talking your tasks out beats writing them",
+    "image_prompts": [
+      "A woman in her late thirties in a grey wool coat walking a wet cobblestone lane at dawn, holding her phone loosely to her mouth mid-sentence recording a voice note, breath faintly visible in cold air, low overcast diffused light with slick reflections underfoot, shot on Leica M11, 35mm f/1.4, Fuji Pro 400H, subtle film grain, natural skin texture, slight motion blur.",
+      "Close-up of a man's hand in his forties gripping a phone with the voice-memo waveform pulsing on screen, resting against a chipped enamel mug on a scuffed cafe table, soft window light from the left catching steam, background of blurred patrons, shot on Sony A7R V, 100mm macro, Kodak Portra 400, micro-contrast, visible skin pores, muted tones.",
+      "Wide shot of a young father in his early thirties pacing a sunlit kitchen at mid-morning with a toddler on his hip, phone held near his jaw as he talks out his day, warm hard directional sun through tall windows casting long floor shadows, shot on Fujifilm X-T5, 24mm wide-angle, Kodak Gold 200, candid unposed moment, subtle grain.",
+      "Overhead flat-lay on a linen bedspread of a phone showing a transcribed voice note beside an abandoned paper planner with a capped pen and reading glasses, soft blue hour light from a nearby window, muted greys and creams, shot on Fujifilm GFX 100, 50mm f/1.8, Fuji Pro 400H, analog halation, fine grain.",
+      "A woman in her fifties in a linen shirt sitting on a garden bench at dusk, eyes half-closed, phone lifted to her lips speaking her thoughts into a recording, warm golden hour backlight through leaves rimming her hair, shot on Canon EOS R5, 85mm f/1.4 portrait, Cinestill 800T, shallow depth of field, natural skin texture."
+    ],
+    "ts": "2026-08-05T17:04:31+00:00",
+    "slot_key": "2026-08-05|19:27|lifestyle-documentary"
   }
 ]
