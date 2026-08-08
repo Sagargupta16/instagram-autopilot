@@ -770,5 +770,17 @@
     ],
     "ts": "2026-08-05T17:04:31+00:00",
     "slot_key": "2026-08-05|19:27|lifestyle-documentary"
+  },
+  {
+    "topic": "Why '.xyz' domains cost 90% less than .com \u2014 and the one legit use that isn't a scam",
+    "image_prompts": [
+      "A young web developer in her mid-twenties in a mustard cardigan seated at a reclaimed-wood desk in a bright co-working loft, typing a domain name into a laptop with a portfolio site half-loaded on screen, late-afternoon window light from the left catching dust motes, shot on Fujifilm X-T5, 35mm f/1.4, Kodak Portra 400, natural skin texture, subtle grain.",
+      "Close-up of a matte grey laptop screen showing a clean domain registrar checkout, one line reading a .com price beside a far smaller .xyz price, on a pale oak desk with a ceramic espresso cup and a coiled USB cable, softbox at 45 degrees raking across the matte surface, shot on Sony A7R V, 100mm macro, micro-contrast, subtle film grain.",
+      "Overhead flat-lay on a dark slate tabletop of a printed comparison sheet listing domain extensions, a fine-liner pen resting mid-circle around '.xyz', a folded pair of glasses and a half-drunk flat white, cool overcast diffused daylight from a nearby window, shot on Hasselblad X2D, 50mm f/1.8, Fuji Pro 400H, visible paper fibre texture, subtle grain.",
+      "A man in his early forties in a charcoal henley leaning against a brick studio wall at dusk, holding up a phone showing a live student portfolio site on a .xyz address, warm neon sign spill from a workshop window behind him, shot on Leica M11, 35mm f/1.4, Cinestill 800T, analog halation, natural skin texture, shallow depth of field.",
+      "Low-angle shot of a stack of business cards on a concrete desk corner, the top card printed with a short .xyz web address in clean sans-serif, a mechanical keyboard and a potted trailing plant blurred behind, hard directional morning sun cutting a sharp shadow across the concrete, shot on Canon EOS R5, 85mm f/1.4, Kodak Gold 200, micro-contrast, subtle grain."
+    ],
+    "ts": "2026-08-08T15:57:03+00:00",
+    "slot_key": "2026-08-08|04:34|tech-carousel"
   }
 ]
