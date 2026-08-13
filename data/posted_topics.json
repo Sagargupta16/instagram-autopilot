@@ -794,5 +794,29 @@
     ],
     "ts": "2026-08-10T16:24:02+00:00",
     "slot_key": "2026-08-10|04:49|food-editorial-carousel"
+  },
+  {
+    "topic": "The Anne Hathaway 'quiet morning' routine everyone copies wrong \u2014 the 10-minute version that actually resets your day",
+    "image_prompts": [
+      "A woman in her late thirties in a cream linen robe standing at a kitchen counter, pouring hot water into a clear glass mug, steam curling upward, unhurried expression, soft overcast diffused light through a large window, muted eucalyptus green tones, shot on Fujifilm X-T5, 35mm f/1.4, Fuji Pro 400H, subtle film grain, natural skin texture, micro-contrast.",
+      "Close-up overhead flat-lay of an open notebook with three handwritten lines, a warm mug and a single tangerine on a pale oak table, morning shadow falling across the page, quiet muted palette, shot on Hasselblad X2D, 100mm macro, Kodak Portra 400, visible paper fibre, subtle grain, soft diffused window light from the left.",
+      "A man in his early forties seated cross-legged on a made bed near a sunlit window, eyes half-closed, slow inhale, phone face-down on the nightstand out of reach, dust motes drifting in golden hour backlight, warm dusty tones, shot on Leica M11, 50mm f/1.8, Cinestill 800T, analog halation, natural skin texture.",
+      "Wide medium shot of a bright minimalist bedroom at dawn, tousled linen sheets, a woman in her fifties stretching her arms overhead beside an open curtain, cool blue hour light spilling across the floorboards, calm muted palette, shot on Sony A7R V, 24mm wide-angle, Fuji Pro 400H, subtle film grain, micro-contrast.",
+      "Low-angle close-up of two bare feet stepping onto a woven jute rug beside a sunlit windowsill holding a small potted herb, warm hard directional morning sun casting long shadow, quiet domestic stillness, muted earthy tones, shot on Canon EOS R5, 85mm f/1.4 portrait, Kodak Gold 200, natural skin texture, subtle grain."
+    ],
+    "ts": "2026-08-13T16:25:34+00:00",
+    "slot_key": "2026-08-13|08:44|lifestyle-documentary"
+  },
+  {
+    "topic": "The Neatsville, Kentucky ghost-town detour off I-65 that has one gas pump and no cell signal",
+    "image_prompts": [
+      "A single weathered gas pump with a glass globe top standing on cracked asphalt in front of a boarded-up general store in Neatsville, Kentucky, chipped red paint and a rusted price dial, hard directional midday sun casting a short shadow, distant treeline behind, shot on Leica M11, 35mm f/1.4, Kodak Portra 400, subtle film grain, muted saturation.",
+      "An elderly man in his seventies in faded denim overalls leaning against a sun-bleached porch post of a shuttered rural post office, arms crossed, calm gaze toward the empty road, overcast diffused light softening deep facial lines, shot on Fujifilm GFX 100, 85mm f/1.4 portrait, Kodak Gold 200, natural skin texture, visible pores.",
+      "Wide landscape of a two-lane county road curving into dense Kentucky hardwood forest, a lone hand-painted wooden town sign leaning at the shoulder, heat shimmer over the tarmac at noon, no traffic, rolling green hills beyond, shot on Sony A7R V, 24mm wide-angle, Fuji Pro 400H, micro-contrast, muted tones.",
+      "Overhead flat-lay on a dusty wooden counter inside an abandoned rural store, a rotary phone with a frayed cord, a curled paper receipt, a single tarnished brass key and a cracked ceramic mug, dust motes in a shaft of window light from the left, shot on Hasselblad X2D, 100mm macro, Ilford HP5 black and white, subtle grain.",
+      "Low-angle shot of a smartphone held up against a pale dusk sky showing zero signal bars, a silhouetted hand and a lone telephone pole with sagging wires behind it, blue hour light with faint amber on the horizon, quiet gravel lot underfoot, shot on Canon EOS R5, 50mm f/1.8, Cinestill 800T, analog halation."
+    ],
+    "ts": "2026-08-13T16:27:30+00:00",
+    "slot_key": "2026-08-13|13:07|travel-cinematic"
   }
 ]
