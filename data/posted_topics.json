@@ -818,5 +818,17 @@
     ],
     "ts": "2026-08-13T16:27:30+00:00",
     "slot_key": "2026-08-13|13:07|travel-cinematic"
+  },
+  {
+    "topic": "The 'Spider-Man: Brand New Day' set photo that quietly confirms a villain nobody predicted",
+    "image_prompts": [
+      "A film set crew member in a black hoodie and lanyard crouched beside a metallic articulated tail rig prop resting on a padded case, busy New York backlot street with faux storefronts behind, late afternoon golden hour backlight raking across the asphalt, shot on Leica M11, 35mm f/1.4, Kodak Portra 400, subtle film grain, natural skin texture, shallow depth of field.",
+      "Close-up overhead flat-lay of a laminated cast credential badge reading a fictional crime-family name beside a coffee-stained call sheet and a walkie-talkie on a scuffed craft-services table, overcast diffused light softening every edge, shot on Sony A7R V, 100mm macro, Kodak Gold 200, micro-contrast, visible paper fibers and fingerprints.",
+      "A stunt performer in a green motion-capture suit with reflective tracking dots standing under scaffolding on a soundstage, mid-conversation with a coordinator holding a tablet, hard directional key light from a single overhead rig, deep shadows behind, shot on Canon EOS R5, 50mm f/1.8, Cinestill 800T, analog halation, natural skin texture.",
+      "Wide medium shot of a rain-slicked Queens back alley film set at blue hour, wet cobbles reflecting practical neon spill from a fake bodega sign, tangled cables and a fog machine hazing the air, crew silhouettes at the far end, shot on Fujifilm GFX 100, 24mm wide-angle, Cinestill 800T, subtle grain, cinematic reflections.",
+      "A young actor in his twenties in a grey henley and worn jacket seated on an apple box between takes, checking a script page under a bounce board, soft window light from the left of a warehouse stage door, ambient chatter behind, shot on Fujifilm X-T5, 85mm f/1.4 portrait, Fuji Pro 400H, natural skin texture, visible pores."
+    ],
+    "ts": "2026-08-14T16:24:51+00:00",
+    "slot_key": "2026-08-14|17:11|entertainment-carousel"
   }
 ]
