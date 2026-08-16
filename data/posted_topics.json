@@ -830,5 +830,29 @@
     ],
     "ts": "2026-08-14T16:24:51+00:00",
     "slot_key": "2026-08-14|17:11|entertainment-carousel"
+  },
+  {
+    "topic": "The 'CostLogic' habit for everyday spending: why writing the hourly wage a purchase costs beats budgeting apps",
+    "image_prompts": [
+      "A man in his late thirties in a charcoal wool coat pausing outside a lit department store window at dusk, price tag reflected in the glass beside his tired face, holding a leather wallet half-open, cold blue hour light mixed with warm interior spill, shot on Leica M11, 35mm f/1.4, Cinestill 800T, subtle film grain, natural skin texture, faint reflection.",
+      "Close-up overhead of a small paper receipt beside a cheap ballpoint pen and a pocket notebook where a hand has written '4.5 hrs' next to a coffee-ring stain on a worn diner table, late-morning light raking across the paper, shot on Fujifilm GFX 100, 100mm macro, Kodak Portra 400, visible paper fiber, micro-contrast, ink smudge.",
+      "A woman in her forties in a grey knit sweater sitting on a city bus at night, phone calculator glowing in her lap showing a division sum, streetlights streaking past the window behind her, warm sodium glow across her cheek, shot on Sony A7R V, 50mm f/1.8, Cinestill 800T, slight motion blur, natural skin texture, analog halation.",
+      "Wide medium shot of a young couple standing frozen in a bright supermarket aisle mid-afternoon, one holding a boxed appliance, the other glancing up doing quiet mental math, fluorescent ceiling light flattening the shelves of colorful packaging, shot on Fujifilm X-T5, 24mm wide-angle, Kodak Gold 200, subtle grain, candid posture.",
+      "Low-angle close-up of a calloused hand pressing a time-clock punch card into a factory wall reader at dawn, breath faintly visible in cold air, warm interior light spilling from a doorway to the right, weathered fingers and a worn watch, shot on Canon EOS R5, 85mm f/1.4 portrait, Ilford HP5 black and white, heavy grain, deep shadow."
+    ],
+    "ts": "2026-08-16T15:48:34+00:00",
+    "slot_key": "2026-08-16|12:00|lifestyle-documentary"
+  },
+  {
+    "topic": "The John Carmack AGI pivot decoded: why he's betting on games, not chatbots, to build it",
+    "image_prompts": [
+      "A man in his early fifties in a plain black t-shirt seated at a cluttered home-office desk, leaning close to a CRT monitor running a pixelated Atari game, late-night focus on his face, single tungsten desk lamp raking warm light across his cheek and grey stubble, shot on Leica M11, 35mm f/1.4, Cinestill 800T, subtle film grain, natural skin texture, shallow depth of field.",
+      "Close-up overhead flat-lay of a worn Atari 2600 joystick beside a spiral notebook filled with handwritten reward-function equations, a cold espresso cup, and a tangle of controller cables on a matte oak desk, soft window light from the left, shot on Hasselblad X2D, 100mm macro, Kodak Portra 400, micro-contrast, visible paper fibre.",
+      "A young female researcher in a grey hoodie standing before a wall of monitors showing a game agent bouncing around a maze, arms folded mid-thought in a dim lab at dusk, cool blue screen glow mixing with overhead fluorescent office ceiling light, shot on Sony A7R V, 50mm f/1.8, Fuji Pro 400H, subtle grain, natural skin texture.",
+      "Low-angle wide shot of an empty startup office at blue hour, a single desk lit by a softbox at 45 degrees, whiteboard behind it dense with game-loop diagrams and the word LEARNING circled, city lights faint through floor-to-ceiling windows, shot on Fujifilm GFX 100, 24mm wide-angle, Kodak Gold 200, analog halation, micro-contrast.",
+      "Extreme close-up of a hand pressing a red arcade button on a vintage control panel, warm neon sign spill reflecting off the brushed metal surface, shallow focus on the fingertip and worn button, dim arcade at night, shot on Canon EOS R5, 85mm f/1.4 portrait, Cinestill 800T, subtle motion blur, visible skin texture."
+    ],
+    "ts": "2026-08-16T15:50:29+00:00",
+    "slot_key": "2026-08-16|16:53|tech-carousel"
   }
 ]
