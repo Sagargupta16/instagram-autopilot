@@ -878,5 +878,17 @@
     ],
     "ts": "2026-08-17T15:53:08+00:00",
     "slot_key": "2026-08-17|14:58|fitness-morning"
+  },
+  {
+    "topic": "The 4-minute 'exercise snack' stair protocol that beats one long workout for VO2 max",
+    "image_prompts": [
+      "A man in his late thirties in a grey tee and running shorts sprinting up a concrete outdoor stairwell two steps at a time, hand grazing the metal rail, urban apartment block behind him, early morning golden hour backlight rimming his shoulders and breath, shot on Canon EOS R5, 85mm f/1.4 portrait, Cinestill 800T, subtle film grain, natural skin texture, slight motion blur on the trailing foot.",
+      "Low-angle close-up of worn running shoes mid-stride on a rain-darkened stone staircase, one shoe pushing off the edge with water droplets flicking up, moss between the steps, overcast diffused morning light, shot on Sony A7R V, 35mm f/1.4, Kodak Portra 400, micro-contrast, visible texture on the wet stone and rubber sole.",
+      "A woman in her forties in a maroon zip-up jacket pausing at the top of a public transit staircase, hands on knees catching her breath, commuters blurred behind her, midday hard directional sun cutting across the tiled landing, shot on Fujifilm X-T5, 50mm f/1.8, Kodak Gold 200, natural skin texture, faint sweat sheen, subtle grain.",
+      "Wide shot of a curving fire-escape stairwell inside an old brick building, a lone runner three flights up as a small silhouette against a tall window, dust motes drifting in blue hour light spilling down the shaft, shot on Fujifilm GFX 100, 24mm wide-angle, Cinestill 800T, analog halation around the window, subtle grain.",
+      "Overhead flat-lay of a stopwatch reading 0:20 resting on the top edge of a concrete step beside a crumpled sweat towel and a half-drunk water bottle, warm dusk light raking across the rough grey surface, shot on Hasselblad X2D, 100mm macro, Kodak Portra 400, visible grit and micro-contrast on the concrete."
+    ],
+    "ts": "2026-08-18T16:03:52+00:00",
+    "slot_key": "2026-08-18|14:28|fitness-morning"
   }
 ]
