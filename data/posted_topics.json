@@ -914,5 +914,29 @@
     ],
     "ts": "2026-08-20T16:02:00+00:00",
     "slot_key": "2026-08-20|15:42|lifestyle-documentary"
+  },
+  {
+    "topic": "The Wladimir Klitschko recovery nap: the 20-minute post-workout sleep boxers use to rebuild faster",
+    "image_prompts": [
+      "A muscular man in his mid-thirties in a grey compression shirt lying flat on a worn gym bench, forearm draped over his eyes, chest still rising heavily after training, mid-afternoon light slanting through high warehouse windows onto chalk dust in the air, shot on Canon EOS R5, 85mm f/1.4, Cinestill 800T, natural skin texture, visible pores, subtle film grain, shallow depth of field.",
+      "A folded wool blanket and a cheap analog kitchen timer set to 20 minutes resting on a scuffed locker-room bench beside taped-up boxing wraps, muted afternoon light from a frosted window on the right, lockers in soft shadow behind, shot on Fujifilm X-T5, 50mm f/1.8, Kodak Portra 400, micro-contrast, subtle grain.",
+      "Overhead view of a lean athlete asleep on a thin mat on a polished concrete gym floor, one arm across his belly, water bottle and jump rope coiled nearby, cool overcast light diffusing from skylights above, shot on Hasselblad X2D, 35mm f/1.4, Fuji Pro 400H, natural skin texture, soft shadows, subtle grain.",
+      "A woman boxer in her late twenties in a black tank top sitting upright against a brick wall with eyes just opening, tousled hair, blinking awake from a short nap in a dim training room, single tungsten lamp casting warm side light across her face, shot on Leica M11, 50mm f/1.8, Cinestill 800T, analog halation, visible pores, subtle grain.",
+      "Low-angle wide shot of an empty ring corner at dusk with a rolled towel and a stopwatch on the canvas edge, long blue-hour light bleeding through a gymnasium window, ropes catching a faint highlight, dust motes suspended in the cooling air, shot on Sony A7R V, 24mm wide-angle, Kodak Gold 200, subtle grain, muted tones."
+    ],
+    "ts": "2026-08-21T15:59:49+00:00",
+    "slot_key": "2026-08-21|05:19|lifestyle-documentary"
+  },
+  {
+    "topic": "The Wladimir Klitschko wall-sit isometric he held 90 seconds daily to bulletproof his knees at 40+",
+    "image_prompts": [
+      "A broad-shouldered man in his early forties in a grey tank top holding a wall-sit against a raw concrete pillar in an old European gym, thighs parallel to the floor, jaw set, sweat beading on his forearms, hard directional morning sun raking across from a high window, shot on Canon EOS R5, 85mm f/1.4 portrait, Cinestill 800T, natural skin texture, visible pores, subtle grain.",
+      "Low-angle close-up of a man's tensed quadriceps and bent knee held in a static wall-sit, veins standing on the thigh, worn running shoes flat on a scuffed rubber gym floor, cool blue hour light spilling from a floor-length window behind him, shot on Sony A7R V, 50mm f/1.8, Kodak Portra 400, micro-contrast, analog halation, shallow depth of field.",
+      "Overhead flat-lay of a battered digital timer reading 0:90 resting beside a rolled sweat towel and a chalk-dusted water bottle on a wooden gym bench, soft overcast diffused light from a skylight above, faint dust motes, shot on Fujifilm GFX 100, 100mm macro, Kodak Gold 200, subtle grain, fine wood texture.",
+      "A wide shot of a lone athlete in his forties mid wall-sit against a tiled locker-room wall, arms folded across his chest, golden hour backlight glowing through frosted glass doors to his right, long shadow pooling on the tile floor, steam faint in the air, shot on Leica M11, 35mm f/1.4, Cinestill 800T, subtle film grain, cinematic depth.",
+      "Close-up profile of a man's face during the final seconds of an isometric hold, eyes closed, brow furrowed, sweat tracking down his temple, single tungsten lamp lighting one side warm against a dark gym wall, shot on Fujifilm X-T5, 85mm f/1.4 portrait, Ilford HP5 black and white, deep micro-contrast, natural skin texture."
+    ],
+    "ts": "2026-08-21T16:01:54+00:00",
+    "slot_key": "2026-08-21|19:12|fitness-morning"
   }
 ]
