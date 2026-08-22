@@ -938,5 +938,17 @@
     ],
     "ts": "2026-08-21T16:01:54+00:00",
     "slot_key": "2026-08-21|19:12|fitness-morning"
+  },
+  {
+    "topic": "The Pulitzer photo behind 'The Vulture and the Little Girl' \u2014 why Kevin Carter's shot resurfaced this week",
+    "image_prompts": [
+      "A weathered newspaper front page from 1993 pinned to a corkboard in a dim archive room, grainy printed image of a distant famine scene barely legible under yellowed paper, single tungsten desk lamp raking across the surface, dust motes in the air, shot on Leica M11, 50mm f/1.8, Kodak Portra 400, subtle grain, natural paper texture and creases.",
+      "A photojournalist in his early forties in a sweat-stained khaki shirt crouched low on cracked sun-baked earth in a South Sudan relief zone, camera raised to his eye, exhaustion in his posture, hard directional midday sun casting a short hard shadow, shot on Canon EOS R5, 35mm f/1.4, Cinestill 800T, subtle grain, visible pores and dust on skin.",
+      "Overhead flat-lay of a scratched vintage Nikon film camera body, a spiral reporter's notebook filled with hurried handwriting, a boarding pass stub, and a strip of developed 35mm negatives on a scuffed wooden desk, warm single tungsten lamp from the upper left, shot on Fujifilm GFX 100, 100mm macro, Kodak Gold 200, micro-contrast, film grain.",
+      "A young Black African aid worker in her thirties in a faded red vest standing at the edge of a dusty feeding-station tent in the Horn of Africa, gazing off toward the horizon at dusk, blue hour light softening the plains behind her, shot on Sony A7R V, 85mm f/1.4 portrait, Fuji Pro 400H, subtle grain, natural skin texture, shallow depth of field.",
+      "Close-up of an older editor's weathered hands in a cluttered newsroom holding a glossy contact sheet up to a light table, rows of tiny frames glowing, reading glasses reflecting the backlight, fluorescent office ceiling overhead mixed with the table's cool glow, shot on Fujifilm X-T5, 50mm f/1.8, Ilford HP5 black and white, subtle grain, visible skin texture."
+    ],
+    "ts": "2026-08-22T15:47:51+00:00",
+    "slot_key": "2026-08-22|06:10|entertainment-carousel"
   }
 ]
