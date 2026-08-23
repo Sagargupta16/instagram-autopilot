@@ -950,5 +950,17 @@
     ],
     "ts": "2026-08-22T15:47:51+00:00",
     "slot_key": "2026-08-22|06:10|entertainment-carousel"
+  },
+  {
+    "topic": "Meta's new 'Pocket' app runs AI on-device with no cloud \u2014 why that changes your data privacy overnight",
+    "image_prompts": [
+      "A matte black smartphone resting face-up on a pale grey concrete desk, a minimal AI chat interface glowing softly on screen with no wifi icon, morning light from a large window on the left casting a long soft shadow, shot on Hasselblad X2D, 100mm macro, micro-contrast, natural surface texture, shallow depth of field, subtle film grain.",
+      "A woman in her late twenties in a charcoal knit sweater sitting cross-legged on a linen sofa in a bright minimalist apartment, holding her phone close, thumb mid-swipe, warm overcast diffused light from a tall window behind her, shot on Leica M11, 35mm f/1.4, Kodak Portra 400, natural skin texture, visible pores, shallow focus on her hands.",
+      "Extreme close-up of a smartphone logic board and a small silver neural processing chip on a clean white studio sweep, tweezers resting beside it, softbox at 45 degrees raking across the matte green board, shot on Phase One XF, 100mm macro, micro-contrast, fine dust visible, crisp editorial detail.",
+      "A man in his forties in a plain grey tee standing at a kitchen island at dusk, phone in one hand, coffee cup steaming beside him, blue hour light spilling through wide balcony doors behind him, warm tungsten lamp overhead, shot on Sony A7R V, 50mm f/1.8, Cinestill 800T, subtle grain, gentle motion blur on the steam.",
+      "Overhead flat-lay of a smartphone displaying a dark AI interface, an unplugged charging cable coiled loosely, a paper notebook with a single pen, and a small potted succulent on a warm oak table, hard directional afternoon sun cutting a clean diagonal across the wood, shot on Fujifilm GFX 100, 24mm wide-angle, Kodak Gold 200, natural grain."
+    ],
+    "ts": "2026-08-23T15:49:01+00:00",
+    "slot_key": "2026-08-23|12:30|tech-carousel"
   }
 ]
