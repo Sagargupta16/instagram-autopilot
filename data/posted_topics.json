@@ -962,5 +962,17 @@
     ],
     "ts": "2026-08-23T15:49:01+00:00",
     "slot_key": "2026-08-23|12:30|tech-carousel"
+  },
+  {
+    "topic": "The Kolkata layover trick that turns a Awarapan 2 fan's transit into a free 6-hour tram tour",
+    "image_prompts": [
+      "A wooden Kolkata tram in faded maroon and cream rolling down Esplanade tracks at midday, a conductor in his fifties leaning from the open doorway, passengers gripping brass poles inside, overhead cables crossing a hazy sky, hard directional noon sun raking the peeling paint, shot on Leica M11, 35mm f/1.4, Kodak Portra 400, subtle film grain, natural skin texture.",
+      "A young woman traveller in a linen shirt seated by the open window of a moving tram, backpack on her lap, watching Central Avenue slide past, warm afternoon light glancing off scratched glass and worn wooden benches, motion of the street blurred outside, shot on Fujifilm X-T5, 50mm f/1.8, Fuji Pro 400H, slight motion blur, micro-contrast.",
+      "Wide street scene of the yellow Ambassador taxis and rickshaws crossing tram tracks near BBD Bagh, colonial-era buildings streaked with monsoon stains looming behind, midday overcast diffused light flattening the crowd, a lone tram approaching in the distance, shot on Sony A7R V, 24mm wide-angle, Kodak Gold 200, subtle grain.",
+      "Close-up of a tram ticket, a few coins, and a weathered hand of an elderly conductor punching a paper stub inside a swaying carriage, brass fittings glinting, low tungsten light from an interior bulb, wood grain and rust texture visible, shot on Fujifilm GFX 100, 100mm macro, Cinestill 800T, analog halation, visible pores.",
+      "Low-angle dusk shot of the tram depot at Gariahat, empty carriages parked in rows under tangled overhead wires, a lone worker walking the tracks in silhouette, blue hour spilling violet across wet cobblestones, a single sodium lamp glowing amber, shot on Canon EOS R5, 35mm f/1.4, Cinestill 800T, subtle grain, neon spill."
+    ],
+    "ts": "2026-08-24T16:05:14+00:00",
+    "slot_key": "2026-08-24|15:22|travel-cinematic"
   }
 ]
