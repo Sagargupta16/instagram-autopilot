@@ -986,5 +986,29 @@
     ],
     "ts": "2026-08-26T16:37:05+00:00",
     "slot_key": "2026-08-26|14:18|travel-cinematic"
+  },
+  {
+    "topic": "The Tim Curry chair-workout: how the 79-year-old actor rebuilt core strength after his stroke",
+    "image_prompts": [
+      "A man in his late seventies with silver hair seated upright in a sturdy wooden armchair, wearing a loose charcoal cardigan, bracing both palms on the armrests and lifting his ribcage tall, in a sunlit living room with bookshelves and a worn Persian rug, warm morning golden hour backlight through tall windows, shot on Leica M11, 50mm f/1.8, Kodak Portra 400, natural skin texture, subtle film grain.",
+      "Close-up of weathered elderly hands gripping the polished edge of a chair seat, forearm tendons flexed mid-contraction, faded wedding band catching the light, soft focus on a linen shirt cuff behind, window light from the left across a quiet study, shot on Hasselblad X2D, 100mm macro, Fuji Pro 400H, visible pores, micro-contrast.",
+      "Wide low-angle view of a physical therapist in her forties kneeling beside an older man seated in a chair, one hand steadying his shoulder as he rotates his torso, bright airy rehab room with pale timber floors and a single potted fern, overcast diffused daylight, shot on Sony A7R V, 24mm wide-angle, Cinestill 800T, slight motion blur, subtle grain.",
+      "Overhead flat-lay of a folded resistance band, a rehab progress chart with handwritten dates, a small metronome, and a half-full water glass on a pale oak side table beside a chair armrest, soft mid-morning light raking across the surface, shot on Fujifilm GFX 100, 50mm f/1.8, Kodak Gold 200, subtle grain, micro-contrast.",
+      "Medium profile portrait of an older man seated at dusk near a window, eyes closed mid-breath, chest lifted and spine long as he holds a seated core brace, warm tungsten lamp glow mixing with fading blue hour light outside, shot on Canon EOS R5, 85mm f/1.4 portrait, Cinestill 800T, analog halation, natural skin texture, shallow depth of field."
+    ],
+    "ts": "2026-08-28T00:31:41+00:00",
+    "slot_key": "2026-08-28|09:37|fitness-morning"
+  },
+  {
+    "topic": "The Dolly Parton hologram clause in her will that could keep her touring after she's gone",
+    "image_prompts": [
+      "A woman in her late seventies with a tall blonde wig and rhinestone jacket sitting alone backstage in a worn velvet armchair, a rhinestone acoustic guitar resting across her knees, glancing off toward a doorway, warm single tungsten lamp on a vanity mirror rimmed with bulbs, shot on Leica M11, 50mm f/1.8, Kodak Portra 400, natural skin texture, subtle grain.",
+      "A vast empty theater seen from the stage looking out at rows of red velvet seats, a lone spotlight beam cutting through hazy air onto bare floorboards where a microphone stand waits, dust drifting in the light, blue hour dimness beyond the balcony, shot on Sony A7R V, 24mm wide-angle, Cinestill 800T, analog halation, subtle grain.",
+      "Close-up of an estate attorney's hands in a paneled office, fountain pen resting on a thick bound document, reading glasses folded beside a cold cup of coffee, brass desk lamp casting warm light across the paper grain, late afternoon window light from the left, shot on Fujifilm GFX 100, 100mm macro, Kodak Gold 200, micro-contrast.",
+      "A stage technician in his forties in a black crew shirt crouched beside a rack of glowing projection gear in a dark arena wing, cables coiled at his feet, faint green status lights reflecting on his face, neon spill from a distant sign, shot on Canon EOS R5, 35mm f/1.4, Cinestill 800T, subtle grain, shallow depth of field.",
+      "Overhead flat-lay of a vintage concert setlist typed on yellowed paper, a rhinestone brooch, a folded Tennessee tour map, and a worn leather guitar strap arranged on a scuffed wooden dressing-room table, warm overhead practical light, shot on Fujifilm X-T5, 50mm f/1.8, Kodak Portra 400, visible paper texture, subtle grain."
+    ],
+    "ts": "2026-08-28T00:33:36+00:00",
+    "slot_key": "2026-08-28|19:54|entertainment-carousel"
   }
 ]
