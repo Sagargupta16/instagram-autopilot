@@ -1010,5 +1010,17 @@
     ],
     "ts": "2026-08-28T00:33:36+00:00",
     "slot_key": "2026-08-28|19:54|entertainment-carousel"
+  },
+  {
+    "topic": "The Yayoi Kusama 'infinity room' habit you can copy at home: why a single mirror facing your desk kills afternoon dread",
+    "image_prompts": [
+      "A round wooden desk against a pale wall with a small framed mirror propped to reflect the room's depth, a half-drunk mug of tea and an open notebook beside a laptop, mid-afternoon window light spilling warm across the surface, dust motes visible in the beam, shot on Leica M11, 35mm f/1.4, Fuji Pro 400H, subtle film grain, muted tones, micro-contrast.",
+      "Close-up of a woman in her early thirties resting her chin on her hand at a home desk, eyes drifting toward a small mirror angled beside her monitor, a faint reflection of the window behind her, soft overcast diffused light from the left, natural skin texture and visible pores, shot on Sony A7R V, 85mm f/1.4 portrait, Kodak Portra 400, shallow depth of field, muted candid mood.",
+      "Overhead flat-lay of a slim tabletop mirror leaning on a small brass stand, a pair of reading glasses, a ceramic pen cup, and a single dried eucalyptus sprig arranged on a linen desk runner, late morning light raking across from the right, gentle shadows, shot on Fujifilm GFX 100, 100mm macro, Kodak Gold 200, subtle grain, muted earthy tones.",
+      "Wide low-angle view of a sunlit corner home office at dusk, a mirror on the wall doubling the depth of a narrow room, a man in his forties in a grey sweater stretching back in his chair, warm tungsten lamp glowing beside cooling blue window light, shot on Canon EOS R5, 24mm wide-angle, Cinestill 800T, analog halation, muted cinematic tones.",
+      "Medium shot of hands adjusting a small standing mirror on a cluttered wooden desk in a plant-filled apartment nook, trailing pothos and a stack of paperbacks reflected in the glass, soft golden hour backlight through sheer curtains, shot on Fujifilm X-T5, 50mm f/1.8, Fuji Pro 400H, subtle grain, natural texture, quiet warm palette."
+    ],
+    "ts": "2026-08-29T00:04:41+00:00",
+    "slot_key": "2026-08-29|09:49|lifestyle-documentary"
   }
 ]
