@@ -1022,5 +1022,29 @@
     ],
     "ts": "2026-08-29T00:04:41+00:00",
     "slot_key": "2026-08-29|09:49|lifestyle-documentary"
+  },
+  {
+    "topic": "The Tim Curry stroke-recovery grip drill that rebuilds hand strength when you can't make a fist",
+    "image_prompts": [
+      "A man in his late seventies with silver hair and a soft navy sweater seated at a kitchen table, both hands wrapped around a rolled hand towel, fingers straining to close as tendons rise across the back of his hand, warm golden hour backlight through a gauzy curtain behind him, shot on Canon EOS R5, 85mm f/1.4 portrait, Cinestill 800T, natural skin texture, subtle grain, shallow depth of field.",
+      "Close-up macro of an aging hand mid-squeeze around a tightly rolled white towel, deep creases and prominent knuckles, forearm hair catching a thin rim of light, a coffee ring on the pale oak surface beneath, hard directional morning sun raking across from the right, shot on Fujifilm GFX 100, 100mm macro, Kodak Portra 400, visible pores, micro-contrast.",
+      "Overhead flat-lay on a linen tablecloth of a rolled hand towel, a soft foam stress ball, a small handwritten grip-log notebook with pencil, and a warm mug of tea, soft overcast diffused light from a nearby window, shot on Sony A7R V, 50mm f/1.8, Kodak Gold 200, subtle grain, natural fabric texture.",
+      "Wide low-angle view of an elderly man in a home living room seated in a wingback chair by a tall window, working a towel squeeze with one hand while his other rests open on the armrest, potted fern and bookshelves softening the background, blue hour light spilling cool across the room, shot on Fujifilm X-T5, 24mm wide-angle, Kodak Portra 400, subtle grain.",
+      "Medium profile portrait of a woman in her sixties recovering at a bright rehab studio, seated on a bench pressing a rolled towel into her palm with quiet concentration, ceiling fluorescent office lighting softened by a frosted skylight, exercise mats and rails blurred behind her, shot on Leica M11, 35mm f/1.4, Ilford HP5 black and white, natural skin texture, subtle grain."
+    ],
+    "ts": "2026-09-01T18:45:06+00:00",
+    "slot_key": "2026-09-01|04:21|fitness-morning"
+  },
+  {
+    "topic": "The AI food photos now showing up on real menus -- the 3 telltale signs your dish will look nothing like the picture",
+    "image_prompts": [
+      "A laminated diner menu propped against a napkin dispenser on a red formica counter, the burger photo showing sesame seeds floating a hair above the bun and a suspiciously even grid of grill marks, hard directional noon sun raking across the plastic surface, faint fingerprints visible, shot on Fujifilm X-T5, 35mm f/1.4, Kodak Gold 200, subtle grain, micro-contrast.",
+      "Overhead flat-lay on a weathered oak table of a real grilled burger beside a printed menu card of the same dish, the real patty showing uneven char and a slumped bun, the printed version glossy and symmetrical, soft overcast light from a window above, crumbs and a smear of grease on the wood, shot on Hasselblad X2D, 100mm macro, Kodak Portra 400, visible texture.",
+      "A young waiter in a black apron holding a tablet menu at a bustling trattoria, the screen showing a pasta photo with steam rising from empty space beside the bowl, warm tungsten pendant light overhead at dusk, motion of diners blurred behind him, shot on Sony A7R V, 50mm f/1.8, Cinestill 800T, analog halation, natural skin texture.",
+      "Close-up macro of a phone screen displaying a food-delivery listing, a bowl of ramen where the egg casts no shadow and broth reflects light that matches nothing in the frame, held in a woman's hand over a cluttered morning kitchen counter, window light from the left, shot on Canon EOS R5, 100mm macro, Fuji Pro 400H, subtle grain, visible fingerprints on glass.",
+      "Wide low-angle view of a neon-lit late-night noodle bar, a backlit menu board glowing above the counter with an impossibly perfect noodle photo, an actual bowl steaming on the counter below telling a messier story, blue hour outside the window, neon sign spill in pink and teal, shot on Leica M11, 24mm wide-angle, Cinestill 800T, analog halation, slight motion blur."
+    ],
+    "ts": "2026-09-01T18:47:06+00:00",
+    "slot_key": "2026-09-01|18:15|food-editorial-carousel"
   }
 ]
