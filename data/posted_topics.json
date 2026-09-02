@@ -1046,5 +1046,29 @@
     ],
     "ts": "2026-09-01T18:47:06+00:00",
     "slot_key": "2026-09-01|18:15|food-editorial-carousel"
+  },
+  {
+    "topic": "The .xyz link check that spots the 2026 phishing text scammers now hide inside subdomains",
+    "image_prompts": [
+      "A man in his late twenties holding a matte black smartphone in both hands at a kitchen counter early morning, squinting at a suspicious text with a long .xyz link, warm coffee steam drifting past the screen, window light from the left across his face, shot on Leica M11, 35mm f/1.4, Kodak Portra 400, natural skin texture, subtle film grain, shallow depth of field.",
+      "Extreme macro close-up of a smartphone screen showing a URL string apple.secure-login.xyz with the subdomain isolated, fingerprint smudges on the glass, softbox at 45 degrees raking across the matte display, cool reflections on the bezel edge, shot on Fujifilm GFX 100, 100mm macro, micro-contrast, subtle grain, shallow depth of field.",
+      "A woman in her forties in a navy blazer standing at a bright open-plan office desk at noon, holding her phone up to a colleague to show a phishing text, both leaning in mid-conversation, fluorescent office ceiling light overhead, potted plants in the background, shot on Sony A7R V, 50mm f/1.8, Fuji Pro 400H, natural skin texture, subtle grain.",
+      "Overhead flat-lay on a pale grey desk of a smartphone displaying a scam text bubble, a small notebook with a hand-drawn arrow pointing right to left along a URL, a pen and a cold espresso cup, dusk lamp glow warming one corner, shot on Hasselblad X2D, 24mm wide-angle, Kodak Gold 200, matte surfaces, micro-contrast, subtle film grain.",
+      "A teenage boy in a hoodie slouched on a worn sofa in a dim living room at night, phone glow lighting his face as he reads a delivery-fee scam text, blue TV light spilling from the side, shot on Canon EOS R5, 85mm f/1.4 portrait, Cinestill 800T, neon halation on the screen edge, natural skin texture, shallow depth of field."
+    ],
+    "ts": "2026-09-02T18:52:36+00:00",
+    "slot_key": "2026-09-02|10:10|tech-carousel"
+  },
+  {
+    "topic": "The Glasgow subway 'Clockwork Orange' loop that gets Spider-Man set fans across the city for \u00a31.80",
+    "image_prompts": [
+      "An orange-and-white Glasgow Subway carriage pulling into a tiled underground platform, a young man in a denim jacket stepping through the doors as commuters wait, warm platform lighting mixing with fluorescent ceiling glow, shot on Leica M11, 35mm f/1.4, Cinestill 800T, subtle grain, slight motion blur on the closing doors.",
+      "A woman in her thirties in a rust-coloured coat leaning against the curved tiled wall of Buchanan Street subway station, checking a paper transit map, cool underground fluorescent ceiling light overhead, tiled arches receding behind her, shot on Sony A7R V, 50mm f/1.8, Kodak Portra 400, natural skin texture, micro-contrast.",
+      "Wide low-angle view of a red sandstone Glasgow tenement street standing in for a New York block, film-crew barriers and a lone dog-walker mid-afternoon, overcast diffused light flattening the shadows, wet cobbles reflecting grey sky, shot on Fujifilm X-T5, 24mm wide-angle, Fuji Pro 400H, subtle grain.",
+      "Overhead flat-lay on a scuffed subway seat of a \u00a31.80 paper ticket, a well-thumbed pocket map of the circular line, and a takeaway coffee cup ringed with condensation, hard directional light from a platform lamp above, worn orange upholstery texture, shot on Hasselblad X2D, 100mm macro, Kodak Gold 200, micro-contrast.",
+      "An older ticket inspector in a hi-vis vest standing at a subway turnstile at dusk, glancing toward the escalator as blue evening light spills down from the street entrance above, warm interior tungsten glow around him, shot on Canon EOS R5, 85mm f/1.4 portrait, Cinestill 800T, analog halation, natural skin texture."
+    ],
+    "ts": "2026-09-02T18:54:39+00:00",
+    "slot_key": "2026-09-02|14:24|travel-cinematic"
   }
 ]
