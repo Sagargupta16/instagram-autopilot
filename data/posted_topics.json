@@ -1070,5 +1070,29 @@
     ],
     "ts": "2026-09-02T18:54:39+00:00",
     "slot_key": "2026-09-02|14:24|travel-cinematic"
+  },
+  {
+    "topic": "John Ternus is Apple's next CEO frontrunner -- the one hardware button he killed that hints at Apple's next move",
+    "image_prompts": [
+      "A matte black smartphone lying face-down on a pale grey studio sweep, the smooth aluminium side rail catching light where a SIM tray slot used to sit, faint machined seams visible, softbox at 45 degrees raking across the edge, shot on Hasselblad X2D, 100mm macro, micro-contrast, subtle film grain, shallow depth of field, matte surfaces.",
+      "A silver SIM ejector pin resting on a folded microfibre cloth beside a closed SIM tray drawer on a dark walnut desk, morning window light from the left casting a soft long shadow, dust motes faint in the beam, shot on Sony A7R V, 100mm macro, Kodak Portra 400, visible metal texture, natural grain.",
+      "A tall calm man in his early fifties in a dark grey merino sweater standing in a minimalist Cupertino design lab, holding an unbranded phone chassis up to inspect the edge, cool overcast diffused light through frosted glass walls, shot on Leica M11, 50mm f/1.8, Kodak Gold 200, natural skin texture, visible pores, shallow depth of field.",
+      "Overhead flat-lay on a brushed-steel workbench of three phone side rails lined up in a row, each with a smaller port cutout than the last, a pair of white cotton gloves and a loupe beside them, fluorescent lab ceiling light flat and even, shot on Fujifilm GFX 100, 50mm f/1.8, micro-contrast, subtle grain.",
+      "Low-angle wide view of the glass Apple Park ring reflecting a pale dusk sky, a lone figure in a dark jacket walking the curved path below, warm interior lights just switching on behind the facade, blue hour settling over the treeline, shot on Canon EOS R5, 24mm wide-angle, Cinestill 800T, analog halation, subtle grain."
+    ],
+    "ts": "2026-09-03T18:50:53+00:00",
+    "slot_key": "2026-09-03|08:36|tech-carousel"
+  },
+  {
+    "topic": "The Dolly Parton biscuit recipe her Tennessee family made 3-ingredient \u2014 why buttermilk temperature is the secret",
+    "image_prompts": [
+      "Overhead flat-lay on a worn oak farmhouse table of a glass bowl of flour, a small pitcher of cold buttermilk beading with condensation, and a chilled block of butter cut into cubes, a wooden spoon resting to the side, soft window light from the left catching the flour dust, shot on Hasselblad X2D, 100mm macro, Kodak Portra 400, tactile textures, subtle grain, shallow depth of field.",
+      "A woman's hands in her sixties, flour-dusted and lined, cutting cold butter into flour with a pastry blender inside a rustic Tennessee kitchen, morning window light from the left, a checked apron and a ceramic buttermilk jug behind her, shot on Leica M11, 50mm f/1.8, Kodak Gold 200, natural skin texture, visible pores, subtle grain.",
+      "Close-up of a floured wooden board with a round of biscuit dough being pressed by hand, ragged edges and folded layers visible, a metal cutter and scattered flour nearby, hard directional sun cutting across from a farmhouse window at noon, shot on Sony A7R V, 100mm macro, micro-contrast, subtle film grain, shallow depth of field.",
+      "A cast-iron skillet of golden buttermilk biscuits fresh from the oven set on a trivet by a kitchen window at dusk, one biscuit torn open showing steaming flaky layers, warm blue-hour light spilling in behind them, a smear of butter melting on the crumb, shot on Fujifilm GFX 100, 85mm f/1.4 portrait, Cinestill 800T, analog halation, subtle grain.",
+      "Low-angle view of a stacked plate of biscuits beside a mason jar of buttermilk and a jar of dark sorghum syrup on a weathered porch rail, morning light backlighting the steam, a green Tennessee hillside soft and out of focus behind, shot on Fujifilm X-T5, 35mm f/1.4, Fuji Pro 400H, subtle grain, shallow depth of field."
+    ],
+    "ts": "2026-09-03T18:52:52+00:00",
+    "slot_key": "2026-09-03|14:58|food-editorial-carousel"
   }
 ]
