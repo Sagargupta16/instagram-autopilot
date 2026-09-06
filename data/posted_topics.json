@@ -1094,5 +1094,28 @@
     ],
     "ts": "2026-09-03T18:52:52+00:00",
     "slot_key": "2026-09-03|14:58|food-editorial-carousel"
+  },
+  {
+    "topic": "The Dolly Parton Tennessee theme-park detour: the free Smoky Mountains overlook locals use to skip Dollywood parking",
+    "image_prompts": [
+      "A man in his forties in a faded flannel shirt leaning against a weathered stone overlook wall, gazing out over layered blue ridges of the Smoky Mountains, mid-day haze softening the distant peaks, hard directional sun raking across the rock, shot on Leica M11, 35mm f/1.4, Kodak Portra 400, subtle film grain, natural skin texture.",
+      "Wide view of a pull-off parking area along a mountain road at the Newfound Gap Overlook, two dusty pickup trucks and a family unloading a cooler, forested slopes rolling away behind them under a pale noon sky, hard directional sun, shot on Fujifilm GFX 100, 24mm wide-angle, Kodak Gold 200, micro-contrast.",
+      "Close-up of a hand-painted brown park sign reading overlook elevation among rhododendron leaves at the roadside, dew still on the foliage in cool morning shade, mist threading through pines behind, overcast diffused light, shot on Sony A7R V, 100mm macro, Fuji Pro 400H, subtle grain, visible leaf texture.",
+      "An older woman in a wide-brimmed sun hat and windbreaker seated on a low stone wall, pouring coffee from a thermos while looking toward the ridgeline, soft haze glowing behind her at golden hour, shot on Canon EOS R5, 85mm f/1.4 portrait, Kodak Portra 400, analog halation, natural skin texture.",
+      "Low-angle view up a curving mountain highway lined with tall dark spruce, a single motorcyclist cresting the bend toward the overlook, late afternoon light streaming through a gap in the trees onto the wet asphalt, shot on Fujifilm X-T5, 35mm f/1.4, Cinestill 800T, subtle grain, slight motion blur."
+    ],
+    "ts": "2026-09-06T17:39:44+00:00",
+    "slot_key": "2026-09-06|09:13|travel-cinematic"
+  },
+  {
+    "topic": "The Mirzapur film's UP dhaba trick: why they finish dal on cow-dung-cake embers, not gas",
+    "image_prompts": [
+      "A blackened brass handi of thick dal simmering on a bed of glowing cow-dung-cake embers in a rural UP dhaba kitchen, thin blue smoke curling off the surface, ash-grey embers ringed in orange, late afternoon sun slanting through an open doorway, shot on Fujifilm X-T5, 35mm f/1.4, Kodak Portra 400, subtle film grain, visible steam, tactile soot on the pot rim.",
+      "Overhead flat-lay on a weathered wooden dhaba counter of a copper bowl of finished dal makhani, a smaller pot of tempered ghee tadka with cumin and dried red chillies, torn tandoori roti and sliced raw onion on a steel plate, mid-morning window light from the left, shot on Hasselblad X2D, 100mm macro, Fuji Pro 400H, micro-contrast, oily sheen on the dal surface.",
+      "Close-up of a dhaba cook's weathered hands in his sixties stacking dried cow-dung cakes into a low earthen chulha, fine grey ash on his fingertips, faint first embers glowing beneath, hard directional morning sun casting long shadows across the mud floor, shot on Leica M11, 50mm f/1.8, Ilford HP5 black and white, natural skin texture, subtle grain.",
+      "Low-angle view of a roadside UP dhaba at dusk, string lights strung over rope-woven charpai beds, a cook silhouetted stirring a tall pot over glowing embers, wisps of smoke rising into the violet sky, distant truck headlights on the highway behind, blue hour, shot on Sony A7R V, 24mm wide-angle, Cinestill 800T, analog halation, subtle grain.",
+      "A steel plate of steaming dal ladled beside two soft laccha parathas on a scuffed dhaba table, a chipped glass of masala chai and a raw green chilli alongside, single warm tungsten bulb overhead, evening shadows pooling at the table edge, shot on Canon EOS R5, 85mm f/1.4, Kodak Gold 200, shallow depth of field, visible steam, subtle grain."
+    ],
+    "ts": "2026-09-06T17:41:41+00:00"
   }
 ]
