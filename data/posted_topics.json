@@ -1217,5 +1217,17 @@
       "A family of four in tennis whites and sunhats stepping off the front car onto the wooden platform at dusk, the father pointing toward the stadium as amber light rakes across their faces and the departing train blurs behind them, shot on Fujifilm X-T5, 35mm f/1.4, Kodak Portra 400, slight motion blur, subtle grain, visible pores."
     ],
     "ts": "2026-09-15T19:09:46+00:00"
+  },
+  {
+    "topic": "The AI menu photo giveaway: why melted cheese with no drip-shadow means your dish is fake",
+    "image_prompts": [
+      "Overhead flat-lay of a wood-fired margherita pizza on a scuffed steel tray, molten mozzarella stretched in a pull toward the frame, casting a soft dark shadow where the cheese folds over the crust edge, tomato and basil oils pooling, natural window light from the left, shot on Hasselblad X2D, 100mm macro, Kodak Portra 400, visible char blisters, micro-contrast, subtle grain.",
+      "Close-up of a hand lifting a slice of grilled cheese from a cast-iron pan on a marble counter, thick cheddar drooping in a long thread with a defined shadow beneath it on the pan surface, mid-morning window light raking across the crust, shot on Sony A7R V, 85mm f/1.4, Kodak Gold 200, natural skin texture on the fingers, shallow depth of field, subtle grain.",
+      "A young cook in a stained apron pulling apart a quesadilla over a diner counter at night, strings of Oaxaca cheese bridging the two halves, warm neon sign spill catching the steam, shadows falling across the plate below, shot on Leica M11, 35mm f/1.4, Cinestill 800T, analog halation, natural skin texture, slight motion blur.",
+      "Overhead flat-lay of a bubbling baked lasagna in a ceramic dish on a weathered oak farmhouse table, a spoon lifting one square with cheese sagging over the edge and a crisp shadow line where it drapes, overcast diffused light through a kitchen window, fork and folded linen napkin nearby, shot on Fujifilm GFX 100, tilt-shift, Fuji Pro 400H, micro-contrast, subtle grain.",
+      "Low-angle macro of a smash burger on butcher paper at a food truck window, American cheese melting down the patty sides catching golden hour backlight, a clear soft shadow pooling under each drip, sesame bun glistening, blurred street behind, shot on Canon EOS R5, 100mm macro, Kodak Portra 400, natural texture, shallow depth of field, subtle grain."
+    ],
+    "ts": "2026-09-16T19:01:26+00:00",
+    "slot_key": "2026-09-16|15:38|food-editorial-carousel"
   }
 ]
