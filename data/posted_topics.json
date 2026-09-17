@@ -1229,5 +1229,17 @@
     ],
     "ts": "2026-09-16T19:01:26+00:00",
     "slot_key": "2026-09-16|15:38|food-editorial-carousel"
+  },
+  {
+    "topic": "The 78th Emmys red-carpet 'cold spoon' trick makeup artists use to depuff eyes in 60 seconds",
+    "image_prompts": [
+      "Two stainless steel teaspoons resting in a shallow glass bowl of crushed ice on a marble vanity, water beading on the metal, a folded white cotton towel and a lipstick tube nearby, soft morning window light from the left, shot on Hasselblad X2D, 100mm macro, Kodak Portra 400, micro-contrast, subtle film grain, condensation droplets crisp against the frost.",
+      "A woman in her late thirties in a silk robe tilting her head back in a hotel bathroom mirror, pressing the curved back of a cold spoon under her right eye, eyes half-closed, faint goosebumps on her cheek, warm tungsten bulbs framing the mirror, shot on Canon EOS R5, 85mm f/1.4 portrait, Cinestill 800T, natural skin texture, visible pores, shallow depth of field.",
+      "Over-the-shoulder view of a makeup artist in a black apron holding a chilled spoon toward a seated actress in a backstage dressing room, garment rack and lit vanity bulbs blurred behind, focused calm expression, single softbox at 45 degrees, shot on Sony A7R V, 50mm f/1.8, Fuji Pro 400H, subtle grain, muted tones, candid documentary moment.",
+      "Extreme close-up of a woman's under-eye area as a cold metal spoon glides across the skin, faint reflection of the room in the polished steel, tiny water drop on the cheekbone, mascara lashes sharp in frame, overcast diffused daylight, shot on Fujifilm GFX 100, 100mm macro, Kodak Gold 200, visible pores, natural skin texture, analog halation.",
+      "Wide shot of a young man in a plain grey t-shirt seated at a cramped apartment kitchen table before work, spoons chilling in a cereal bowl of ice beside a coffee mug, pressing one under his eye, low blue-hour light through a small window behind him, shot on Fujifilm X-T5, 35mm f/1.4, Kodak Portra 400, subtle film grain, quiet ordinary morning."
+    ],
+    "ts": "2026-09-17T19:11:01+00:00",
+    "slot_key": "2026-09-17|15:10|lifestyle-documentary"
   }
 ]
