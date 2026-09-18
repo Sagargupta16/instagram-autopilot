@@ -1241,5 +1241,29 @@
     ],
     "ts": "2026-09-17T19:11:01+00:00",
     "slot_key": "2026-09-17|15:10|lifestyle-documentary"
+  },
+  {
+    "topic": "The Tim Curry voice-only role trick: how one recording session revealed his 5-decade range secret",
+    "image_prompts": [
+      "A silver-haired actor in his seventies in a charcoal cardigan standing at a foam-padded vocal booth, leaning into a large studio condenser mic mid-line, eyes closed, script pages in one hand, single tungsten lamp warming his face against the dark acoustic panels, shot on Sony A7R V, 85mm f/1.4 portrait, Cinestill 800T, natural skin texture, subtle grain.",
+      "Close-up of a weathered paper script on a wooden music stand, coffee-ring stains and pencil margin notes circling stressed syllables, a pair of reading glasses folded on top, warm practical lamp glow spilling across the page inside a dim recording booth, shot on Fujifilm GFX 100, 100mm macro, Kodak Portra 400, visible paper fiber, subtle grain.",
+      "Over-the-shoulder view of a young sound engineer in a knit beanie at a vintage mixing console, faders lit by rows of green VU meters, a reel-to-reel tape machine spinning behind glass, blue-hour light bleeding through a control-room window, shot on Canon EOS R5, 35mm f/1.4, Cinestill 800T, micro-contrast, subtle grain.",
+      "Wide shot of a dim London recording studio at night, the vocal booth glowing gold behind soundproof glass, two producers seated in leather chairs facing the talkback panel, empty tea mugs on the desk, neon exit sign spill from the corridor, shot on Leica M11, 24mm wide-angle, Kodak Gold 200, analog halation, subtle grain.",
+      "Extreme close-up of an older man's mouth and throat mid-word, lips parted, faint stubble catching light, a mesh pop filter blurred in the foreground, hard directional lamp raking across the jaw from the side, shot on Fujifilm X-T5, 100mm macro, Ilford HP5 black and white, deep shadows, visible pores, subtle grain."
+    ],
+    "ts": "2026-09-18T18:37:38+00:00",
+    "slot_key": "2026-09-18|06:37|entertainment-carousel"
+  },
+  {
+    "topic": "The Macklemore 'thrift store' habit that beats fast fashion: how to spot resale-worthy wool in 5 seconds",
+    "image_prompts": [
+      "A woman in her early thirties in a mustard corduroy jacket crushing a grey wool jumper in her fist inside a crowded charity shop, wooden racks packed with coats behind her, mid-afternoon light spilling through a dusty front window, shot on Leica M11, 35mm f/1.4, Kodak Portra 400, natural skin texture, subtle film grain, shallow depth of field.",
+      "Close-up of two weathered hands rubbing the hem of a navy wool cardigan between thumb and fingers, price tag dangling on a string, fabric bunched with visible knit texture, soft overcast light from a shop window, shot on Fujifilm GFX 100, 100mm macro, micro-contrast, Fuji Pro 400H, subtle grain.",
+      "Wide shot of a narrow vintage clothing store in the late morning, an older man in a flat cap flicking through a rail of tweed blazers, warm tungsten bulbs strung across the ceiling, cardboard boxes of scarves on the floor, shot on Sony A7R V, 24mm wide-angle, Kodak Gold 200, analog halation, subtle grain.",
+      "Overhead flat-lay of three folded jumpers on a scuffed wooden table, one merino, one lambswool, one acrylic, a paper care label and a magnifying loupe resting beside them, soft diffused daylight from a nearby window, shot on Hasselblad X2D, 50mm f/1.8, Kodak Portra 400, natural fibre texture, subtle grain.",
+      "A young man in a denim shirt holding a burgundy wool coat up to blue hour light through a shop doorway, checking the weave against the glow, brick street and parked bicycle blurred behind him, shot on Fujifilm X-T5, 85mm f/1.4 portrait, Cinestill 800T, neon sign spill, subtle grain."
+    ],
+    "ts": "2026-09-18T18:39:32+00:00",
+    "slot_key": "2026-09-18|18:49|lifestyle-documentary"
   }
 ]
