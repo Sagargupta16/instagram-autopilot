@@ -20,13 +20,13 @@ jobs:
           python-version: ${{ matrix.python }}
           enable-cache: true
       - name: Install locked dependencies
-        run: uv sync --frozen
+        run: uv sync --frozen --no-build
       - name: Lint
-        run: uv run --frozen ruff check src tests scripts
+        run: uv run --frozen --no-build ruff check src tests scripts
       - name: Formatting
-        run: uv run --frozen ruff format --check src tests scripts
+        run: uv run --frozen --no-build ruff format --check src tests scripts
       - name: Tests and branch coverage
-        run: uv run --frozen pytest --cov=src --cov-branch --cov-report=term-missing --cov-report=xml:output/coverage.xml
+        run: uv run --frozen --no-build pytest --cov=src --cov-branch --cov-report=term-missing --cov-report=xml:output/coverage.xml
       - name: Verify requirements export matches lock
         run: |
           uv export --frozen --no-dev --no-hashes --output-file /tmp/requirements.txt

@@ -50,7 +50,8 @@ def _run_slot(
     clock: Callable[[], datetime] | None = None,
 ) -> str | None:
     current = clock or (lambda: datetime.now(UTC))
-    brief = generate_topic_brief(slot.pillar, random.choice(settings.content_type_list))
+    content_type = random.choice(settings.content_type_list)  # NOSONAR -- variety, not secrecy
+    brief = generate_topic_brief(slot.pillar, content_type)
     content = generate_caption(
         brief["topic"], slot.pillar, config["persona"], sources=brief.get("sources", [])
     )

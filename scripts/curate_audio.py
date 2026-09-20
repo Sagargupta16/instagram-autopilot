@@ -39,11 +39,31 @@ UA = "InstagramAutopilotBot/1.0 (github.com/Sagargupta16; sg85207@gmail.com)"
 API = "https://pixabay.com/api/audio/"
 
 
+def _validated_source(candidate: Path) -> Path:
+    """Confine an operator-supplied manifest path to the repository or working directory.
+
+    The CLI is the only untrusted entry point for this path, so traversal is rejected
+    here rather than inside import_legacy(), which callers already invoke with paths
+    they control.
+    """
+    resolved = candidate.expanduser().resolve(strict=True)
+    allowed = (ROOT, Path.cwd().resolve())
+    if not any(resolved.is_relative_to(base) for base in allowed):
+        raise ValueError("Legacy manifest must sit inside the repository or working directory")
+    if not resolved.is_file():
+        raise ValueError("Legacy manifest must be a regular file")
+    return resolved
+
+
 def import_legacy(
     source: Path, destination: Path = MANIFEST, audio_root: Path = ROOT / "assets" / "audio"
 ) -> None:
-    """Explicitly import existing local assets; never download or modify the source."""
-    rows = json.loads(source.read_text(encoding="utf-8"))
+    """Explicitly import existing local assets; never download or modify the source.
+
+    Operator input reaches this function through _validated_source(); direct callers
+    are responsible for passing a path they already trust.
+    """
+    rows = json.loads(source.read_text(encoding="utf-8"))  # NOSONAR -- path confined by caller
     if not isinstance(rows, list):
         raise ValueError("Legacy manifest must be a list")
     if source.resolve() == destination.resolve():
@@ -175,7 +195,7 @@ def main() -> None:
     parser.add_argument("--api-key", default=os.environ.get("PIXABAY_KEY", ""))
     args = parser.parse_args()
     if args.import_legacy:
-        import_legacy(args.import_legacy)
+        import_legacy(_validated_source(args.import_legacy))
         return
     if not args.api_key:
         sys.exit("Missing --api-key or PIXABAY_KEY env var")

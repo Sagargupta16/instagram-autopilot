@@ -41,7 +41,7 @@ jobs:
           python-version: '3.14'
           enable-cache: true
       - name: Install locked runtime
-        run: uv sync --frozen --no-dev
+        run: uv sync --frozen --no-dev --no-build
       - name: Restore optional audio and place caches
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -50,7 +50,7 @@ jobs:
           restore-keys: instagram-cache-
       - name: Install ffmpeg when Reels are enabled
         run: |
-          if uv run --frozen --no-dev python -c 'from src.pillar import load_config; raise SystemExit(not any(p["content_format"] == "reel" for p in load_config()["pillars"]))'; then
+          if uv run --frozen --no-dev --no-build python -c 'from src.pillar import load_config; raise SystemExit(not any(p["content_format"] == "reel" for p in load_config()["pillars"]))'; then
             sudo apt-get update && sudo apt-get install -y ffmpeg
           fi
       - name: Generate, publish, or reconcile
@@ -67,7 +67,7 @@ jobs:
           elif [[ "$DRY_RUN" == 'true' ]]; then
             args+=(--dry-run)
           fi
-          uv run --frozen --no-dev python -m src.main "${args[@]}"
+          uv run --frozen --no-dev --no-build python -m src.main "${args[@]}"
         env:
           DRY_RUN: ${{ inputs.dry_run }}
           RESOLVE_SLOT: ${{ inputs.resolve_slot }}
