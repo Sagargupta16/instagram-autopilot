@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+- Replace burst publication with short scheduler ticks, actual publication spacing, daily limits, bounded preparation retries, and durable GitHub/local publication receipts.
+- Fail runs on publishing errors and quarantine uncertain outcomes instead of blindly republishing.
+- Validate generated content and strategy; preserve category-relevant evidence and reject exact repeated topics with one bounded repair.
+- Improve carousel direction with a strong cover, coherent five-slide progression, useful takeaways, and aligned alt text.
+- Normalize images to validated portrait JPEGs, check delivered bytes, and poll Instagram draft readiness.
+- Keep dry-run previews local; validate audio before video generation, fetch private S3 output using IAM, preserve attribution, and stop fallbacks at the publication boundary.
+- Enforce lint, formatting, tests, coverage, and frozen dependencies in CI on Python 3.12 and 3.14.
+- Refresh setup, recovery, optional Reel requirements, and cost documentation.
+
 ## [0.7.1] - 2026-05-05
 
 ### Fixed

@@ -43,3 +43,9 @@ logs/
 .env.local
 .env.*.local
 *.pyc
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+data/publication_state.json
+data/publication_state.json.lock

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -17,7 +18,11 @@ def tmp_audio(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
                 "tracks": [
                     {"track_id": "chill-001", "filename": "chill/a.mp3", "theme_tags": ["chill"]},
                     {"track_id": "chill-002", "filename": "chill/b.mp3", "theme_tags": ["chill"]},
-                    {"track_id": "upbeat-001", "filename": "upbeat/c.mp3", "theme_tags": ["upbeat"]},
+                    {
+                        "track_id": "upbeat-001",
+                        "filename": "upbeat/c.mp3",
+                        "theme_tags": ["upbeat"],
+                    },
                 ]
             }
         )
@@ -44,8 +49,11 @@ def test_pick_avoids_last_two_days(tmp_audio: Path) -> None:
         json.dumps(
             {
                 "history": [
-                    {"date": "2026-07-01", "track_ids": ["chill-001"]},
-                    {"date": "2026-07-02", "track_ids": ["chill-001"]},
+                    {
+                        "date": (datetime.now(UTC).date() - timedelta(days=1)).isoformat(),
+                        "track_ids": ["chill-001"],
+                    },
+                    {"date": datetime.now(UTC).date().isoformat(), "track_ids": ["chill-001"]},
                 ]
             }
         )
@@ -68,9 +76,34 @@ def test_pick_relaxes_history_filter_when_all_recent(
 ) -> None:
     # Both chill tracks were used yesterday
     (tmp_audio / "audio_history.json").write_text(
-        json.dumps(
-            {"history": [{"date": "2026-07-02", "track_ids": ["chill-001", "chill-002"]}]}
-        )
+        json.dumps({"history": [{"date": "2026-07-02", "track_ids": ["chill-001", "chill-002"]}]})
     )
     track = audio_picker.pick("chill")
     assert track.name in {"a.mp3", "b.mp3"}
+
+
+def test_old_history_is_not_recent() -> None:
+    history = [
+        {"date": "2020-01-01", "track_ids": ["old"]},
+        {"date": datetime.now(UTC).date().isoformat(), "track_ids": ["today"]},
+    ]
+    assert audio_picker._recent_track_ids(history) == {"today"}
+
+
+def test_all_entries_in_window_are_considered() -> None:
+    today = datetime.now(UTC).date().isoformat()
+    history = [{"date": today, "track_ids": [str(index)]} for index in range(5)]
+    assert audio_picker._recent_track_ids(history) == {"0", "1", "2", "3", "4"}
+
+
+def test_selection_does_not_write_history(tmp_audio: Path) -> None:
+    selected = audio_picker.select("chill")
+    assert selected.path.is_file()
+    assert not (tmp_audio / "audio_history.json").exists()
+
+
+def test_missing_or_empty_tracks_fail_preflight(tmp_audio: Path) -> None:
+    (tmp_audio / "chill" / "a.mp3").unlink()
+    (tmp_audio / "chill" / "b.mp3").write_bytes(b"")
+    with pytest.raises(audio_picker.NoTrackAvailableError):
+        audio_picker.select("chill")

@@ -15,18 +15,85 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import re
 import sys
+import tempfile
 from datetime import UTC, datetime
+from hashlib import sha256
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import requests
 
 ROOT = Path(__file__).resolve().parent.parent
+# Direct script execution puts scripts/, rather than the repository, on sys.path.
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from src.media.audio_manifest import THEMES, validate_track  # noqa: E402
+
 MANIFEST = ROOT / "assets" / "audio" / "audio_manifest.json"
 UA = "InstagramAutopilotBot/1.0 (github.com/Sagargupta16; sg85207@gmail.com)"
 API = "https://pixabay.com/api/audio/"
+
+
+def import_legacy(
+    source: Path, destination: Path = MANIFEST, audio_root: Path = ROOT / "assets" / "audio"
+) -> None:
+    """Explicitly import existing local assets; never download or modify the source."""
+    rows = json.loads(source.read_text(encoding="utf-8"))
+    if not isinstance(rows, list):
+        raise ValueError("Legacy manifest must be a list")
+    if source.resolve() == destination.resolve():
+        raise ValueError("Import destination must differ from the legacy source")
+    tracks = []
+    for row in rows:
+        if not isinstance(row, dict):
+            raise ValueError("Legacy track must be an object")
+        duration = row.get("duration_s")
+        if (
+            not isinstance(duration, (int, float))
+            or isinstance(duration, bool)
+            or not math.isfinite(duration)
+            or duration <= 0
+        ):
+            raise ValueError("Legacy duration must be positive")
+        license_name = row.get("license")
+        source_url = row.get("source")
+        if not isinstance(license_name, str) or not license_name.strip():
+            raise ValueError("Legacy license is required")
+        if not isinstance(source_url, str) or urlsplit(source_url).scheme != "https":
+            raise ValueError("Legacy source must be an HTTPS URL")
+        filename = row.get("file")
+        track = {
+            "track_id": "legacy-" + sha256(str(filename).encode()).hexdigest()[:16],
+            "filename": filename,
+            "theme_tags": [row.get("theme")],
+            "license": row.get("license", ""),
+            "attribution_required": True,
+            "attribution": row.get("attribution", ""),
+            "source_url": row.get("source", ""),
+            "duration_s": duration,
+        }
+        validate_track(track, audio_root)
+        tracks.append(track)
+    existing = (
+        json.loads(destination.read_text(encoding="utf-8"))
+        if destination.exists()
+        else {"tracks": []}
+    )
+    merged = {track["track_id"]: track for track in existing["tracks"]}
+    merged.update({track["track_id"]: track for track in tracks})
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, temporary = tempfile.mkstemp(dir=destination.parent, suffix=".json")
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+            json.dump({"tracks": list(merged.values())}, stream, indent=2)
+        Path(temporary).replace(destination)
+    finally:
+        Path(temporary).unlink(missing_ok=True)
 
 
 def _slugify(s: str) -> str:
@@ -47,6 +114,8 @@ def _write_manifest(m: dict) -> None:
 
 
 def curate(theme: str, count: int, api_key: str) -> None:
+    if theme not in THEMES or not 1 <= count <= 50:
+        raise ValueError("Choose a supported theme and a count between 1 and 50")
     theme_dir = ROOT / "assets" / "audio" / theme
     theme_dir.mkdir(parents=True, exist_ok=True)
     resp = requests.get(
@@ -99,10 +168,15 @@ def curate(theme: str, count: int, api_key: str) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--theme", required=True, choices=["chill", "upbeat", "cinematic"])
+    mode = parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--theme", choices=THEMES)
+    mode.add_argument("--import-legacy", type=Path, metavar="MANIFEST")
     parser.add_argument("--count", type=int, default=10)
     parser.add_argument("--api-key", default=os.environ.get("PIXABAY_KEY", ""))
     args = parser.parse_args()
+    if args.import_legacy:
+        import_legacy(args.import_legacy)
+        return
     if not args.api_key:
         sys.exit("Missing --api-key or PIXABAY_KEY env var")
     curate(args.theme, args.count, args.api_key)

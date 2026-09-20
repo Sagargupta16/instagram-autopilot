@@ -10,6 +10,7 @@ import logging
 
 import requests
 
+from src.content.sources import records_or_titles, source_record
 from src.settings import settings
 
 log = logging.getLogger(__name__)
@@ -18,17 +19,23 @@ _URL = "https://content.guardianapis.com/search"
 _UA = "InstagramAutopilotBot/1.0 (github.com/Sagargupta16; sg85207@gmail.com)"
 
 
-def fetch_articles(section: str, limit: int = 10) -> list[str]:
-    """Return up to `limit` recent Guardian article titles for the given section."""
+def fetch_articles(
+    section: str, limit: int = 10, *, include_metadata: bool = False
+) -> list[str] | list[dict[str, str]]:
+    """Return Guardian headlines with optional original URL, date, and trail text."""
+    if limit <= 0:
+        return []
     key = settings.guardian_api_key or "test"
     try:
         resp = requests.get(
             _URL,
             params={
                 "api-key": key,
-                "section": section,
+                "section": "lifeandstyle" if section in {"fitness", "lifestyle"} else section,
+                **({"q": "fitness OR exercise"} if section == "fitness" else {}),
                 "order-by": "newest",
                 "page-size": limit,
+                "show-fields": "trailText",
             },
             headers={"User-Agent": _UA},
             timeout=15,
@@ -40,4 +47,16 @@ def fetch_articles(section: str, limit: int = 10) -> list[str]:
         log.warning("Guardian (%s) HTTP %s", section, resp.status_code)
         return []
     results = resp.json().get("response", {}).get("results", [])
-    return [r["webTitle"] for r in results if r.get("webTitle")][:limit]
+    records = [
+        source_record(
+            result["webTitle"],
+            "guardian",
+            section,
+            url=result.get("webUrl"),
+            published_at=result.get("webPublicationDate"),
+            excerpt=(result.get("fields") or {}).get("trailText"),
+        )
+        for result in results
+        if result.get("webTitle")
+    ][:limit]
+    return records_or_titles(records, include_metadata)

@@ -79,3 +79,21 @@ def test_plan_zero_posts_returns_empty() -> None:
 
 def test_plan_empty_pillars_returns_empty() -> None:
     assert plan_today(date(2026, 7, 3), _CADENCE_N2, []) == []
+
+
+def test_plan_leaves_time_for_scheduler_tick_and_generation() -> None:
+    cadence = {**_CADENCE_N2, "schedule_buffer_minutes": 40}
+    for day in range(1, 29):
+        slots = plan_today(date(2026, 9, day), cadence, _PILLARS)
+        assert all(schedule.to_minutes(slot.time_utc) <= 1160 for slot in slots)
+
+
+def test_plan_never_uses_the_exclusive_window_end() -> None:
+    cadence = {
+        **_CADENCE_N2,
+        "window_utc": {"start": "19:59", "end": "20:00"},
+        "post_probability": [0, 1],
+        "max_posts_per_day": 1,
+    }
+    for day in range(1, 29):
+        assert plan_today(date(2026, 9, day), cadence, _PILLARS)[0].time_utc == "19:59"

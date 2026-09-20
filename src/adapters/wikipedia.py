@@ -8,8 +8,11 @@ from __future__ import annotations
 
 import logging
 from datetime import UTC, datetime, timedelta
+from urllib.parse import quote
 
 import requests
+
+from src.content.sources import records_or_titles, source_record
 
 log = logging.getLogger(__name__)
 
@@ -19,8 +22,12 @@ _SKIP_PREFIXES = ("Special:", "Wikipedia:", "Portal:", "Help:")
 _SKIP_EXACT = {"Main_Page", "-"}
 
 
-def fetch_top_articles(limit: int = 20) -> list[str]:
-    """Return up to `limit` most-viewed English Wikipedia article titles."""
+def fetch_top_articles(
+    limit: int = 20, *, include_metadata: bool = False
+) -> list[str] | list[dict[str, str]]:
+    """Return pageview signals; their observation date is not a publication date."""
+    if limit <= 0:
+        return []
     day = datetime.now(UTC).date() - timedelta(days=2)
     url = _URL.format(y=day.year, m=f"{day.month:02d}", d=f"{day.day:02d}")
     try:
@@ -35,11 +42,17 @@ def fetch_top_articles(limit: int = 20) -> list[str]:
     if not items:
         return []
     articles = items[0].get("articles", [])
-    titles = [
-        a["article"].replace("_", " ")
+    records = [
+        source_record(
+            a["article"].replace("_", " "),
+            "wikipedia",
+            "general",
+            url=f"https://en.wikipedia.org/wiki/{quote(a['article'], safe='')}",
+            observed_at=day.isoformat(),
+        )
         for a in articles
         if a.get("article")
         and a["article"] not in _SKIP_EXACT
         and not a["article"].startswith(_SKIP_PREFIXES)
     ]
-    return titles[:limit]
+    return records_or_titles(records[:limit], include_metadata)

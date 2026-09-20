@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import json
+
+import pytest
+
 from src.pillar import load_config
 
 
@@ -35,3 +39,24 @@ def test_pillars_have_content_format() -> None:
     for pillar in load_config()["pillars"]:
         assert "id" in pillar
         assert "content_format" in pillar
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("skip_probability", 2),
+        ("post_probability", [0, 0, 0]),
+        ("window_utc", {"start": "25:00", "end": "20:00"}),
+        ("min_gap_minutes", -1),
+    ],
+)
+def test_invalid_cadence_fails_before_service_calls(tmp_path, monkeypatch, field, value):
+    import src.pillar as pillar
+
+    config = load_config()
+    config["cadence"][field] = value
+    path = tmp_path / "config.json"
+    path.write_text(json.dumps(config))
+    monkeypatch.setattr(pillar, "CONFIG_PATH", path)
+    with pytest.raises(ValueError):
+        load_config()

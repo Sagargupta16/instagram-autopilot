@@ -21,10 +21,15 @@ class AudioBakeError(Exception):
     """Raised when ffmpeg is missing or fails."""
 
 
-def bake(video: Path, track: Path, duration_s: int) -> Path:
-    """Return path to `{video.stem}-baked.mp4` with `track` mixed in."""
+def ensure_available() -> None:
+    """Check local prerequisites before paid video generation."""
     if shutil.which("ffmpeg") is None:
         raise AudioBakeError("ffmpeg not on PATH -- install with apt-get install -y ffmpeg")
+
+
+def bake(video: Path, track: Path, duration_s: int) -> Path:
+    """Return path to `{video.stem}-baked.mp4` with `track` mixed in."""
+    ensure_available()
     output = video.parent / f"{video.stem}-baked.mp4"
     fade_out_start = max(0.0, duration_s - 0.5)
     cmd = [
@@ -56,7 +61,12 @@ def bake(video: Path, track: Path, duration_s: int) -> Path:
         str(output),
     ]
     log.info("ffmpeg bake: %s + %s -> %s", video.name, track.name, output.name)
-    result = subprocess.run(cmd, capture_output=True, text=True, timeout=120, check=False)
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=120, check=False)
+    except subprocess.TimeoutExpired as error:
+        raise AudioBakeError("ffmpeg timed out after 120 seconds") from error
+    except OSError as error:
+        raise AudioBakeError("ffmpeg could not start") from error
     if result.returncode != 0:
         raise AudioBakeError(f"ffmpeg failed (rc={result.returncode}): {result.stderr[-500:]}")
     return output

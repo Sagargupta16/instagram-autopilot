@@ -15,7 +15,7 @@ from src.settings import settings
 log = logging.getLogger(__name__)
 
 INVOKE_URL = "https://bedrock-runtime.{region}.amazonaws.com/model/{model}/invoke"
-ASYNC_INVOKE_URL = "https://bedrock-runtime.{region}.amazonaws.com/model/{model}/async-invoke"
+ASYNC_INVOKE_URL = "https://bedrock-runtime.{region}.amazonaws.com/async-invoke"
 ASYNC_STATUS_URL = "https://bedrock-runtime.{region}.amazonaws.com/async-invoke/{arn}"
 
 
@@ -31,7 +31,7 @@ def verify_auth(model_id: str) -> None:
     """Smoke test the bearer token with a 1-token Claude call.
 
     Raises HTTPError immediately on 403 so expired tokens fail fast
-    instead of dying after the 3-hour jitter sleep.
+    before the rest of the generation pipeline is started.
     """
     url = INVOKE_URL.format(region=settings.aws_region, model=model_id)
     body = {
@@ -71,12 +71,14 @@ def invoke_claude(model_id: str, prompt: str, max_tokens: int = 2048) -> str:
     text_parts = [b["text"] for b in blocks if b.get("type") == "text" and "text" in b]
     if not text_parts:
         log.error("Bedrock Claude returned no text blocks: %s", blocks)
-        raise ValueError(f"No text blocks in Claude response (got types: {[b.get('type') for b in blocks]})")
+        raise ValueError(
+            f"No text blocks in Claude response (got types: {[b.get('type') for b in blocks]})"
+        )
     return "".join(text_parts)
 
 
 def invoke_model(model_id: str, body: dict[str, Any], timeout: int = 120) -> dict[str, Any]:
-    """Call any Bedrock model with a raw body (used by Nova Canvas)."""
+    """Call any Bedrock model with a raw body (used by Stable Image Ultra)."""
     url = INVOKE_URL.format(region=settings.aws_region, model=model_id)
     resp = requests.post(url, json=body, headers=_auth_headers(), timeout=timeout)
     if not resp.ok:
@@ -86,9 +88,12 @@ def invoke_model(model_id: str, body: dict[str, Any], timeout: int = 120) -> dic
 
 
 def start_async_invocation(model_id: str, body: dict[str, Any]) -> str:
-    """Start an async Bedrock job (used by Nova Reel) and return the invocation ARN."""
-    url = ASYNC_INVOKE_URL.format(region=settings.aws_region, model=model_id)
-    resp = requests.post(url, json=body, headers=_auth_headers(), timeout=60)
+    """Start a job using AWS StartAsyncInvoke's modelId-in-body REST contract."""
+    # https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_StartAsyncInvoke.html
+    url = ASYNC_INVOKE_URL.format(region=settings.aws_region)
+    resp = requests.post(
+        url, json={**body, "modelId": model_id}, headers=_auth_headers(), timeout=60
+    )
     if not resp.ok:
         log.error("Bedrock async %s returned %s: %s", model_id, resp.status_code, resp.text)
         resp.raise_for_status()

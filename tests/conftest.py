@@ -4,12 +4,19 @@ from __future__ import annotations
 
 import json
 import os
+import socket
 from pathlib import Path
 from typing import Any
 
 import pytest
 
-os.environ.setdefault("AWS_BEARER_TOKEN_BEDROCK", "test-token")
+os.environ["AUTOPILOT_ENV_FILE"] = ""
+os.environ["STATE_BACKEND"] = "local"
+os.environ["STATE_GITHUB_TOKEN"] = ""
+os.environ["META_USER_ACCESS_TOKEN"] = ""
+os.environ["GUARDIAN_API_KEY"] = ""
+os.environ["S3_VIDEO_BUCKET"] = ""
+os.environ["AWS_BEARER_TOKEN_BEDROCK"] = "test-token"
 os.environ.setdefault("AWS_REGION", "us-east-1")
 os.environ.setdefault("COMPOSIO_API_KEY", "test-composio-key")
 os.environ.setdefault("COMPOSIO_CONNECTED_ACCOUNT_ID", "test-account")
@@ -66,6 +73,10 @@ def sample_caption_data() -> dict[str, Any]:
 
 @pytest.fixture(autouse=True)
 def _env_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
+    def blocked_connect(*args: Any, **kwargs: Any) -> None:
+        raise RuntimeError("Network disabled in unit tests; mock the service boundary")
+
+    monkeypatch.setattr(socket.socket, "connect", blocked_connect)
     monkeypatch.setenv("AWS_BEARER_TOKEN_BEDROCK", "test-token")
     monkeypatch.setenv("AWS_REGION", "us-east-1")
     monkeypatch.setenv("COMPOSIO_API_KEY", "test-composio-key")

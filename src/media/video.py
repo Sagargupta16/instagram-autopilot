@@ -10,13 +10,64 @@ from __future__ import annotations
 
 import logging
 import time
+from pathlib import Path
+from urllib.parse import urlsplit
+
+import botocore.session
+from botocore.config import Config
 
 from src.adapters.bedrock import get_async_invocation_status, start_async_invocation
+from src.settings import settings
 
 log = logging.getLogger(__name__)
 
 # Luma Ray 2 only accepts "5s" or "9s".
 _VALID_DURATIONS = {5, 9}
+MAX_VIDEO_BYTES = 100_000_000
+
+
+def download_video(s3_uri: str, destination: Path) -> Path:
+    """Stream private S3 output using AWS credentials and SigV4, never Bedrock's token."""
+    parsed = urlsplit(s3_uri)
+    if (
+        parsed.scheme != "s3"
+        or not parsed.netloc
+        or not parsed.path.strip("/")
+        or parsed.query
+        or parsed.fragment
+        or parsed.username
+        or parsed.password
+    ):
+        raise ValueError("Video output must be an s3://bucket/key object URI")
+    session = botocore.session.get_session()
+    client = session.create_client(
+        "s3",
+        region_name=settings.aws_region,
+        config=Config(
+            signature_version="s3v4",
+            connect_timeout=15,
+            read_timeout=120,
+            retries={"max_attempts": 2},
+        ),
+    )
+    try:
+        response = client.get_object(Bucket=parsed.netloc, Key=parsed.path.lstrip("/"))
+        body = response["Body"]
+        total = 0
+        try:
+            with destination.open("wb") as output:
+                while chunk := body.read(64 * 1024):
+                    total += len(chunk)
+                    if total > MAX_VIDEO_BYTES:
+                        raise ValueError("Video exceeds download size limit")
+                    output.write(chunk)
+            if not total:
+                raise ValueError("Downloaded video is empty")
+        finally:
+            body.close()
+    finally:
+        client.close()
+    return destination
 
 
 def generate_video(
@@ -61,7 +112,7 @@ def generate_video(
         if status == "Completed":
             output_uri = status_data["outputDataConfig"]["s3OutputDataConfig"]["s3Uri"]
             log.info("Reel generated: %s", output_uri)
-            return output_uri + "/output.mp4"
+            return output_uri.rstrip("/") + "/output.mp4"
         if status == "Failed":
             msg = status_data.get("failureMessage", "Unknown error")
             raise RuntimeError(f"Luma Ray 2 generation failed: {msg}")

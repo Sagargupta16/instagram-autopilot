@@ -9,7 +9,10 @@ from src.publishing.reel import publish_reel
 
 class TestPublishReel:
     @patch("src.publishing.reel.execute_action")
-    def test_two_step_with_reels_media_type(self, mock_exec: MagicMock) -> None:
+    @patch("src.publishing.reel.wait_until_ready")
+    def test_two_step_with_reels_media_type(
+        self, mock_ready: MagicMock, mock_exec: MagicMock
+    ) -> None:
         mock_exec.side_effect = [
             {"data": {"id": "reel_container"}, "successful": True},
             {"data": {"id": "reel_media"}, "successful": True},

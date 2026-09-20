@@ -69,12 +69,15 @@ def plan_today(
     window = cadence.get("window_utc", {})
     start = to_minutes(window.get("start", "04:00"))
     end = to_minutes(window.get("end", "20:00"))
+    # Leave room for a scheduler tick and generation before the exclusive close.
+    buffer = max(1, int(cadence.get("schedule_buffer_minutes", 0)))
+    latest_start = max(start, end - buffer)
     gap = int(cadence.get("min_gap_minutes", 90))
     slots: list[int] = []
     for _ in range(50):
         if len(slots) == n:
             break
-        cand = rng.randint(start, end)  # NOSONAR
+        cand = rng.randint(start, latest_start)  # NOSONAR
         if all(abs(cand - s) >= gap for s in slots):
             slots.append(cand)
     slots.sort()

@@ -1,48 +1,86 @@
 name: Daily Instagram Post
-
 on:
   schedule:
-    # Fires at 15:30 UTC (start of US lunch engagement window:
-    # 10:30 AM EST / 11:30 AM EDT / 9:00 PM IST). The bot then sleeps
-    # a random 0-180 min via POST_JITTER_MAX_MINUTES so the actual post
-    # time lands somewhere in the 3-hour peak window and does not look
-    # cron-scheduled.
-    - cron: "30 15 * * *"
+    # Short scheduler ticks; application checks the UTC window and real publish gap.
+    - cron: '7,27,47 4-19 * * *'
   workflow_dispatch:
     inputs:
-      force_jitter:
-        description: "Apply 0-180 min jitter on manual run (normally skipped)"
+      dry_run:
+        description: Generate a local preview without uploads or publication
         type: boolean
         default: false
-
+      resolve_slot:
+        description: Optional uncertain slot key to reconcile after checking Instagram
+        type: string
+      media_id:
+        description: Confirmed Instagram media ID for the uncertain slot
+        type: string
+      confirm_not_published:
+        description: Confirm the uncertain slot did NOT publish (allows a later retry)
+        type: boolean
+        default: false
+concurrency:
+  group: instagram-publisher-${{ github.repository }}
+  cancel-in-progress: false
+permissions:
+  contents: read
 jobs:
   post:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 480
+    timeout-minutes: 25
     permissions:
       contents: write
-
     steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-python@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          python-version: "3.14"
-          cache: pip
-
-      - name: Install ffmpeg
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Generate and publish post
-        run: python -m src.main
+          ref: main
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          python-version: '3.14'
+          enable-cache: true
+      - name: Install locked runtime
+        run: uv sync --frozen --no-dev
+      - name: Restore optional audio and place caches
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: assets/cache
+          key: instagram-cache-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: instagram-cache-
+      - name: Install ffmpeg when Reels are enabled
+        run: |
+          if uv run --frozen --no-dev python -c 'from src.pillar import load_config; raise SystemExit(not any(p["content_format"] == "reel" for p in load_config()["pillars"]))'; then
+            sudo apt-get update && sudo apt-get install -y ffmpeg
+          fi
+      - name: Generate, publish, or reconcile
+        shell: bash
+        run: |
+          args=()
+          if [[ -n "$RESOLVE_SLOT" ]]; then
+            args+=(--resolve-slot "$RESOLVE_SLOT")
+            if [[ -n "$MEDIA_ID" ]]; then
+              args+=(--media-id "$MEDIA_ID")
+            elif [[ "$CONFIRM_NOT_PUBLISHED" == 'true' ]]; then
+              args+=(--confirm-not-published)
+            fi
+          elif [[ "$DRY_RUN" == 'true' ]]; then
+            args+=(--dry-run)
+          fi
+          uv run --frozen --no-dev python -m src.main "${args[@]}"
         env:
+          DRY_RUN: ${{ inputs.dry_run }}
+          RESOLVE_SLOT: ${{ inputs.resolve_slot }}
+          MEDIA_ID: ${{ inputs.media_id }}
+          CONFIRM_NOT_PUBLISHED: ${{ inputs.confirm_not_published }}
+          STATE_BACKEND: github
+          STATE_REPOSITORY: ${{ github.repository }}
+          STATE_GITHUB_TOKEN: ${{ github.token }}
           AWS_BEARER_TOKEN_BEDROCK: ${{ secrets.AWS_BEARER_TOKEN_BEDROCK }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_REGION: ${{ secrets.AWS_REGION || 'us-west-2' }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
           COMPOSIO_API_KEY: ${{ secrets.COMPOSIO_API_KEY }}
           COMPOSIO_CONNECTED_ACCOUNT_ID: ${{ secrets.COMPOSIO_CONNECTED_ACCOUNT_ID }}
           COMPOSIO_USER_ID: ${{ secrets.COMPOSIO_USER_ID }}
@@ -54,21 +92,20 @@ jobs:
           META_USER_ACCESS_TOKEN: ${{ secrets.META_USER_ACCESS_TOKEN }}
           GUARDIAN_API_KEY: ${{ secrets.GUARDIAN_API_KEY }}
           NICHE: ${{ vars.NICHE || 'wide_lifestyle' }}
-          CONTENT_TYPES: ${{ vars.CONTENT_TYPES || 'tip,trick,showcase,tutorial,insight' }}
-
-      # Dedup history must survive the ephemeral runner, otherwise every run
-      # starts blind and repeats topics/scenes. Runs even if publish failed
-      # (history is recorded before publish, intentionally).
-      - name: Persist post history
+          CONTENT_TYPES: ${{ vars.CONTENT_TYPES || 'guide,story,tip,scene,how-to,showcase' }}
+      - name: Save optional audio and place caches
+        if: always() && inputs.dry_run != true
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: assets/cache
+          key: instagram-cache-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Keep run summary and local preview
         if: always()
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/posted_topics.json
-          if git diff --cached --quiet; then
-            echo "No history changes to commit"
-          else
-            git commit -m "chore: record posted topic [skip ci]"
-            git pull --rebase origin main
-            git push origin main
-          fi
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: instagram-run-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            output/run-summary.json
+            output/dry-run/
+          if-no-files-found: ignore
+          retention-days: 7
