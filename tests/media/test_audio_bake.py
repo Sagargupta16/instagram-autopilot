@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import subprocess
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -8,14 +9,28 @@ import pytest
 from src.media import audio_bake
 
 
+def test_timeout_is_audio_bake_error(tmp_path: Path) -> None:
+    with (
+        patch("src.media.audio_bake.shutil.which", return_value="ffmpeg"),
+        patch(
+            "src.media.audio_bake.subprocess.run",
+            side_effect=subprocess.TimeoutExpired("ffmpeg", 120),
+        ),
+        pytest.raises(audio_bake.AudioBakeError, match="timed out"),
+    ):
+        audio_bake.bake(tmp_path / "in.mp4", tmp_path / "audio.mp3", 5)
+
+
 def test_bake_builds_correct_ffmpeg_command_for_5s(tmp_path: Path) -> None:
     video = tmp_path / "in.mp4"
     track = tmp_path / "track.mp3"
     video.write_bytes(b"fake")
     track.write_bytes(b"fake")
 
-    with patch("src.media.audio_bake.shutil.which", return_value="/usr/bin/ffmpeg"), \
-         patch("src.media.audio_bake.subprocess.run") as mock_run:
+    with (
+        patch("src.media.audio_bake.shutil.which", return_value="/usr/bin/ffmpeg"),
+        patch("src.media.audio_bake.subprocess.run") as mock_run,
+    ):
         mock_run.return_value = MagicMock(returncode=0, stderr="")
         result = audio_bake.bake(video, track, duration_s=5)
 
@@ -38,8 +53,10 @@ def test_bake_9s_uses_correct_fadeout_offset(tmp_path: Path) -> None:
     video.write_bytes(b"fake")
     track.write_bytes(b"fake")
 
-    with patch("src.media.audio_bake.shutil.which", return_value="/usr/bin/ffmpeg"), \
-         patch("src.media.audio_bake.subprocess.run") as mock_run:
+    with (
+        patch("src.media.audio_bake.shutil.which", return_value="/usr/bin/ffmpeg"),
+        patch("src.media.audio_bake.subprocess.run") as mock_run,
+    ):
         mock_run.return_value = MagicMock(returncode=0, stderr="")
         audio_bake.bake(video, track, duration_s=9)
 
@@ -53,8 +70,10 @@ def test_bake_raises_on_ffmpeg_failure(tmp_path: Path) -> None:
     video.write_bytes(b"fake")
     track.write_bytes(b"fake")
 
-    with patch("src.media.audio_bake.shutil.which", return_value="/usr/bin/ffmpeg"), \
-         patch("src.media.audio_bake.subprocess.run") as mock_run:
+    with (
+        patch("src.media.audio_bake.shutil.which", return_value="/usr/bin/ffmpeg"),
+        patch("src.media.audio_bake.subprocess.run") as mock_run,
+    ):
         mock_run.return_value = MagicMock(returncode=1, stderr="Invalid data")
         with pytest.raises(audio_bake.AudioBakeError):
             audio_bake.bake(video, track, duration_s=5)

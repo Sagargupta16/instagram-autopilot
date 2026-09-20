@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import json
 import logging
 from pathlib import Path
 from typing import Any
 
-from src.adapters.bedrock import extract_json, invoke_claude
+from src.adapters.bedrock import invoke_claude
 from src.content.dedup import load_recent_image_prompts
+from src.content.schemas import CaptionContent
+from src.content.validation import generate_validated
 from src.pillar import load_config
 from src.settings import settings
 
@@ -33,14 +36,16 @@ def generate_caption(
     topic: str,
     pillar: dict[str, Any],
     persona: dict[str, Any],
+    *,
+    sources: list[dict] | None = None,
 ) -> dict[str, Any]:
-    """Return dict with caption, hashtags, x_post, image_prompts (list of 5), video_prompt."""
+    """Return validated publishing fields plus five alt texts and optional slide notes."""
     recent_prompts = load_recent_image_prompts(limit=RECENT_SCENE_LIMIT)
     recent_scenes = _format_recent_scenes(recent_prompts)
 
     style_hint = pillar.get("image_style") or "editorial documentary photography"
 
-    prompt = PROMPT_PATH.read_text().format(
+    prompt = PROMPT_PATH.read_text(encoding="utf-8").format(
         niche=settings.niche,
         pillar=pillar["label"],
         topic=topic,
@@ -48,11 +53,16 @@ def generate_caption(
         pillar_hashtags=" ".join(pillar["hashtags"]),
         style_hint=style_hint,
         recent_scenes=recent_scenes,
+        sources=json.dumps(sources or [], ensure_ascii=False),
     )
 
     config = load_config()
-    raw = invoke_claude(config["models"]["text"], prompt)
-    data = extract_json(raw)
+    content = generate_validated(
+        prompt,
+        lambda text: invoke_claude(config["models"]["text"], text, max_tokens=4096),
+        CaptionContent.model_validate,
+    )
+    data = content.model_dump()
 
     log.info(
         "Generated caption (%d chars), X post (%d chars), %d image prompts; %d recent scenes shown",

@@ -1,97 +1,96 @@
-"""Pick a royalty-free audio track for a Reel, avoiding recent repeats.
-
-Reads assets/audio/audio_manifest.json (curated once via
-scripts/curate_audio.py) and assets/cache/audio_history.json (last-N-days
-picks). Filters manifest to entries whose theme_tags contain the
-requested theme AND whose track_id is not in the recent-days window;
-random-picks; atomically appends to history.
-
-Raises NoTrackAvailableError when the manifest is empty for the theme
-(e.g. curation script hasn't run yet). Callers -- specifically
-reel_flow -- catch this and publish silent-reel as fallback.
-"""
+"""Select local licensed audio without writes; record use after publication."""
 
 from __future__ import annotations
 
 import json
-import logging
 import os
 import random
 import tempfile
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
-log = logging.getLogger(__name__)
+from src.media.audio_manifest import AudioTrack, validate_track
 
-AUDIO_ROOT = Path(__file__).resolve().parent.parent.parent / "assets" / "audio"
+AUDIO_ROOT = Path(__file__).resolve().parents[2] / "assets" / "audio"
 MANIFEST_PATH = AUDIO_ROOT / "audio_manifest.json"
-HISTORY_PATH = (
-    Path(__file__).resolve().parent.parent.parent / "assets" / "cache" / "audio_history.json"
-)
+HISTORY_PATH = Path(__file__).resolve().parents[2] / "assets" / "cache" / "audio_history.json"
 HISTORY_LOOKBACK_DAYS = 2
 
 
 class NoTrackAvailableError(Exception):
-    """No manifest track matches the requested theme."""
+    """No usable local track matches the requested theme."""
+
+
+def _load_list(path: Path, key: str) -> list[dict[str, Any]]:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        items = data.get(key, []) if isinstance(data, dict) else []
+        return [item for item in items if isinstance(item, dict)] if isinstance(items, list) else []
+    except (OSError, ValueError):
+        return []
 
 
 def _load_manifest() -> list[dict[str, Any]]:
-    if not MANIFEST_PATH.exists():
-        return []
-    try:
-        return json.loads(MANIFEST_PATH.read_text()).get("tracks", [])
-    except json.JSONDecodeError:
-        log.warning("audio manifest corrupt")
-        return []
+    return _load_list(MANIFEST_PATH, "tracks")
 
 
 def _load_history() -> list[dict[str, Any]]:
-    if not HISTORY_PATH.exists():
-        return []
-    try:
-        return json.loads(HISTORY_PATH.read_text()).get("history", [])
-    except json.JSONDecodeError:
-        log.warning("audio history corrupt, resetting")
-        return []
+    return _load_list(HISTORY_PATH, "history")
 
 
 def _recent_track_ids(history: list[dict[str, Any]]) -> set[str]:
+    today = datetime.now(UTC).date()
     ids: set[str] = set()
-    for entry in history[-HISTORY_LOOKBACK_DAYS:]:
-        ids.update(entry.get("track_ids", []))
+    for entry in history:
+        try:
+            age = (today - date.fromisoformat(entry["date"])).days
+        except (KeyError, TypeError, ValueError):
+            continue
+        if 0 <= age <= HISTORY_LOOKBACK_DAYS:
+            track_ids = entry.get("track_ids", [])
+            if isinstance(track_ids, list):
+                ids.update(value for value in track_ids if isinstance(value, str))
     return ids
 
 
 def _append_history(track_id: str) -> None:
     HISTORY_PATH.parent.mkdir(parents=True, exist_ok=True)
     history = _load_history()
-    today = datetime.now(UTC).date().isoformat()
-    if history and history[-1]["date"] == today:
-        history[-1]["track_ids"].append(track_id)
-    else:
-        history.append({"date": today, "track_ids": [track_id]})
-    fd, tmp = tempfile.mkstemp(dir=HISTORY_PATH.parent, suffix=".json")
-    os.close(fd)
-    Path(tmp).write_text(json.dumps({"history": history[-30:]}, indent=2))
-    Path(tmp).replace(HISTORY_PATH)
+    history.append({"date": datetime.now(UTC).date().isoformat(), "track_ids": [track_id]})
+    descriptor, temporary = tempfile.mkstemp(dir=HISTORY_PATH.parent, suffix=".json")
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+            json.dump({"history": history[-500:]}, stream, indent=2)
+        Path(temporary).replace(HISTORY_PATH)
+    finally:
+        Path(temporary).unlink(missing_ok=True)
 
 
-def pick(theme: str) -> Path:
-    """Return path to a track matching `theme`, not used in last 2 days."""
-    manifest = _load_manifest()
+def select(theme: str) -> AudioTrack:
+    """Read-only selection; missing, empty, unsafe or uncredited files are excluded."""
+    candidates: list[AudioTrack] = []
+    for entry in _load_manifest():
+        try:
+            track = validate_track(entry, AUDIO_ROOT)
+        except (ValueError, OSError):
+            continue
+        if theme in entry["theme_tags"]:
+            candidates.append(track)
+    if not candidates:
+        raise NoTrackAvailableError(f"No usable local audio for theme '{theme}'")
     recent = _recent_track_ids(_load_history())
-    candidates = [
-        t
-        for t in manifest
-        if theme in t.get("theme_tags", []) and t["track_id"] not in recent
-    ]
-    if not candidates:
-        candidates = [t for t in manifest if theme in t.get("theme_tags", [])]
-    if not candidates:
-        raise NoTrackAvailableError(f"No tracks matching theme '{theme}' in manifest")
-    # NOSONAR python:S2245 -- track selection is NOT a security context;
-    # we want easy variety across days, not cryptographic randomness.
-    chosen = random.choice(candidates)  # NOSONAR
-    _append_history(chosen["track_id"])
-    return AUDIO_ROOT / chosen["filename"]
+    fresh = [track for track in candidates if track.track_id not in recent]
+    return random.choice(fresh or candidates)  # NOSONAR -- editorial variety, not security.
+
+
+def record_usage(track: AudioTrack) -> None:
+    _append_history(track.track_id)
+
+
+def pick(theme: str, *, record: bool = True) -> Path:
+    """Compatibility API; use select() for preflight or dry-run."""
+    track = select(theme)
+    if record:
+        record_usage(track)
+    return track.path

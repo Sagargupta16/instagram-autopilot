@@ -3,26 +3,33 @@
 from __future__ import annotations
 
 import base64
+import io
 from unittest.mock import MagicMock, patch
 
 import pytest
+from PIL import Image
 
 from src.media.image import MAX_PROMPT_CHARS, SEED_MAX, SEED_MIN, generate_image
 
 MODEL = "stability.stable-image-ultra-v1:1"
 
 
-def _fake_response(body: bytes = b"x") -> dict:
+def _fake_response(body: bytes | None = None) -> dict:
+    if body is None:
+        output = io.BytesIO()
+        Image.new("RGB", (64, 80), "red").save(output, "PNG")
+        body = output.getvalue()
     return {"images": [base64.b64encode(body).decode()], "finish_reasons": [None]}
 
 
 class TestGenerateImage:
     @patch("src.media.image.invoke_model")
     def test_returns_image_bytes(self, mock_invoke: MagicMock) -> None:
-        fake_image = b"\x89PNG fake image"
-        mock_invoke.return_value = _fake_response(fake_image)
+        mock_invoke.return_value = _fake_response()
         result = generate_image(prompt="test", model_id=MODEL)
-        assert result == fake_image
+        with Image.open(io.BytesIO(result)) as image:
+            assert image.format == "JPEG"
+            assert image.size == (1080, 1350)
 
     @patch("src.media.image.invoke_model")
     def test_sends_stability_request_shape(self, mock_invoke: MagicMock) -> None:
@@ -30,8 +37,8 @@ class TestGenerateImage:
         generate_image(prompt="a cool image", model_id=MODEL)
         body = mock_invoke.call_args[0][1]
         assert body["prompt"] == "a cool image"
-        assert body["aspect_ratio"] == "1:1"
-        assert body["output_format"] == "png"
+        assert body["aspect_ratio"] == "4:5"
+        assert body["output_format"] == "jpeg"
         # No native style enum on Stability -- the anti-illustration guard
         # must live in the negative prompt instead.
         assert "illustration" in body["negative_prompt"]

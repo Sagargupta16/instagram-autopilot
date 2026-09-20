@@ -1,160 +1,48 @@
 # CLAUDE.md
 
-> This file stacks on top of the workspace root at `C:\Code\GitHub\`:
-> - Root [`CLAUDE.md`](../../CLAUDE.md) -- voice, rules, routing map, references, skills, slash commands, conventions.
-> - Root [`MEMORY.md`](../../MEMORY.md) -- live facts across repos.
-> - Root [`STATUS.md`](../../STATUS.md) -- live PR/CI/security dashboard.
-> - [`.claude/resources/`](../../.claude/resources/README.md) -- deep reference for collaboration, workflow, git, OSS, debugging, voice.
->
-> Read those first. The guidance below only adds **repo-specific context** -- it does not override anything in the root.
+> This file stacks on the workspace guidance at `C:\Code\GitHub\AGENTS.md`, its `MEMORY.md` and `STATUS.md`. The guidance below adds repository-specific contracts.
 
-## Project Overview
+## Project
 
-Fully automated Instagram content bot. A daily cron in GitHub Actions generates an AI topic (grounded in live trends from 5 sources: HuggingFace papers, Product Hunt, GitHub, Hacker News, Reddit), writes a one-liner caption, generates 5 photorealistic AI images via AWS Bedrock Stable Image Ultra, and publishes a 5-slide carousel via the Composio v3 API.
+Headless Python Instagram publisher. Six lifestyle pillars currently produce five-image carousels through Bedrock, Cloudinary, and Composio. Reels remain optional. See README.md and docs/operations.md for current behavior; older docs/plans and CHANGELOG entries are historical.
 
-## Commands
+## Validation
 
-```bash
-pip install -r requirements.txt
-python -m src.main                          # Full live run (generate + publish)
-python -m src.main --dry-run                # Generate only, no publish
-python -m pytest                            # Run full test suite
-python -m pytest tests/content/             # Tests for one package
-python -m pytest tests/publishing/test_carousel.py::TestPublishCarousel::test_multi_step_flow  # Single test
-python -m ruff check .                      # Lint
-python -m ruff format .                     # Auto-format
-```
+- `uv sync --frozen`
+- `uv run --frozen ruff check src tests scripts`
+- `uv run --frozen ruff format --check src tests scripts`
+- `uv run --frozen pytest --cov=src --cov-branch`
+- `uv run --frozen python -m src.main --dry-run` is paid local generation, never upload/publication/history mutation.
+- `python -m src.main` is a live publishing command, not a test.
 
-## Architecture
+Tests use dummy credentials, disable dotenv, and block sockets. CI exercises Python 3.12 and 3.14 and enforces failures.
 
-The project is organized by **bounded context, one external service per layer**. Each directory under `src/` wraps exactly one concern:
+## Boundaries
 
-```
-src/
-├── settings.py        # Pydantic settings loaded from .env
-├── pillar.py          # config.json loader + today's-pillar routing
-├── schedule.py        # apply_jitter() -- randomize post time inside window
-├── main.py            # Entry point + run() orchestrator (<70 lines)
-│
-├── adapters/          # Low-level HTTP clients for external services
-│   ├── bedrock.py            # AWS Bedrock (bearer token, no boto3)
-│   ├── composio.py           # Composio v3 REST API + ComposioActionError
-│   ├── cloudinary_host.py    # Cloudinary image upload
-│   ├── hackernews.py         # HN Algolia search
-│   ├── huggingface_papers.py # HuggingFace daily papers (trending AI research)
-│   ├── producthunt.py        # Product Hunt AI-category atom feed
-│   ├── github_trending.py    # GitHub search API (topic:generative-ai / llm)
-│   ├── google_news.py        # Google News RSS by category
-│   ├── guardian.py           # Guardian section feeds
-│   ├── lemmy.py              # Lemmy hot posts by community
-│   ├── wikipedia.py          # Wikipedia top articles
-│   └── places.py             # Location lookups (IG location tags)
-│
-├── content/           # Text generation (uses adapters/bedrock)
-│   ├── topic.py       # generate_topic() with trend grounding
-│   ├── caption.py     # generate_caption() - 5 photoreal image prompts
-│   ├── trends.py      # Parallel aggregation across 11 sources / 5 services
-│   └── dedup.py       # posted_topics.json (last 500)
-│
-├── media/             # AI media generation (uses adapters/bedrock)
-│   ├── image.py       # Stable Image Ultra (random seed, aggressive negative prompt)
-│   ├── video.py       # Luma Ray 2 async + poll
-│   ├── audio_picker.py # Pick licensed audio track for reels
-│   └── audio_bake.py  # Bake audio into reel video (ffmpeg)
-│
-├── publishing/        # Instagram publishing (uses adapters/composio)
-│   ├── image_post.py  # 2-step: container -> publish
-│   ├── carousel.py    # N+2-step: N children -> carousel -> publish
-│   └── reel.py        # 2-step with REELS media_type
-│
-└── flows/             # Orchestration -- no external deps, just composes
-    ├── carousel_flow.py
-    ├── image_flow.py
-    └── reel_flow.py   # Falls back to image_flow if S3 missing
-```
+- `adapters/`: low-level service calls.
+- `content/`: category-relevant evidence, topic selection, validated content. Preserve the legacy string topic wrapper; the orchestrator uses `generate_topic_brief` and passes its sources into captions.
+- `media/`: asset generation, JPEG normalization, S3 retrieval, and audio.
+- `flows/`: compose media and publication; return a confirmed media ID or None for a dry-run.
+- `publishing/`: Composio schemas, draft readiness, alt text, final publish callback.
+- `state/`: conditional local/GitHub persistence, ownership leases, migration, and receipt transitions.
 
-## Non-Obvious Cross-File Contracts
+## Contracts that must survive changes
 
-### Pillar routing
-`config.json` has `pillars[].content_format` which is `"carousel"`, `"image"`, or `"reel"`. `main.py::run()` dispatches to the matching `flows/*_flow.py`. **Default is carousel** -- single-image mode is kept but unused by any pillar.
+1. Never make an irreversible publication before `before_publish(container_id)` returns. That callback must persist the publishing state. A callback exception aborts publication.
+2. Never blindly retry the final publish call. After its boundary, an ambiguous response requires reconciliation, not a fallback or regenerated post.
+3. Do not downgrade confirmed media success because optional audio-history saving failed.
+4. At most one due slot per scheduler tick. Enforce actual successful-post spacing and the daily cap through shared state. No multi-hour runner sleeps.
+5. GitHub Actions must use the GitHub state backend, not ephemeral local state. The dedicated state branch is not an application deployment branch.
+6. Atomic JSON replacement alone is not interprocess protection: keep local file locking and GitHub revision compare-and-swap checks.
+7. Content responses require exactly five prompts and aligned alt texts before image work. Preserve source metadata from adapters rather than accepting model-authored source URLs.
+8. Diffusion exclusions belong in `negative_prompt`. Retain the anti-illustration/CGI/typography guards and randomized seeds.
+9. All published images are validated RGB 1080x1350 JPEGs below 8 MB. Validate actual delivered bytes; a trusted hostname alone does not prove compatibility.
+10. Filtered-slide removal must keep alt texts aligned. Dry-run must fail when fewer than two carousel slides survive.
+11. Bedrock uses bearer-token requests. Botocore is exclusively for authenticated S3 retrieval, not a replacement for Bedrock authentication.
+12. Missing licensed local audio must be detected before paid video generation. Preserve required attribution; never mutate audio history in dry-run.
+13. Topic attempts and confirmed publications are different records. Preserve legacy history and unresolved receipts. Do not invent media IDs during migration.
+14. Keep `uv.lock` authoritative; `requirements.txt` is a generated runtime-only export. Never disable failing tests or hide their exit status.
 
-### Dedup history structure (topics + recent image prompts)
-`data/posted_topics.json` is a list of entries `{"topic": ..., "image_prompts": [...], "ts": ...}`, capped at 500. `content/dedup.py` exposes:
-- `load_posted_topics()` -> `list[str]` (topics only, backwards-compat)
-- `load_recent_image_prompts(limit=25)` -> newest-first flattened prompts, injected into `prompts/caption.txt` as `<recent_scenes_to_avoid>` so Claude picks structurally different subjects/environments across days
-- `record_post(topic, image_prompts)` -> atomic append (temp + rename), called ONCE from `main.run()` after caption generation, skipped on `--dry-run`
+## Conventions
 
-Legacy list-of-strings format is read transparently and migrated on next write. **Dedup IS persisted across CI runs**: `data/posted_topics.json` is committed (no longer gitignored) and the daily workflow's "Persist post history" step commits it back with `[skip ci]` after each run. Cross-day variety comes from this history plus (a) live trend grounding in `content/topic.py` and (b) per-pillar `style_hint` flavors in `config.json`.
-
-### Claude returns `image_prompts` as a LIST of 5 PHOTOREAL prompts
-`prompts/caption.txt` instructs Claude to return `image_prompts: [s1, s2, s3, s4, s5]` (a JSON array, not a string). **ALL FIVE must be photorealistic** (National Geographic / Magnum / Annie Leibovitz references). The template enforces canonical subject-first order: subject -> environment -> pose -> lighting -> camera+lens -> texture. Slides vary across setting/subject/framing/time-of-day but all stay photoreal. Don't reintroduce the old 12-style palette -- we ripped it out because mixed styles broke visual coherence.
-
-### Diffusion models invert negations -- exclusions belong only in negative_prompt
-The caption prompt explicitly forbids `no`/`not`/`without` inside image prompt text. Diffusion models treat negation words as *keywords to include*, not exclude. Put exclusions in `negative_prompt` at the image-generation layer (see `src/media/image.py::DEFAULT_NEGATIVE_PROMPT`). If you see `"no text in image"` inside a prompt string, that's a bug.
-
-### Photorealism comes from photographic prompt vocabulary + negative prompt
-Stable Image Ultra has NO native style enum (Nova Canvas's `PHOTOREALISM` is gone with the model). Photorealism is enforced two ways: (1) the caption template forces concrete camera/lens/film-stock/lighting cues into every prompt, and (2) `DEFAULT_NEGATIVE_PROMPT` in `src/media/image.py` leads with the anti-illustration guard ("illustration, cartoon, anime, 3D render, CGI, painting..."). Do NOT trim that guard -- it is now the only thing stopping stylized output.
-
-### Seed must be randomized per call or images collapse
-`generate_image()` picks a fresh random seed per call unless the caller passes one explicitly (useful when iterating on a single prompt). Stability treats seed 0 as server-side random, but we always send an explicit non-zero seed so the value is logged and a good slide can be reproduced.
-
-### Trends grounding spans 9 services / ~21 parallel fetch tasks
-`content/topic.py` calls `fetch_trending_topics()` which parallel-fetches (ThreadPoolExecutor) from: HuggingFace daily papers, Product Hunt AI, GitHub trending (generative-ai + llm), HN search, Wikipedia top articles, Google News (5 categories), Guardian (6 sections), and Lemmy (4 communities). Reddit was removed entirely (GitHub Actions runner IPs are on Reddit's anti-bot blocklist; the adapter was deleted, Lemmy replaced it). The topic prompt template contains `{trending_topics}` -- Claude uses fresh headlines to pick angles. If any/all sources fail, the code silently passes partial or `[]` results. Don't add "required" error handling here -- graceful degradation is intentional. All sources are **no-auth** (no API key, no OAuth) -- if adding a new source needs auth, rethink.
-
-### Post-time jitter
-`main.py::run()` calls `apply_jitter(settings.post_jitter_max_minutes)` (default 180 min) before publishing. The GitHub Actions cron fires at 15:30 UTC (start of US lunch engagement window); the jitter sleeps 0-180 min so the actual post time varies day-to-day and does not look bot-scheduled. Skipped on `--dry-run`. Workflow `timeout-minutes` must cover jitter + generation (currently 240).
-
-### Composio auth comes from settings
-`adapters/composio.py::execute_action(slug, params)` reads `composio_api_key`, `composio_connected_account_id`, `composio_user_id` from `src.settings` directly. Publisher functions pass ONLY the action-specific params. Don't add auth parameters back -- that's what the old code did and it's what we just simplified away.
-
-### Composio v3 wraps Instagram errors in 200 responses
-When Instagram's Graph API rejects something (bad URL, rate limit, etc.), Composio v3 returns HTTP 200 with `{"successful": false, "error": "..."}`. `execute_action()` raises `ComposioActionError`. Don't assume `data.id` exists -- callers should let the error propagate.
-
-### Bedrock uses bearer token, not boto3
-All three Bedrock calls (`adapters/bedrock.py`) use `requests.post` with `Authorization: Bearer <AWS_BEARER_TOKEN_BEDROCK>`. The ABSK token is a newer Bedrock auth mechanism. **If you see boto3 being added, that's wrong.**
-
-### Cloudinary is required (not imgbb)
-Instagram's Graph API fetches images server-side from the URL we provide. **Meta blocks `i.ibb.co`** with error 9004. `res.cloudinary.com` is trusted. If you swap hosts, verify Meta can fetch the URL *before* rewriting anything -- the fail mode is silent until publish time. Don't add retry/fallback logic; fix the host.
-
-### Settings load at import time
-`src/settings.py` instantiates `Settings()` at module level. Missing env vars raise ValidationError before any code runs. `tests/conftest.py` uses `os.environ.setdefault()` at the top -- before any `from src.*` import -- so test collection works.
-
-## Project Rules
-
-### File size
-- **Soft limit 200 lines, hard limit 300.**
-- If a file hits 200 lines, plan a split before adding more code. Most files here are 30-80 lines by design.
-
-### One external service per directory
-- `adapters/` = one file per external service, does nothing but HTTP.
-- `content/`, `media/`, `publishing/` = each wraps one external service via its adapter.
-- `flows/` = zero external deps, just composes other layers.
-- Don't cross the streams (e.g., publisher modules don't call image hosts directly -- that's what `flows/` is for).
-
-### Function length
-- Target <40 lines per function. If it needs scrolling, split it.
-
-### Tests mirror `src/`
-- `src/content/topic.py` → `tests/content/test_topic.py`.
-- Top-level tests (`tests/test_pillar.py`) only for top-level modules (`src/pillar.py`).
-
-### No abbreviations in module names
-- `cloudinary_host.py` not `cld.py`, `carousel.py` not `car.py`.
-
-### No comments that narrate obvious code
-- Only write a comment when the WHY is non-obvious (hidden constraint, subtle invariant, known landmine). Don't explain WHAT the code does.
-
-## Important Constraints
-
-- Instagram API: 25 publishes per 24 hours
-- Stable Image Ultra takes aspect_ratio (repo uses 1:1), not width/height
-- Luma Ray 2 requires an S3 bucket IN us-west-2 -- no workaround, async output only; durations are 5s or 9s only
-- Composio v3 rejects `ck_` prefix keys (legacy v1/v2) -- must be `ak_`
-- Cloudinary free tier: 25 credits/month (~30+ daily posts)
-- Image prompts must avoid text/words/letters -- diffusion models hallucinate gibberish text otherwise (see aggressive `DEFAULT_NEGATIVE_PROMPT` in `src/media/image.py`)
-
-## Coding Conventions
-
-- Type hints on all functions, `from __future__ import annotations` at file top
-- f-strings, `pathlib` over `os.path`
-- Pydantic for settings; plain dicts for `config.json` (no schema class)
+Type hints, pathlib, small modules, explicit contracts. Target under 200 lines per module; hard limit 300. Tests mirror source areas. No credentials in logs, state, artifacts, or commits. The existing untracked audio-download script belongs to the user; do not overwrite it.

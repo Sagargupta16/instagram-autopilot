@@ -15,10 +15,12 @@ Key Stable Image Ultra levers we rely on (ref: AWS Bedrock Stability docs):
 from __future__ import annotations
 
 import base64
+import binascii
 import logging
 import random
 
 from src.adapters.bedrock import invoke_model
+from src.media.image_normalization import MAX_INPUT_BYTES, normalize_image
 
 log = logging.getLogger(__name__)
 
@@ -69,11 +71,11 @@ def generate_image(
     prompt: str,
     model_id: str,
     *,
-    aspect_ratio: str = "1:1",
+    aspect_ratio: str = "4:5",
     negative_prompt: str = DEFAULT_NEGATIVE_PROMPT,
     seed: int | None = None,
 ) -> bytes:
-    """Generate an image from a text prompt. Returns raw PNG bytes.
+    """Generate an image from a text prompt. Returns a 1080x1350 RGB JPEG.
 
     `seed=None` (default) picks a fresh random seed per call so images do not
     collapse toward the same composition across days. Pass an explicit int for
@@ -87,7 +89,7 @@ def generate_image(
         "prompt": safe_prompt,
         "negative_prompt": safe_negative,
         "aspect_ratio": aspect_ratio,
-        "output_format": "png",
+        "output_format": "jpeg",
         "seed": chosen_seed,
     }
     result = invoke_model(model_id, body)
@@ -101,7 +103,13 @@ def generate_image(
         err = result.get("errors") or result.get("error") or "no images returned"
         raise RuntimeError(f"Stable Image Ultra returned no images: {err}")
 
-    image_bytes = base64.b64decode(images[0])
+    encoded = images[0]
+    if not isinstance(encoded, str) or len(encoded) > 4 * ((MAX_INPUT_BYTES + 2) // 3):
+        raise ValueError("Encoded image size exceeds limit or is not a string")
+    try:
+        image_bytes = normalize_image(base64.b64decode(encoded, validate=True))
+    except binascii.Error as error:
+        raise ValueError("Invalid base64 image") from error
     log.info(
         "Generated image (%d bytes, seed=%d, ar=%s) via %s",
         len(image_bytes),

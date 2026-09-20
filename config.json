@@ -15,6 +15,7 @@
     "post_probability": [0.20, 0.55, 0.25, 0.00],
     "window_utc": {"start": "04:00", "end": "20:00"},
     "min_gap_minutes": 180,
+    "schedule_buffer_minutes": 40,
     "skip_probability": 0.05
   },
   "categories": ["travel", "food", "fitness", "entertainment", "tech", "lifestyle"],

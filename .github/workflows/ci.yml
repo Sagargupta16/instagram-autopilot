@@ -3,13 +3,37 @@ on:
   push:
     branches: [main]
   pull_request:
+permissions:
+  contents: read
 jobs:
-  build:
-    uses: Sagargupta16/shared-workflows/.github/workflows/python-ci.yml@main
-    with:
-      run-tests: false
+  test:
+    name: Python ${{ matrix.python }} tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          python-version: ${{ matrix.python }}
+          enable-cache: true
+      - name: Install locked dependencies
+        run: uv sync --frozen --no-build
+      - name: Lint
+        run: uv run --frozen --no-build ruff check src tests scripts
+      - name: Formatting
+        run: uv run --frozen --no-build ruff format --check src tests scripts
+      - name: Tests and branch coverage
+        run: uv run --frozen --no-build pytest --cov=src --cov-branch --cov-report=term-missing --cov-report=xml:output/coverage.xml
+      - name: Verify requirements export matches lock
+        run: |
+          uv export --frozen --no-dev --no-hashes --output-file /tmp/requirements.txt
+          diff <(grep -v '^#' requirements.txt) <(grep -v '^#' /tmp/requirements.txt)
+        shell: bash
   security:
-    uses: Sagargupta16/shared-workflows/.github/workflows/security-scan.yml@main
+    uses: Sagargupta16/shared-workflows/.github/workflows/security-scan.yml@7499fea0c880e95c82e038323e3614a180e69e95
     permissions:
       contents: read
       security-events: write

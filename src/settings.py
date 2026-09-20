@@ -5,11 +5,16 @@ Instantiated at import time -- missing required env vars raise at startup.
 
 from __future__ import annotations
 
+import os
+from typing import Literal
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", extra="ignore", hide_input_in_errors=True
+    )
 
     # AWS Bedrock (bearer token auth)
     aws_bearer_token_bedrock: str
@@ -26,8 +31,9 @@ class Settings(BaseSettings):
     cloudinary_api_key: str
     cloudinary_api_secret: str
 
-    # S3 bucket for Nova Reel video output (optional -- reels skip if empty)
+    # S3 output for Luma; its IAM credentials are separate from Bedrock bearer auth.
     s3_video_bucket: str = ""
+    allow_silent_reels: bool = False
 
     # Guardian Open Platform (dev-tier "test" key works without registration)
     guardian_api_key: str = ""
@@ -40,14 +46,17 @@ class Settings(BaseSettings):
     niche: str = "wide_lifestyle"
     content_types: str = "tip,story,scene,guide,insight,list,how-to,showcase"
 
-    # Scheduling: max random delay (minutes) before posting after cron fires.
-    # Cron fires at the START of a known good engagement window; jitter
-    # varies the actual post time so it does not look bot-scheduled.
+    # Legacy compatibility setting; current scheduling uses config.json cadence.
     post_jitter_max_minutes: int = 180
+    state_backend: Literal["local", "github"] = "local"
+    state_repository: str = ""
+    state_github_token: str = ""
+    state_branch: str = "autopilot-state"
+    state_path: str = "data/publication_state.json"
 
     @property
     def content_type_list(self) -> list[str]:
-        return [t.strip() for t in self.content_types.split(",")]
+        return [t.strip() for t in self.content_types.split(",") if t.strip()] or ["guide"]
 
 
-settings = Settings()  # type: ignore[call-arg]
+settings = Settings(_env_file=os.environ.get("AUTOPILOT_ENV_FILE", ".env"))  # type: ignore[call-arg]

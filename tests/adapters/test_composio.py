@@ -66,7 +66,7 @@ class TestExecuteAction:
             json=MagicMock(return_value={"data": {"id": "ok"}, "successful": True}),
         )
         mock_post.side_effect = [failing, succeeding]
-        result = execute_action("TEST", {})
+        result = execute_action("INSTAGRAM_GET_POST_STATUS", {})
         assert result["data"]["id"] == "ok"
         assert mock_post.call_count == 2
 
@@ -81,7 +81,7 @@ class TestExecuteAction:
             json=MagicMock(return_value={"data": {"id": "ok"}, "successful": True}),
         )
         mock_post.side_effect = [requests.ConnectionError("boom"), succeeding]
-        result = execute_action("TEST", {})
+        result = execute_action("INSTAGRAM_CREATE_MEDIA_CONTAINER", {})
         assert result["data"]["id"] == "ok"
         assert mock_post.call_count == 2
 
@@ -100,3 +100,101 @@ class TestVerifyAuth:
         mock_get.return_value = bad
         with pytest.raises(requests.HTTPError):
             verify_auth()
+
+
+@pytest.mark.parametrize(
+    "failure",
+    [
+        requests.Timeout("unknown outcome"),
+        requests.ConnectionError("connection lost"),
+        500,
+        503,
+    ],
+)
+def test_final_publication_is_never_blindly_retried(monkeypatch, failure):
+    if isinstance(failure, int):
+        response = requests.Response()
+        response.status_code = failure
+        post = MagicMock(return_value=response)
+    else:
+        post = MagicMock(side_effect=failure)
+    monkeypatch.setattr("src.adapters.composio.requests.post", post)
+    monkeypatch.setattr("src.adapters.composio.time.sleep", lambda _: None)
+    with pytest.raises(Exception) as caught:
+        execute_action("INSTAGRAM_CREATE_POST", {"creation_id": "parent"})
+    assert type(caught.value).__name__ == "ComposioRequestError"
+    assert not isinstance(caught.value, ComposioActionError)
+    assert post.call_count == 1
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        None,
+        [],
+        {},
+        {"successful": 1},
+        {"successful": "false"},
+        {"successful": True, "data": None},
+        {"successful": True, "data": {"id": "x"}, "error": "contradictory error"},
+    ],
+)
+def test_malformed_response_is_not_a_definite_action_failure(monkeypatch, payload):
+    post = MagicMock(return_value=MagicMock(ok=True, status_code=200, json=lambda: payload))
+    monkeypatch.setattr("src.adapters.composio.requests.post", post)
+    with pytest.raises(Exception) as caught:
+        execute_action("INSTAGRAM_CREATE_POST", {})
+    assert type(caught.value).__name__ == "ComposioResponseError"
+    assert not isinstance(caught.value, ComposioActionError)
+    assert post.call_count == 1
+
+
+def test_invalid_json_is_an_ambiguous_response(monkeypatch):
+    post = MagicMock(
+        return_value=MagicMock(
+            ok=True, status_code=200, json=MagicMock(side_effect=ValueError("invalid JSON"))
+        )
+    )
+    monkeypatch.setattr("src.adapters.composio.requests.post", post)
+    with pytest.raises(Exception) as caught:
+        execute_action("INSTAGRAM_CREATE_POST", {})
+    assert type(caught.value).__name__ == "ComposioResponseError"
+    assert post.call_count == 1
+
+
+@pytest.mark.parametrize("wait", [60, 120, 300])
+def test_http_timeout_has_processing_margin(monkeypatch, wait):
+    post = MagicMock(
+        return_value=MagicMock(
+            ok=True, status_code=200, json=lambda: {"successful": True, "data": {"id": "ok"}}
+        )
+    )
+    monkeypatch.setattr("src.adapters.composio.requests.post", post)
+    execute_action("INSTAGRAM_POST_IG_USER_MEDIA_PUBLISH", {"max_wait_seconds": wait})
+    assert post.call_args.kwargs["timeout"] >= wait + 30
+
+
+def test_structured_action_error_preserves_provider_details(monkeypatch):
+    payload = {
+        "successful": False,
+        "error": {"code": 9004, "error_subcode": 2207052, "message": "Media download failed"},
+        "data": None,
+    }
+    monkeypatch.setattr(
+        "src.adapters.composio.requests.post",
+        MagicMock(return_value=MagicMock(ok=True, status_code=200, json=lambda: payload)),
+    )
+    with pytest.raises(ComposioActionError) as caught:
+        execute_action("INSTAGRAM_CREATE_MEDIA_CONTAINER", {})
+    assert caught.value.result == payload
+    assert caught.value.action_slug == "INSTAGRAM_CREATE_MEDIA_CONTAINER"
+
+
+def test_container_network_retries_are_bounded(monkeypatch):
+    post = MagicMock(side_effect=requests.Timeout("unavailable"))
+    monkeypatch.setattr("src.adapters.composio.requests.post", post)
+    monkeypatch.setattr("src.adapters.composio.time.sleep", lambda _: None)
+    with pytest.raises(Exception) as caught:
+        execute_action("INSTAGRAM_CREATE_MEDIA_CONTAINER", {})
+    assert type(caught.value).__name__ == "ComposioRequestError"
+    assert post.call_count == 3

@@ -1,9 +1,22 @@
 [project]
 name = "instagram-autopilot"
 version = "0.7.1"
-description = "Automated Instagram + X content creation and posting using AWS Bedrock AI + Composio SDK"
+description = "Grounded Instagram carousel creation with durable publishing and AWS Bedrock"
 requires-python = ">=3.12"
 license = "MIT"
+dependencies = [
+    "requests>=2.33.0,<3",
+    "pydantic>=2.12.0,<3",
+    "pydantic-settings>=2.13.0,<3",
+    "cloudinary>=1.44.0,<2",
+    "defusedxml>=0.7.1,<1",
+    "pillow>=11.3.0,<13",
+    "botocore>=1.40.0,<2",
+    "filelock>=3.19.0,<4",
+]
+
+[dependency-groups]
+dev = ["pytest>=9.0.0,<10", "pytest-cov>=7,<8", "ruff>=0.15.0,<0.17"]
 
 [tool.ruff]
 target-version = "py312"
@@ -30,3 +43,11 @@ ignore = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 80
