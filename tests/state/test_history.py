@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -44,7 +44,9 @@ def test_migration_preserves_topics_and_blocks_a_legacy_slot(history):
 def test_remote_history_restores_to_a_new_runner_without_duplicates(history):
     dedup.record_post("older", ["old scene"])
     sync_history(history)
-    instant = datetime(2026, 9, 20, 12, tzinfo=UTC)
+    # record_post stamps the real clock, so "newer" must be later than now, and
+    # past the 180-minute gap, for the order and the claim to hold on any date.
+    instant = datetime.now(UTC).replace(microsecond=0) + timedelta(hours=4)
     assert history.claim("new", instant, min_gap_minutes=180)
     history.remember(
         "new", "newer", {"caption": "caption", "image_prompts": ["new scene"]}, instant
