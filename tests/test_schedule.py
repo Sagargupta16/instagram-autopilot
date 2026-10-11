@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
-from datetime import date
+import itertools
+from datetime import date, timedelta
 from unittest.mock import patch
 
 from src import schedule
+from src.pillar import load_config
 from src.schedule import apply_jitter, plan_today
 
 
@@ -97,3 +99,18 @@ def test_plan_never_uses_the_exclusive_window_end() -> None:
     }
     for day in range(1, 29):
         assert plan_today(date(2026, 9, day), cadence, _PILLARS)[0].time_utc == "19:59"
+
+
+def test_shipped_cadence_plans_at_most_two_posts_three_hours_apart() -> None:
+    config = load_config()
+    counts = []
+    for offset in range(365):
+        day = date(2026, 1, 1) + timedelta(days=offset)
+        slots = schedule.plan_today(day, config["cadence"], config["pillars"])
+        minutes = [schedule.to_minutes(slot.time_utc) for slot in slots]
+        assert minutes == sorted(minutes)
+        assert all(b - a >= 180 for a, b in itertools.pairwise(minutes))
+        assert all(240 <= m <= 20 * 60 - 40 for m in minutes)
+        counts.append(len(slots))
+    assert max(counts) == 2
+    assert {0, 1, 2} <= set(counts)

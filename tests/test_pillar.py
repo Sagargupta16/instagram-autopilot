@@ -62,6 +62,16 @@ def test_invalid_cadence_fails_before_service_calls(tmp_path, monkeypatch, field
         load_config()
 
 
+def test_shipped_cadence_is_two_spaced_posts_a_day_at_most() -> None:
+    cadence = load_config()["cadence"]
+    assert cadence["max_posts_per_day"] == 2
+    assert cadence["min_gap_minutes"] == 180
+    assert cadence["post_probability"] == [0.05, 0.35, 0.60]
+    assert len(cadence["post_probability"]) == cadence["max_posts_per_day"] + 1
+    assert cadence["window_utc"] == {"start": "04:00", "end": "20:00"}
+    assert cadence["schedule_buffer_minutes"] == 40
+
+
 def test_shipped_pillars_are_the_three_svg_reel_formats() -> None:
     pillars = load_config()["pillars"]
     assert [(p["id"], p["weight"], p["scene_kind"]) for p in pillars] == [
