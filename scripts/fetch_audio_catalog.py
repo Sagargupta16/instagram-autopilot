@@ -10,6 +10,9 @@ on disk with the right hash is kept; a failed download or a hash mismatch is rep
 track is skipped, never kept. The result is assets/audio/catalog_manifest.json, listing only the
 verified files. Both the audio files and that manifest are gitignored: this public repository
 never commits audio. Standard library only. Exit status 1 when any track is missing afterwards.
+
+Requests go only to MIXKIT_MUSIC: the catalog's download_url must name a Mixkit asset number,
+and the request URL is rebuilt from that number, never taken from the catalog as text.
 """
 
 from __future__ import annotations
@@ -24,16 +27,17 @@ import tempfile
 import urllib.request
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parent.parent
 CATALOG = ROOT / "assets" / "audio" / "catalog.json"
-MANIFEST_NAME = "catalog_manifest.json"
+AUDIO_ROOT = CATALOG.parent
+MANIFEST = AUDIO_ROOT / "catalog_manifest.json"
+MIXKIT_MUSIC = "https://assets.mixkit.co/music/"  # the only place tracks are downloaded from
 UA = "InstagramAutopilot/0.9 (+https://github.com/Sagargupta16/instagram-autopilot)"
 THEMES = ("chill", "upbeat", "cinematic")
-HOSTS = frozenset({"assets.mixkit.co"})  # the only place tracks are downloaded from
 TRACK_ID = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 SHA256 = re.compile(r"[0-9a-f]{64}")
+ASSET = re.compile(re.escape(MIXKIT_MUSIC) + r"(\d{1,7})/(\d{1,7})\.mp3")
 CHUNK = 1 << 16
 
 
@@ -49,12 +53,15 @@ def digest(path: Path) -> str:
     return sha.hexdigest()
 
 
-def allowed(url: str) -> bool:
-    parts = urlsplit(url)
-    return parts.scheme == "https" and parts.hostname in HOSTS and not parts.username
+def asset_number(url: object) -> int:
+    """The Mixkit asset number in a catalog download URL, or FetchError for any other URL."""
+    match = ASSET.fullmatch(url) if isinstance(url, str) else None
+    if match is None or match[1] != match[2]:
+        raise FetchError(f"refusing a download URL that is not a Mixkit music asset: {url!r}")
+    return int(match[1])
 
 
-def target_for(track: dict[str, Any], audio_root: Path) -> Path:
+def target_for(track: dict[str, Any]) -> Path:
     """The track's file inside the audio library; a malformed catalog entry is an error."""
     track_id, theme = track.get("track_id"), track.get("theme")
     if not isinstance(track_id, str) or not TRACK_ID.fullmatch(track_id):
@@ -63,17 +70,16 @@ def target_for(track: dict[str, Any], audio_root: Path) -> Path:
         raise ValueError(f"{track_id}: unsupported theme {theme!r}")
     if not isinstance(track.get("sha256"), str) or not SHA256.fullmatch(track["sha256"]):
         raise ValueError(f"{track_id}: sha256 must be 64 lowercase hex digits")
-    root = audio_root.resolve()
-    target = (root / theme / f"{track_id}.mp3").resolve()
+    root = AUDIO_ROOT.resolve()
+    target = (root / THEMES[THEMES.index(theme)] / f"{track_id}.mp3").resolve()
     if not target.is_relative_to(root):
         raise ValueError(f"{track_id}: path leaves the audio library")
     return target
 
 
-def download(url: str, target: Path, sha256: str, *, opener=urllib.request.urlopen) -> None:
-    """Write `url` to `target` only when the bytes hash to `sha256`."""
-    if not allowed(url):
-        raise FetchError(f"refusing a URL outside https://{', '.join(sorted(HOSTS))}: {url}")
+def download(number: int, target: Path, sha256: str, *, opener=urllib.request.urlopen) -> None:
+    """Write Mixkit music asset `number` to `target` only when its bytes hash to `sha256`."""
+    url = f"{MIXKIT_MUSIC}{int(number)}/{int(number)}.mp3"
     request = urllib.request.Request(url, headers={"User-Agent": UA})
     target.parent.mkdir(parents=True, exist_ok=True)
     descriptor, temporary = tempfile.mkstemp(dir=target.parent, suffix=".part")
@@ -114,30 +120,30 @@ def entry(track: dict[str, Any], catalog: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def fetch(catalog_path: Path, audio_root: Path, *, opener=urllib.request.urlopen) -> list[str]:
+def fetch(*, opener=urllib.request.urlopen) -> list[str]:
     """Download what is missing, write the manifest; returns the track IDs that failed."""
-    catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
     present, failed = [], []
     for track in catalog["tracks"]:
-        target = target_for(track, audio_root)
+        target = target_for(track)
         try:
+            number = asset_number(track.get("download_url"))
             if not (target.is_file() and digest(target) == track["sha256"]):
-                download(track["download_url"], target, track["sha256"], opener=opener)
+                download(number, target, track["sha256"], opener=opener)
         except FetchError as error:
             target.unlink(missing_ok=True)
             failed.append(track["track_id"])
             sys.stderr.write(f"skip {track['track_id']}: {error}\n")
             continue
         present.append(entry(track, catalog))
-    manifest = audio_root / MANIFEST_NAME
-    manifest.write_text(json.dumps({"tracks": present}, ensure_ascii=False, indent=2), "utf-8")
-    sys.stdout.write(f"{len(present)} of {len(catalog['tracks'])} tracks ready in {manifest}\n")
+    MANIFEST.write_text(json.dumps({"tracks": present}, ensure_ascii=False, indent=2), "utf-8")
+    sys.stdout.write(f"{len(present)} of {len(catalog['tracks'])} tracks ready in {MANIFEST}\n")
     return failed
 
 
 def main() -> int:
     argparse.ArgumentParser(description=__doc__.split("\n\n")[0]).parse_args()
-    return 1 if fetch(CATALOG, CATALOG.parent) else 0
+    return 1 if fetch() else 0
 
 
 if __name__ == "__main__":
