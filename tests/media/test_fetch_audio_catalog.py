@@ -83,7 +83,8 @@ def test_tracked_catalog_lists_licensed_mixkit_tracks_per_theme() -> None:
         assert re.fullmatch(r"https://assets\.mixkit\.co/music/\d+/\d+\.mp3", item["download_url"])
         assert item["page_url"].startswith("https://mixkit.co/free-stock-music/")
         assert re.fullmatch(r"[0-9a-f]{64}", item["sha256"])
-        assert item["title"] and item["artist"]
+        assert item["title"]
+        assert item["artist"]
         assert item["duration_s"] >= 60  # longer than any Reel
         assert item["bytes"] > 0
 
@@ -144,19 +145,44 @@ def test_network_errors_are_reported_per_track(tmp_path) -> None:
     assert json.loads((tmp_path / fetch.MANIFEST_NAME).read_text("utf-8")) == {"tracks": []}
 
 
-def test_only_https_downloads_and_known_themes(tmp_path) -> None:
-    plain = {**track(), "download_url": "http://assets.mixkit.co/music/615/615.mp3"}
-    assert fetch.fetch(catalog(tmp_path, plain), tmp_path, opener=opener_for({}, [])) == [
-        "mixkit-tapis-615"
-    ]
-    with pytest.raises(ValueError, match="unsupported theme"):
-        fetch.fetch(catalog(tmp_path, track(theme="ambient")), tmp_path, opener=opener_for({}, []))
+@pytest.mark.parametrize(
+    "url",
+    [
+        "http://assets.mixkit.co/music/615/615.mp3",
+        "https://example.com/music/615/615.mp3",
+        "https://user@assets.mixkit.co/music/615/615.mp3",
+        "file:///etc/passwd",
+    ],
+)
+def test_downloads_only_come_from_the_mixkit_asset_host_over_https(tmp_path, url) -> None:
+    calls: list[str] = []
+    path = catalog(tmp_path, {**track(), "download_url": url})
+    assert fetch.fetch(path, tmp_path, opener=opener_for({}, calls)) == ["mixkit-tapis-615"]
+    assert calls == []
 
 
-def test_main_exits_non_zero_when_a_track_is_missing(tmp_path, monkeypatch) -> None:
-    path = catalog(tmp_path, track())
-    monkeypatch.setattr("sys.argv", ["fetch_audio_catalog.py", "--catalog", str(path)])
-    monkeypatch.setattr(fetch, "fetch", lambda *args, **kwargs: ["mixkit-tapis-615"])
+@pytest.mark.parametrize(
+    ("overrides", "problem"),
+    [
+        ({"theme": "ambient"}, "unsupported theme"),
+        ({"track_id": "../../escape"}, "lowercase words and hyphens"),
+        ({"track_id": "Mixkit Tapis"}, "lowercase words and hyphens"),
+        ({"sha256": "abc"}, "64 lowercase hex digits"),
+    ],
+)
+def test_a_malformed_catalog_entry_stops_the_fetch(tmp_path, overrides, problem) -> None:
+    path = catalog(tmp_path, {**track(), **overrides})
+    opener = opener_for({}, [])
+    with pytest.raises(ValueError, match=problem):
+        fetch.fetch(path, tmp_path, opener=opener)
+    assert not list(tmp_path.rglob("*.mp3"))
+
+
+def test_main_fetches_the_tracked_catalog_and_fails_when_a_track_is_missing(monkeypatch) -> None:
+    calls = []
+    monkeypatch.setattr("sys.argv", ["fetch_audio_catalog.py"])
+    monkeypatch.setattr(fetch, "fetch", lambda *args, **kwargs: calls.append(args) or ["x"])
     assert fetch.main() == 1
+    assert calls == [(fetch.CATALOG, fetch.CATALOG.parent)]
     monkeypatch.setattr(fetch, "fetch", lambda *args, **kwargs: [])
     assert fetch.main() == 0

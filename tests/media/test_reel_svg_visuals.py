@@ -42,7 +42,8 @@ def test_vendored_icons_are_a_curated_stroke_only_set_with_their_license() -> No
         assert re.fullmatch(r"[a-z]+(?:-[a-z]+)*", name), name  # no digits: never a number
         root = ET.fromstring(f'<svg xmlns="http://www.w3.org/2000/svg">{markup}</svg>')
         assert {child.tag.removeprefix(NS) for child in root} <= allowed, name
-        assert "fill" not in markup and "style" not in markup and "href" not in markup
+        for banned in ("fill", "style", "href"):
+            assert banned not in markup, name
     license_text = (Path(lucide.__file__).parent / "LICENSE").read_text("utf-8")
     assert "ISC License" in license_text
     assert "Lucide" in license_text
@@ -138,7 +139,8 @@ def test_progress_bar_fills_over_the_whole_reel_inside_the_safe_area(name) -> No
     assert fill.get("keyTimes") == "0;1"
     assert float(fill.get("dur").removesuffix("s")) == pytest.approx(reel.duration)
     top = float(bar.get("y"))
-    assert svg_kit.SAFE[1] <= top and top + float(bar.get("height")) <= svg_kit.SAFE[1] + 20
+    assert top >= svg_kit.SAFE[1]
+    assert top + float(bar.get("height")) <= svg_kit.SAFE[1] + 20
     assert float(bar.get("x")) >= svg_kit.SAFE[0]
 
 

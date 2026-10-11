@@ -1,7 +1,7 @@
 """Download the licensed audio catalog and write the manifest the audio picker reads.
 
 Usage:
-    uv run --frozen python scripts/fetch_audio_catalog.py [--catalog assets/audio/catalog.json]
+    uv run --frozen python scripts/fetch_audio_catalog.py
 
 Each track in the tracked catalog (Mixkit Stock Music Free License: social media video posts,
 no attribution; never register the tracks with a rights-management service) is saved as
@@ -18,17 +18,22 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sys
 import tempfile
 import urllib.request
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parent.parent
 CATALOG = ROOT / "assets" / "audio" / "catalog.json"
 MANIFEST_NAME = "catalog_manifest.json"
 UA = "InstagramAutopilot/0.9 (+https://github.com/Sagargupta16/instagram-autopilot)"
 THEMES = ("chill", "upbeat", "cinematic")
+HOSTS = frozenset({"assets.mixkit.co"})  # the only place tracks are downloaded from
+TRACK_ID = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
+SHA256 = re.compile(r"[0-9a-f]{64}")
 CHUNK = 1 << 16
 
 
@@ -44,10 +49,31 @@ def digest(path: Path) -> str:
     return sha.hexdigest()
 
 
+def allowed(url: str) -> bool:
+    parts = urlsplit(url)
+    return parts.scheme == "https" and parts.hostname in HOSTS and not parts.username
+
+
+def target_for(track: dict[str, Any], audio_root: Path) -> Path:
+    """The track's file inside the audio library; a malformed catalog entry is an error."""
+    track_id, theme = track.get("track_id"), track.get("theme")
+    if not isinstance(track_id, str) or not TRACK_ID.fullmatch(track_id):
+        raise ValueError(f"catalog track_id {track_id!r} must be lowercase words and hyphens")
+    if theme not in THEMES:
+        raise ValueError(f"{track_id}: unsupported theme {theme!r}")
+    if not isinstance(track.get("sha256"), str) or not SHA256.fullmatch(track["sha256"]):
+        raise ValueError(f"{track_id}: sha256 must be 64 lowercase hex digits")
+    root = audio_root.resolve()
+    target = (root / theme / f"{track_id}.mp3").resolve()
+    if not target.is_relative_to(root):
+        raise ValueError(f"{track_id}: path leaves the audio library")
+    return target
+
+
 def download(url: str, target: Path, sha256: str, *, opener=urllib.request.urlopen) -> None:
     """Write `url` to `target` only when the bytes hash to `sha256`."""
-    if not url.startswith("https://"):
-        raise FetchError(f"refusing a non-HTTPS URL: {url}")
+    if not allowed(url):
+        raise FetchError(f"refusing a URL outside https://{', '.join(sorted(HOSTS))}: {url}")
     request = urllib.request.Request(url, headers={"User-Agent": UA})
     target.parent.mkdir(parents=True, exist_ok=True)
     descriptor, temporary = tempfile.mkstemp(dir=target.parent, suffix=".part")
@@ -93,9 +119,7 @@ def fetch(catalog_path: Path, audio_root: Path, *, opener=urllib.request.urlopen
     catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
     present, failed = [], []
     for track in catalog["tracks"]:
-        if track["theme"] not in THEMES:
-            raise ValueError(f"{track['track_id']}: unsupported theme {track['theme']!r}")
-        target = audio_root / track["theme"] / f"{track['track_id']}.mp3"
+        target = target_for(track, audio_root)
         try:
             if not (target.is_file() and digest(target) == track["sha256"]):
                 download(track["download_url"], target, track["sha256"], opener=opener)
@@ -112,10 +136,8 @@ def fetch(catalog_path: Path, audio_root: Path, *, opener=urllib.request.urlopen
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--catalog", type=Path, default=CATALOG)
-    args = parser.parse_args()
-    return 1 if fetch(args.catalog, args.catalog.parent) else 0
+    argparse.ArgumentParser(description=__doc__.split("\n\n")[0]).parse_args()
+    return 1 if fetch(CATALOG, CATALOG.parent) else 0
 
 
 if __name__ == "__main__":

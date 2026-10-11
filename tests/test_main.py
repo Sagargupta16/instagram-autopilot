@@ -354,15 +354,15 @@ def test_cli_rejects_invalid_pillar_combinations(monkeypatch, argv):
     assert error.value.code == 2
 
 
-def test_each_post_takes_the_look_after_the_last_published_one(runner, flows, sample_config):
+def test_each_post_takes_the_look_after_the_last_published_one(
+    runner, flows, sample_config, sample_caption_data, monkeypatch
+):
     ledger, slots = runner
     svg, _ = flows
     tech = pillar(sample_config, "tech-explainer")
     slots[:] = [SlotPlan("10:00", tech, False), SlotPlan("14:00", tech, False)]
-    main.generate_caption.return_value = {
-        **main.generate_caption.return_value,
-        "scene": {"kind": "steps"},
-    }
+    content = {**sample_caption_data, "scene": {"kind": "steps"}}
+    monkeypatch.setattr(main, "generate_caption", Mock(return_value=content))
     first = NOW.replace(hour=10, minute=5)
     main.run(now=first)
     look = svg.call_args.args[0]["look"]
