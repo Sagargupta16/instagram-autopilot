@@ -207,8 +207,9 @@ def test_a_catalog_under_another_license_is_refused(library) -> None:
     data = json.loads(fetch.CATALOG.read_text("utf-8"))
     data["license"] = "CC BY 4.0"
     fetch.CATALOG.write_text(json.dumps(data), "utf-8")
+    opener = opener_for({}, [])
     with pytest.raises(ValueError, match="catalog license must be"):
-        fetch.fetch(opener=opener_for({}, []))
+        fetch.fetch(opener=opener)
     assert not list(root.rglob("*.mp3"))
 
 
