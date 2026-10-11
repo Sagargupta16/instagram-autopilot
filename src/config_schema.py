@@ -50,10 +50,17 @@ class Pillar(BaseModel):
     model_config = ConfigDict(extra="allow")
     id: str = Field(min_length=1, pattern=r"^[a-zA-Z0-9_-]+$")
     label: str = Field(min_length=1)
-    content_format: Literal["carousel", "image", "reel"] = "carousel"
+    content_format: Literal["carousel", "image", "reel", "svg_reel"] = "carousel"
+    scene_kind: Literal["steps", "stat", "timeline"] | None = None
     hashtags: list[str]
     image_style: str = Field(min_length=1)
     weight: Weight = 1
+
+    @model_validator(mode="after")
+    def scene_matches_format(self) -> Pillar:
+        if (self.content_format == "svg_reel") != (self.scene_kind is not None):
+            raise ValueError("svg_reel pillars need a scene_kind; other formats must omit it")
+        return self
 
 
 class Persona(BaseModel):

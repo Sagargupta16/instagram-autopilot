@@ -1,6 +1,12 @@
 # Operating the publisher
 
-The scheduler wakes every 20 minutes within the configured UTC window. GitHub cron is best-effort, so planned times are eligibility thresholds, not precise appointments. Only one slot can publish per tick, and the ledger enforces spacing from the last confirmed publication. The plan reserves 40 minutes at the end for polling and generation.
+The scheduler wakes every 20 minutes within the configured UTC window. GitHub cron is best-effort, so planned times are eligibility thresholds, not precise appointments. Only one slot can publish per tick, and the ledger enforces spacing from the last confirmed publication (60 minutes) and the daily cap (four posts). The plan reserves 40 minutes at the end for polling and generation.
+
+## Choosing a pillar and posting on demand
+
+**Run workflow** takes an optional `pillar` (`tech-explainer`, `cool-stats` or `history-timeline`). On its own it only swaps the pillar of a slot that is already due; with no due slot the run skips. A slot time filled under one pillar is not filled again under another.
+
+`post_now` together with `pillar` is the single exception to waiting for a planned slot. The current minute becomes the only candidate for that run; it must be inside the posting window, the daily cap and minimum gap are read from the shared GitHub state, and the slot goes through the same ledger claim, durable publishing checkpoint and no-retry rule as a scheduled post. When any of these would be broken the run writes a `refused` summary with the reason and exits non-zero without generating anything. Combine `post_now` with `dry_run` to preview a pillar without touching state.
 
 ## Durable state
 
@@ -30,15 +36,19 @@ Use the GitHub workflow to reconcile the deployed ledger. A local default ledger
 - A 401/403 before generation means credentials or model/account authorization need attention. A local credential failure does not prove GitHub repository secrets are broken.
 - Cloudinary errors and Instagram 9004 media-download errors concern delivered media. Only explicit invalid-location identifiers trigger a retry without location.
 - A final-publication transport failure may hide a successful post. Keep it uncertain until checked.
-- Empty or unavailable optional trend sources produce evergreen content. They do not justify fabricated current events or statistics.
-- Empty audio manifests, missing ffmpeg, invalid audio assets, S3 retrieval failures, and video preparation failures fall back before publication. Publisher failures never trigger a carousel fallback.
+- Empty or unavailable optional trend sources produce evergreen explainers. Stat and timeline Reels need evidence with numbers or dates; without it the topic step fails before any model call rather than inventing figures.
+- "Model output failed validation; one repair call" followed by "Repaired model output still failed validation" names the problem, for example a number not found in the cited source text. That slot fails before rendering; it is the grounding rule working, not a provider fault.
+- SVG Reels are skipped, never replaced by photos, when audio is missing (the shipped manifest is empty; set the `ALLOW_SILENT_REELS` repository variable to `true` or curate tracks), when Chrome, `ffmpeg` or `ffprobe` is missing, when a scene does not fit the layout, or when rendering, the ffprobe spec check or the upload fails. The log line "SVG Reel skipped before publishing" carries the reason. The attempt counts against the slot's three-attempt budget.
+- For the unused Luma format, empty audio manifests, missing ffmpeg, invalid audio assets, S3 retrieval failures and video preparation failures still fall back to a carousel before publication. Publisher failures never trigger any fallback.
 - Exhausted generation retries fail the run, bounding additional paid work for that slot.
 
 ## Deployment and validation
 
 Merge the code and workflow together. The next eligible main-branch tick creates the state branch and migrates existing topic history. Keep that branch and its unresolved records across deployments. The pipeline no longer commits history into main at the end of each run.
 
-Unit and integration-style tests mock external boundaries; run them with the committed lock. A local dry-run makes paid generation calls and saves preview JPEGs/captions under `output/dry-run/`, but never uploads, publishes, or updates publication/topic/audio history. Inspect images and claims before rolling out a different prompt strategy.
+Unit and integration-style tests mock external boundaries; run them with the committed lock. A local dry-run makes paid text calls, renders with the local Chrome and `ffmpeg`, and saves `01.mp4`, `reel.svg`, `scene.json` and `caption.json` under `output/dry-run/`, but never uploads, publishes, or updates publication/topic/audio history. Inspect the frames and check each number in `scene.json` against its source record before rolling out a different prompt strategy.
+
+The CI job "SVG Reel sample render" renders the fixed scenes in `scripts/samples/svg_reel_scenes.json` with the Ubuntu runner's Chrome and fonts and uploads the `svg-reel-sample` artifact (MP4, four frames, a still of every layout, `probe.json` with the render time). Check it after changing layouts or the font stack; Linux falls back to Liberation Sans or DejaVu Sans, which the text-fitting widths already assume.
 
 The image and Composio contracts are documented in `tests/publishing/SCHEMA.md`. Supported schemas and credentials can change independently of the application. A green local test suite is not proof of live publication.
 

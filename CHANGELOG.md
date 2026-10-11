@@ -1,8 +1,26 @@
 # Changelog
 
-## [Unreleased]
+## [0.8.0] - 2026-10-11
+
+### Added
+- Animated SVG Reels as a new `content_format: svg_reel` with three scene kinds: `steps` (how-it-works cards joined by connectors with a travelling packet), `stat` (big-number count-up, up to six ranked bars, a percent ring, or a line that draws in) and `timeline` (four to six dated milestones down a rail). Scenes are 1080x1920 self-contained SMIL SVGs on one clock, 12 to 20 seconds, with every text box checked against the Reels safe area and type sizes from 36 to 88 px.
+- `src/media/svg_video.py` renders the SVG with headless Chrome (batches of eight frames tiled in one screenshot, each copy seeked with `setCurrentTime`) and pipes frames to ffmpeg for H.264 High, yuv420p, BT.709, 30 fps, +faststart. `src/media/reel_probe.py` checks the delivered file with ffprobe before upload. Licensed audio is baked with the existing `audio_bake`. No new Python dependency.
+- Number grounding (`src/content/grounding.py`): every number, percentage, date and number word in a scene, and in its caption outside links and hashtags, must appear in the adapters' title or excerpt text; stat scenes only in the record they cite. One repair call, then the slot fails before rendering. Source lines on screen and in the caption come from adapter metadata.
+- Pillars `tech-explainer` (weight 1.0), `cool-stats` (1.5) and `history-timeline` (0.8), with mixed science, space, sports, world and internet-culture feeds for stats and Wikipedia lead sections as dated evidence for timelines. Google News records keep their publisher.
+- `--pillar ID` and the `pillar` workflow input swap the pillar of a slot that is already due. `--post-now` and the `post_now` input (with a pillar) post in the current minute inside the window, refusing with a reason when the daily cap, minimum gap or ledger claim would be broken.
+- CI job "SVG Reel sample render" renders `scripts/samples/svg_reel_scenes.json` with real Chrome and ffmpeg on Ubuntu and uploads the `svg-reel-sample` artifact. `scripts/render_svg_reel_sample.py` does the same locally.
+- Dry-run previews of SVG Reels save `01.mp4`, `reel.svg` and `scene.json`. Validation logs when the repair call is used and why the repaired output still failed.
 
 ### Changed
+- The account now publishes SVG Reels only. The six lifestyle photo pillars are replaced; carousel, single-image and Luma Reel code paths remain as unused formats. An SVG Reel that cannot be prepared is skipped, never replaced by a photo carousel.
+- Cadence: up to four posts per UTC day with a 60-minute minimum gap; the plan favours three or four posts and leaves about 4% of days empty.
+- Persona tone and calls to action rewritten for a clear, visual data and tech account; the default niche is `creative_data_tech`.
+- Topic prompts take a per-format brief from `prompts/formats/`; SVG pillars use `prompts/svg_caption.txt` and no longer ask for image prompts.
+- The workflow installs ffmpeg for any Reel pillar, reports the runner's Chrome, and passes the `ALLOW_SILENT_REELS` repository variable (default `false`).
+- CLAUDE.md contracts 7 to 10 and 12 are scoped to the formats they govern; contracts 15 to 21 cover grounding, the safe area and type floors, contrast, render-before-publish checks, no photo fallback, dry-run and `--post-now`.
+- `pyproject.toml`: `0.7.1 -> 0.8.0`.
+
+### Changed (durable publishing, previously unreleased)
 - Replace burst publication with short scheduler ticks, actual publication spacing, daily limits, bounded preparation retries, and durable GitHub/local publication receipts.
 - Fail runs on publishing errors and quarantine uncertain outcomes instead of blindly republishing.
 - Validate generated content and strategy; preserve category-relevant evidence and reject exact repeated topics with one bounded repair.

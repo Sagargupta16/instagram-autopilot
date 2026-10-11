@@ -1,0 +1,7 @@
+Choose ONE technical concept or process within the pillar that can be explained as 3 to 6 ordered
+steps showing how something works, for an animated explainer Reel. Good shapes: how a CI/CD
+pipeline ships a commit, how a blue-green deploy switches traffic, what happens when you call an
+LLM API, how DNS finds a website, how a password manager keeps secrets. A supplied launch or story
+may be the hook when its mechanism is general and well understood; otherwise choose an evergreen
+mechanism and return an empty source_indices list. The explanation must be correct without quoting
+numbers, versions, prices or benchmark results.

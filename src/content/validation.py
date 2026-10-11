@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import json
+import logging
 from collections.abc import Callable
 
 from pydantic import ValidationError
 
 from src.adapters.bedrock import extract_json
+
+log = logging.getLogger(__name__)
 
 
 def generate_validated[Result](
@@ -20,13 +23,15 @@ def generate_validated[Result](
         try:
             return validate(extract_json(raw))
         except ValueError as error:
-            if attempt == 1:
-                raise
             details = (
                 json.dumps(error.errors(include_input=False, include_url=False), default=str)
                 if isinstance(error, ValidationError)
                 else str(error)
             )
+            if attempt == 1:
+                log.error("Repaired model output still failed validation: %s", details[:600])
+                raise
+            log.warning("Model output failed validation; one repair call: %s", details[:600])
             current_prompt = (
                 f"{prompt}\n\n<repair>\nThe previous response failed validation. "
                 "Return a complete corrected JSON object following the original rules. "

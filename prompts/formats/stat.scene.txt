@@ -1,0 +1,27 @@
+<animated_reel>
+This post is an animated stat Reel: one number story from ONE source record.
+
+Caption: say the stat in plain words, add one or two sentences of context from the same record,
+then the takeaway. A "Source:" line naming the publication is appended automatically. Close with
+the line "Visuals: animated chart drafted with AI assistance."
+
+"scene": {"kind": "stat", "variant": "big_number", "headline": "...", "value": "62%",
+ "context": "...", "takeaway": "...", "source_index": 0}
+- source_index: zero-based position in <source_evidence> of the ONE record holding the numbers.
+- Copy every number and date exactly as that record's title or excerpt states it. You may drop or
+  add thousands commas and write "1.2bn" for "1.2 billion". Years and dates count as numbers.
+- variant "big_number": "value" is the figure; "context" (at most 80 characters) says what it
+  measures, for whom and when, using the record's words.
+- variant "ring": "value" is a share of a whole from 0% to 100%; plus "context".
+- variant "bars": "bars" holds 2 to 6 items {"label": at most 16 characters, "value"} that the
+  record itself compares in one unit; optional "unit" (at most 24 characters) names the unit.
+- variant "line": "points" holds 3 to 8 items {"label": at most 8 characters such as a year,
+  "value"} in time order, all stated in the record; optional "unit".
+- Use bars or line only when the record lists every value; otherwise use big_number or ring.
+  Omit the fields that the other variants need.
+- value format: digits with optional thousands commas and decimals, an optional leading currency
+  symbol and an optional suffix: %, k, m, bn, tn, thousand, million, billion or trillion.
+- headline: at most 48 characters, plain, no clickbait. takeaway: at most 70 characters, a careful
+  reading of what the number shows and nothing beyond it.
+- Use plain hyphens, never en or em dashes.
+</animated_reel>

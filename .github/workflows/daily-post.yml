@@ -19,6 +19,13 @@ on:
         description: Confirm the uncertain slot did NOT publish (allows a later retry)
         type: boolean
         default: false
+      pillar:
+        description: Optional pillar ID (tech-explainer, cool-stats, history-timeline) for the slot this run handles
+        type: string
+      post_now:
+        description: With a pillar, post now instead of waiting for a planned slot (daily cap, gap and window still apply)
+        type: boolean
+        default: false
 concurrency:
   group: instagram-publisher-${{ github.repository }}
   cancel-in-progress: false
@@ -50,8 +57,15 @@ jobs:
           restore-keys: instagram-cache-
       - name: Install ffmpeg when Reels are enabled
         run: |
-          if uv run --frozen --no-dev --no-build python -c 'from src.pillar import load_config; raise SystemExit(not any(p["content_format"] == "reel" for p in load_config()["pillars"]))'; then
+          if uv run --frozen --no-dev --no-build python -c 'from src.pillar import load_config; raise SystemExit(not any(p["content_format"] in {"reel", "svg_reel"} for p in load_config()["pillars"]))'; then
             sudo apt-get update && sudo apt-get install -y ffmpeg
+          fi
+      - name: Check the browser that renders SVG Reels
+        run: |
+          if command -v google-chrome || command -v chromium; then
+            google-chrome --version || chromium --version
+          else
+            echo "::warning::No Chrome or Chromium on this runner; SVG Reels will be skipped"
           fi
       - name: Generate, publish, or reconcile
         shell: bash
@@ -64,12 +78,23 @@ jobs:
             elif [[ "$CONFIRM_NOT_PUBLISHED" == 'true' ]]; then
               args+=(--confirm-not-published)
             fi
-          elif [[ "$DRY_RUN" == 'true' ]]; then
-            args+=(--dry-run)
+          else
+            if [[ "$DRY_RUN" == 'true' ]]; then
+              args+=(--dry-run)
+            fi
+            if [[ -n "$PILLAR" ]]; then
+              args+=(--pillar "$PILLAR")
+            fi
+            if [[ "$POST_NOW" == 'true' ]]; then
+              args+=(--post-now)
+            fi
           fi
           uv run --frozen --no-dev --no-build python -m src.main "${args[@]}"
         env:
           DRY_RUN: ${{ inputs.dry_run }}
+          PILLAR: ${{ inputs.pillar }}
+          POST_NOW: ${{ inputs.post_now }}
+          ALLOW_SILENT_REELS: ${{ vars.ALLOW_SILENT_REELS || 'false' }}
           RESOLVE_SLOT: ${{ inputs.resolve_slot }}
           MEDIA_ID: ${{ inputs.media_id }}
           CONFIRM_NOT_PUBLISHED: ${{ inputs.confirm_not_published }}
@@ -91,7 +116,7 @@ jobs:
           S3_VIDEO_BUCKET: ${{ secrets.S3_VIDEO_BUCKET }}
           META_USER_ACCESS_TOKEN: ${{ secrets.META_USER_ACCESS_TOKEN }}
           GUARDIAN_API_KEY: ${{ secrets.GUARDIAN_API_KEY }}
-          NICHE: ${{ vars.NICHE || 'wide_lifestyle' }}
+          NICHE: ${{ vars.NICHE || 'creative_data_tech' }}
           CONTENT_TYPES: ${{ vars.CONTENT_TYPES || 'guide,story,tip,scene,how-to,showcase' }}
       - name: Save optional audio and place caches
         if: always() && inputs.dry_run != true

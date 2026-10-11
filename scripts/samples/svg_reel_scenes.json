@@ -1,0 +1,121 @@
+{
+  "_notes": "Fixed scenes for rendering checks only. Stat values are labelled sample data and are never published.",
+  "scenes": [
+    {
+      "name": "steps-cicd",
+      "source_line": null,
+      "scene": {
+        "kind": "steps",
+        "hook": "How a CI/CD pipeline ships a commit",
+        "steps": [
+          {"label": "Push", "detail": "A developer pushes a commit and the CI server picks it up"},
+          {"label": "Build", "detail": "The pipeline installs dependencies and compiles the code"},
+          {"label": "Test", "detail": "Automated tests run, and any failure stops the pipeline"},
+          {"label": "Package", "detail": "The build is packaged as an artifact or container image"},
+          {"label": "Deploy", "detail": "The artifact rolls out to staging, then to production"}
+        ],
+        "takeaway": "Every commit takes the same tested path to production"
+      }
+    },
+    {
+      "name": "steps-six",
+      "source_line": null,
+      "scene": {
+        "kind": "steps",
+        "hook": "What happens when you call an LLM API",
+        "steps": [
+          {"label": "Request", "detail": "Your code sends a prompt and settings as a JSON request body"},
+          {"label": "Authenticate", "detail": "The service checks your key and the rate limit on your account"},
+          {"label": "Tokenize", "detail": "The prompt text is split into tokens the model can read as input"},
+          {"label": "Generate", "detail": "The model predicts one token at a time until it reaches a stop"},
+          {"label": "Stream", "detail": "Tokens can stream back to your app while generation continues"},
+          {"label": "Bill", "detail": "Input and output tokens are counted to measure what you used"}
+        ],
+        "takeaway": "An API call is a request, a token loop and a bill for every token used"
+      }
+    },
+    {
+      "name": "stat-big-number",
+      "source_line": "Source: Sample data",
+      "scene": {
+        "kind": "stat",
+        "variant": "big_number",
+        "headline": "Water bills climbed fast in a decade",
+        "value": "62%",
+        "context": "Rise in average drinking water bills over ten years in this sample",
+        "takeaway": "A sample stat that shows how the count-up reveal reads on a phone",
+        "source_index": 0
+      }
+    },
+    {
+      "name": "stat-bars",
+      "source_line": "Source: Sample data",
+      "scene": {
+        "kind": "stat",
+        "variant": "bars",
+        "headline": "Which sample team ships the most",
+        "bars": [
+          {"label": "Platform", "value": "1,240"},
+          {"label": "Mobile", "value": "860"},
+          {"label": "Web", "value": "1,530"},
+          {"label": "Data", "value": "410"},
+          {"label": "Security", "value": "275"},
+          {"label": "Design", "value": "190"}
+        ],
+        "unit": "Deploys per year, sample",
+        "takeaway": "Ranked bars grow in order so the leader lands first",
+        "source_index": 0
+      }
+    },
+    {
+      "name": "stat-ring",
+      "source_line": "Source: Sample data",
+      "scene": {
+        "kind": "stat",
+        "variant": "ring",
+        "headline": "How much of the sample is covered",
+        "value": "73%",
+        "context": "Share of sample services with automated tests on every change",
+        "takeaway": "The ring fills while the percentage counts up in the centre",
+        "source_index": 0
+      }
+    },
+    {
+      "name": "stat-line",
+      "source_line": "Source: Sample data",
+      "scene": {
+        "kind": "stat",
+        "variant": "line",
+        "headline": "A sample metric over seven years",
+        "points": [
+          {"label": "2019", "value": "12.5"},
+          {"label": "2020", "value": "14.1"},
+          {"label": "2021", "value": "13.2"},
+          {"label": "2022", "value": "17.8"},
+          {"label": "2023", "value": "21.4"},
+          {"label": "2024", "value": "26.0"},
+          {"label": "2025", "value": "31.7"}
+        ],
+        "unit": "Millions, sample",
+        "takeaway": "The line draws in from left to right and the end value lands last",
+        "source_index": 0
+      }
+    },
+    {
+      "name": "timeline-hubble",
+      "source_line": "Source: Wikipedia",
+      "scene": {
+        "kind": "timeline",
+        "hook": "The story of the Hubble Space Telescope",
+        "milestones": [
+          {"date": "1946", "event": "Lyman Spitzer proposes a telescope in space"},
+          {"date": "1990", "event": "Space Shuttle Discovery launches Hubble into orbit"},
+          {"date": "1993", "event": "Astronauts fix its flawed mirror in orbit"},
+          {"date": "2009", "event": "The fifth and final servicing mission upgrades it"},
+          {"date": "2021", "event": "The James Webb Space Telescope launches as a partner"}
+        ],
+        "takeaway": "Repairable by design, Hubble kept working for decades"
+      }
+    }
+  ]
+}

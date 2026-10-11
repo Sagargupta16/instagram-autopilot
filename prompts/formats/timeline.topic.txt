@@ -1,0 +1,5 @@
+Choose ONE subject for "the story of X", told fast: an invention, space mission, company,
+technology, sport, place or piece of internet culture whose supplied source text gives at least
+four dated milestones (years or full dates). Return the indices of the records containing those
+dates. Avoid private lives, deaths, crimes and partisan politics.
+This format needs dated evidence: never choose an evergreen topic or dates you remember.

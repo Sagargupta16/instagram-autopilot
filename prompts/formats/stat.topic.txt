@@ -1,0 +1,6 @@
+Choose ONE source record that states a striking, checkable number (a percentage, count, amount,
+ranking or comparison) about science, space, technology, internet culture, sports, the environment
+or the world, and make that number the topic of an animated stat Reel. The number must appear in
+that record's own title or excerpt; return that record's index first in source_indices.
+Avoid partisan politics, elections, crime, tragedies with casualties, and health or money advice.
+This format needs evidence: never choose an evergreen topic or a number you remember.

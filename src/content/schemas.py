@@ -37,6 +37,15 @@ def _positive_scene(value: str) -> str:
     return value
 
 
+def hashtag_list(value: str) -> str:
+    tags = value.split()
+    if len(tags) > 30 or any(not re.fullmatch(r"#\w+", tag) for tag in tags):
+        raise ValueError("hashtags must contain at most 30 space-separated #tags")
+    if len({tag.casefold() for tag in tags}) != len(tags):
+        raise ValueError("hashtags must be unique")
+    return " ".join(tags)
+
+
 Nonempty = Annotated[
     str,
     StringConstraints(strict=True, strip_whitespace=True, min_length=1),
@@ -63,12 +72,7 @@ class CaptionContent(BaseModel):
     @field_validator("hashtags")
     @classmethod
     def valid_hashtags(cls, value: str) -> str:
-        tags = value.split()
-        if len(tags) > 30 or any(not re.fullmatch(r"#\w+", tag) for tag in tags):
-            raise ValueError("hashtags must contain at most 30 space-separated #tags")
-        if len({tag.casefold() for tag in tags}) != len(tags):
-            raise ValueError("hashtags must be unique")
-        return " ".join(tags)
+        return hashtag_list(value)
 
     @field_validator("location_query")
     @classmethod

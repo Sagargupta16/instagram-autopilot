@@ -1,90 +1,60 @@
 {
   "persona": {
     "name": "Kaleidoscope",
-    "tone": "curious, cinematic, unafraid of stillness -- like a travel-mag columnist who also codes",
+    "tone": "clear, curious and visual -- a data-and-tech explainer who shows how things work and what the numbers say, in plain words, without hype",
     "cta_styles": [
-      "save this for later",
-      "tag someone who needs to see this",
-      "which slide hit hardest?",
-      "screenshot the one that stuck",
-      "steal this for your workflow"
+      "save this",
+      "send this to someone who'd be surprised",
+      "which number surprised you?",
+      "save this for the next time someone asks how it works",
+      "which step did you not expect?"
     ]
   },
   "cadence": {
-    "max_posts_per_day": 2,
-    "post_probability": [0.20, 0.55, 0.25, 0.00],
+    "max_posts_per_day": 4,
+    "post_probability": [0.04, 0.08, 0.18, 0.35, 0.35],
     "window_utc": {"start": "04:00", "end": "20:00"},
-    "min_gap_minutes": 180,
+    "min_gap_minutes": 60,
     "schedule_buffer_minutes": 40,
     "skip_probability": 0.05
   },
-  "categories": ["travel", "food", "fitness", "entertainment", "tech", "lifestyle"],
+  "categories": ["tech", "stats", "history"],
   "pillars": [
     {
-      "id": "travel-cinematic",
-      "label": "Travel",
-      "category": "travel",
-      "content_format": "carousel",
-      "audio_theme": "cinematic",
-      "image_style": "Steve McCurry / National Geographic reportage, mid-day natural light, environmental portrait, muted saturation",
-      "location": {"regions": ["Bali", "Tokyo", "Lisbon", "Reykjavik", "Kyoto", "Marrakech", "Patagonia"]},
-      "hashtags": ["#travel", "#wanderlust", "#reels", "#travelphotography"],
+      "id": "tech-explainer",
+      "label": "Tech Explainer",
+      "category": "tech",
+      "content_format": "svg_reel",
+      "scene_kind": "steps",
+      "audio_theme": "chill",
+      "image_style": "clean product editorial, softbox at 45 degrees, shallow depth of field, matte surfaces",
+      "location": {"regions": []},
+      "hashtags": ["#tech", "#howitworks", "#techexplained", "#softwareengineering", "#learntocode", "#devops"],
+      "weight": 1.0
+    },
+    {
+      "id": "cool-stats",
+      "label": "Cool Stats",
+      "category": "stats",
+      "content_format": "svg_reel",
+      "scene_kind": "stat",
+      "audio_theme": "upbeat",
+      "image_style": "documentary still life, natural window light, tactile everyday objects, muted palette",
+      "location": {"regions": []},
+      "hashtags": ["#data", "#dataviz", "#statistics", "#numbers", "#science", "#didyouknow"],
       "weight": 1.5
     },
     {
-      "id": "food-editorial-carousel",
-      "label": "Food",
-      "category": "food",
-      "content_format": "carousel",
-      "audio_theme": "upbeat",
-      "image_style": "Peter Menzel overhead flat-lay, natural window light, tactile textures, shallow depth",
-      "location": {"regions": ["New York", "Bangkok", "Tokyo", "Mumbai", "Naples"]},
-      "hashtags": ["#foodie", "#foodstagram", "#foodphotography"],
-      "weight": 1.2
-    },
-    {
-      "id": "fitness-morning",
-      "label": "Fitness",
-      "category": "fitness",
-      "content_format": "carousel",
-      "audio_theme": "energetic",
-      "image_style": "Annie Leibovitz portraiture, morning golden hour, kinetic pose, cinestill 800T",
+      "id": "history-timeline",
+      "label": "History Timeline",
+      "category": "history",
+      "content_format": "svg_reel",
+      "scene_kind": "timeline",
+      "audio_theme": "cinematic",
+      "image_style": "reportage still life, soft directional daylight, archival textures, Kodak Portra 400",
       "location": {"regions": []},
-      "hashtags": ["#fitness", "#morningroutine", "#healthylifestyle"],
-      "weight": 1.0
-    },
-    {
-      "id": "entertainment-carousel",
-      "label": "Entertainment",
-      "category": "entertainment",
-      "content_format": "carousel",
-      "audio_theme": "upbeat",
-      "image_style": "candid editorial, ambient venue lighting, unposed moments, Kodak Portra 400",
-      "location": {"regions": ["Los Angeles", "London", "Mumbai"]},
-      "hashtags": ["#reels", "#trending", "#viral", "#entertainment"],
+      "hashtags": ["#history", "#timeline", "#onthisday", "#science", "#space", "#internetculture"],
       "weight": 0.8
-    },
-    {
-      "id": "tech-carousel",
-      "label": "Tech",
-      "category": "tech",
-      "content_format": "carousel",
-      "audio_theme": "ambient",
-      "image_style": "clean product editorial, softbox at 45 degrees, shallow depth of field, matte surfaces",
-      "location": {"regions": []},
-      "hashtags": ["#tech", "#innovation", "#ai", "#futureofdesign"],
-      "weight": 1.3
-    },
-    {
-      "id": "lifestyle-documentary",
-      "label": "Lifestyle",
-      "category": "lifestyle",
-      "content_format": "carousel",
-      "audio_theme": "chill",
-      "image_style": "Magnum documentary, muted tones, candid moment, Fuji Pro 400H",
-      "location": {"regions": []},
-      "hashtags": ["#lifestyle", "#slowliving", "#everyday"],
-      "weight": 1.0
     }
   ],
   "models": {

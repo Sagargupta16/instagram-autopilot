@@ -1,22 +1,26 @@
-"""Generate Instagram caption, X post, 5 image prompts, and video prompt."""
+"""Generate Instagram caption, X post, 5 image prompts, video prompt and, for SVG Reels, a scene."""
 
 from __future__ import annotations
 
 import json
 import logging
+from functools import partial
 from pathlib import Path
 from typing import Any
 
 from src.adapters.bedrock import invoke_claude
 from src.content.dedup import load_recent_image_prompts
+from src.content.scenes import validate_svg_content
 from src.content.schemas import CaptionContent
 from src.content.validation import generate_validated
-from src.pillar import load_config
+from src.pillar import load_config, scene_kind
 from src.settings import settings
 
 log = logging.getLogger(__name__)
 
 PROMPT_PATH = Path(__file__).resolve().parent.parent.parent / "prompts" / "caption.txt"
+SVG_PROMPT_PATH = PROMPT_PATH.parent / "svg_caption.txt"
+FORMATS_DIR = PROMPT_PATH.parent / "formats"
 
 # How many recent image prompts to show Claude so it can avoid repeats.
 # Higher = more variety pressure but more tokens spent.
@@ -39,7 +43,10 @@ def generate_caption(
     *,
     sources: list[dict] | None = None,
 ) -> dict[str, Any]:
-    """Return validated publishing fields plus five alt texts and optional slide notes."""
+    """Validated publishing fields: five prompts and alt texts for photo formats, or a
+    grounded scene for SVG Reel pillars (which never generate photos)."""
+    if kind := scene_kind(pillar):
+        return _scene_caption(topic, pillar, persona, kind, sources or [])
     recent_prompts = load_recent_image_prompts(limit=RECENT_SCENE_LIMIT)
     recent_scenes = _format_recent_scenes(recent_prompts)
 
@@ -71,4 +78,29 @@ def generate_caption(
         len(data.get("image_prompts", [])),
         len(recent_prompts),
     )
+    return data
+
+
+def _scene_caption(
+    topic: str, pillar: dict[str, Any], persona: dict[str, Any], kind: str, sources: list[dict]
+) -> dict[str, Any]:
+    """Caption plus scene, with every number checked against the adapters' evidence."""
+    rules = (FORMATS_DIR / f"{kind}.scene.txt").read_text(encoding="utf-8")
+    prompt = SVG_PROMPT_PATH.read_text(encoding="utf-8").format(
+        niche=settings.niche,
+        pillar=pillar["label"],
+        topic=topic,
+        tone=persona["tone"],
+        pillar_hashtags=" ".join(pillar["hashtags"]),
+        sources=json.dumps(sources, ensure_ascii=False),
+        scene_rules=rules.strip(),
+    )
+    config = load_config()
+    content = generate_validated(
+        prompt,
+        lambda text: invoke_claude(config["models"]["text"], text, max_tokens=3000),
+        partial(validate_svg_content, kind=kind, sources=sources),
+    )
+    data = content.model_dump()
+    log.info("Generated %s scene and caption (%d chars)", kind, len(data["caption"]))
     return data
