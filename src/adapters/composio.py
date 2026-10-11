@@ -48,6 +48,10 @@ class ComposioResponseError(Exception):
     """Malformed or contradictory response: success cannot be established."""
 
 
+class ComposioConnectionInactiveError(Exception):
+    """The Instagram connection exists but is not ACTIVE (for example its token EXPIRED)."""
+
+
 def _post_with_retry(
     url: str, body: dict, headers: dict, timeout: float, *, attempts: int
 ) -> requests.Response:
@@ -92,7 +96,9 @@ def verify_auth() -> None:
     """Smoke-test Composio creds before committing to a run.
 
     Reads the configured connected account -- cheap, no side effects. Fails fast
-    so a bad key does not waste paid image generation.
+    so a bad key does not waste paid image generation. The record existing is not
+    enough: an Instagram token that expired leaves it in place with status EXPIRED,
+    and every action then returns HTTP 410, so anything but ACTIVE fails the run.
     """
     if not settings.composio_connected_account_id:
         log.warning("Composio preflight skipped: COMPOSIO_CONNECTED_ACCOUNT_ID not set")
@@ -102,6 +108,15 @@ def verify_auth() -> None:
     if not resp.ok:
         log.error("Composio auth preflight FAILED %s: %s", resp.status_code, resp.text[:300])
         resp.raise_for_status()
+    try:
+        status = resp.json().get("status")
+    except (ValueError, AttributeError) as error:
+        raise ComposioResponseError("connected account: invalid JSON response") from error
+    if status != "ACTIVE":
+        log.error(
+            "Composio Instagram connection is %s; reconnect it in Composio before posting", status
+        )
+        raise ComposioConnectionInactiveError(f"Instagram connection status is {status}")
     log.info("Composio auth preflight OK")
 
 

@@ -7,7 +7,13 @@ from unittest.mock import MagicMock, patch
 import pytest
 import requests
 
-from src.adapters.composio import ComposioActionError, execute_action, verify_auth
+from src.adapters.composio import (
+    ComposioActionError,
+    ComposioConnectionInactiveError,
+    ComposioResponseError,
+    execute_action,
+    verify_auth,
+)
 
 
 class TestExecuteAction:
@@ -89,9 +95,32 @@ class TestExecuteAction:
 class TestVerifyAuth:
     @patch("src.adapters.composio.requests.get")
     def test_ok_does_not_raise(self, mock_get: MagicMock) -> None:
-        mock_get.return_value = MagicMock(ok=True, status_code=200)
+        mock_get.return_value = MagicMock(
+            ok=True, status_code=200, json=MagicMock(return_value={"status": "ACTIVE"})
+        )
         verify_auth()  # should not raise
         assert mock_get.call_count == 1
+
+    @pytest.mark.parametrize("status", ["EXPIRED", "INACTIVE", "FAILED", None])
+    @patch("src.adapters.composio.requests.get")
+    def test_inactive_connection_fails_the_run(
+        self, mock_get: MagicMock, status: str | None
+    ) -> None:
+        # 2026-10: the Instagram token expired, the record stayed, and every
+        # action returned HTTP 410 while this preflight still reported OK.
+        mock_get.return_value = MagicMock(
+            ok=True, status_code=200, json=MagicMock(return_value={"status": status})
+        )
+        with pytest.raises(ComposioConnectionInactiveError, match=str(status)):
+            verify_auth()
+
+    @patch("src.adapters.composio.requests.get")
+    def test_unreadable_connection_record_fails(self, mock_get: MagicMock) -> None:
+        mock_get.return_value = MagicMock(
+            ok=True, status_code=200, json=MagicMock(side_effect=ValueError("not json"))
+        )
+        with pytest.raises(ComposioResponseError):
+            verify_auth()
 
     @patch("src.adapters.composio.requests.get")
     def test_raises_on_bad_creds(self, mock_get: MagicMock) -> None:
