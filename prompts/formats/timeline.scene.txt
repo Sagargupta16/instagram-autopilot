@@ -1,0 +1,16 @@
+<animated_reel>
+This post is an animated timeline Reel: "the story of X", told fast.
+
+Caption: one opening line, one short line per milestone in order (no list numbering), then the
+takeaway. Close with the line "Visuals: animated timeline drafted with AI assistance."
+
+"scene": {"kind": "timeline", "hook": "The story of ...", "milestones": [{"date": "1990",
+ "event": "..."}], "takeaway": "..."}
+- hook: at most 42 characters.
+- milestones: 4 to 6 in chronological order. date: at most 12 characters, written as the evidence
+  writes it; prefer a year ("1990") or month and year ("Apr 1990"). event: at most 56 characters,
+  what happened, in plain words.
+- Every date and number must appear in the source evidence text. Never add a milestone from memory.
+- takeaway: at most 70 characters, why the story matters, without claims beyond the evidence.
+- Use plain hyphens, never en or em dashes.
+</animated_reel>

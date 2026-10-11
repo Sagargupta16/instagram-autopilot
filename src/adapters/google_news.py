@@ -55,6 +55,7 @@ def fetch_headlines(
                     url=item.findtext("link"),
                     published_at=item.findtext("pubDate"),
                     excerpt=item.findtext("description"),
+                    publisher=item.findtext("source"),
                 )
             )
         if len(records) >= limit:

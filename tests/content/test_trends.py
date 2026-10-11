@@ -18,6 +18,7 @@ def all_providers_mocked(monkeypatch):
         (trends.github_trending, "fetch_trending"),
         (trends.hackernews, "search_stories"),
         (trends.wikipedia, "fetch_top_articles"),
+        (trends.wikipedia, "fetch_top_articles_with_extracts"),
         (trends.google_news, "fetch_headlines"),
         (trends.guardian, "fetch_articles"),
         (trends.lemmy, "fetch_hot_posts"),
@@ -155,3 +156,44 @@ def test_malformed_provider_output_does_not_discard_other_sources():
         patch.object(trends.producthunt, "fetch_ai_launches", return_value=["A useful tool"]),
     ):
         assert fetch_trending_topics() == ["A useful tool"]
+
+
+def test_stats_pillar_uses_numeric_news_and_community_feeds():
+    record = {"title": "Survey finds 62% of adults stream sport", "source": "google_news"}
+    with (
+        patch.object(trends.google_news, "fetch_headlines", return_value=[record]) as news,
+        patch.object(trends.guardian, "fetch_articles", return_value=[]) as guardian,
+        patch.object(trends.lemmy, "fetch_hot_posts", return_value=[]) as lemmy,
+        patch.object(trends.huggingface_papers, "fetch_daily_papers") as papers,
+        patch.object(trends.wikipedia, "fetch_top_articles_with_extracts") as wiki,
+    ):
+        result = fetch_trending_topics(pillar={"category": "stats"}, include_metadata=True)
+    assert result == [record]
+    assert sorted(call.args for call in news.call_args_list) == [
+        ("new data shows", 4),
+        ("study finds percent", 4),
+        ("survey percent", 3),
+    ]
+    assert sorted(call.args[0] for call in guardian.call_args_list) == ["science", "sport", "world"]
+    assert sorted(call.args[0] for call in lemmy.call_args_list) == ["dataisbeautiful", "space"]
+    assert all(call.kwargs == {"include_metadata": True} for call in news.call_args_list)
+    papers.assert_not_called()
+    wiki.assert_not_called()
+
+
+def test_history_pillar_uses_wikipedia_extracts():
+    record = {"title": "Apollo 11", "source": "wikipedia", "excerpt": "Landed in 1969."}
+    with (
+        patch.object(
+            trends.wikipedia, "fetch_top_articles_with_extracts", return_value=[record]
+        ) as extracts,
+        patch.object(trends.wikipedia, "fetch_top_articles") as pageviews,
+        patch.object(trends.lemmy, "fetch_hot_posts", return_value=[]) as lemmy,
+        patch.object(trends.google_news, "fetch_headlines") as news,
+    ):
+        result = fetch_trending_topics(pillar={"category": "history"}, include_metadata=True)
+    assert result == [record]
+    extracts.assert_called_once_with(12, include_metadata=True)
+    assert sorted(call.args[0] for call in lemmy.call_args_list) == ["history", "science"]
+    pageviews.assert_not_called()
+    news.assert_not_called()

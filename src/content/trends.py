@@ -24,6 +24,28 @@ log = logging.getLogger(__name__)
 _CATEGORIES = ("travel", "food", "fitness", "entertainment", "technology", "lifestyle")
 _SECTIONS = {"entertainment": "film", "lifestyle": "lifestyle"}
 _LEMMY = {"travel", "food", "fitness", "technology"}
+_MIXES = ("stats", "history")
+
+
+def _mix(category: str) -> list[tuple[str, tuple]]:
+    """Mixed-topic feeds for the animated formats: science, space, internet culture, sports."""
+    if category == "stats":
+        return [
+            ("google_news", (google_news.fetch_headlines, "study finds percent", 4)),
+            ("google_news", (google_news.fetch_headlines, "new data shows", 4)),
+            ("google_news", (google_news.fetch_headlines, "survey percent", 3)),
+            ("guardian", (guardian.fetch_articles, "science", 3)),
+            ("guardian", (guardian.fetch_articles, "world", 3)),
+            ("guardian", (guardian.fetch_articles, "sport", 3)),
+            ("lemmy", (lemmy.fetch_hot_posts, "dataisbeautiful", 4)),
+            ("lemmy", (lemmy.fetch_hot_posts, "space", 3)),
+        ]
+    return [
+        ("wikipedia", (wikipedia.fetch_top_articles_with_extracts, 12)),
+        ("guardian", (guardian.fetch_articles, "science", 3)),
+        ("lemmy", (lemmy.fetch_hot_posts, "history", 4)),
+        ("lemmy", (lemmy.fetch_hot_posts, "science", 3)),
+    ]
 
 
 def _pillar_category(pillar: dict[str, Any]) -> str:
@@ -31,13 +53,15 @@ def _pillar_category(pillar: dict[str, Any]) -> str:
         value = str(pillar.get(field, "")).casefold()
         if value == "tech" or value.startswith("tech-"):
             return "technology"
-        for category in _CATEGORIES:
+        for category in (*_CATEGORIES, *_MIXES):
             if value == category or value.startswith(f"{category}-"):
                 return category
     return "unknown"
 
 
 def _tasks(category: str | None = None) -> list[tuple[str, tuple]]:
+    if category in _MIXES:
+        return _mix(category)
     tasks: list[tuple[str, tuple]] = []
     if category is None or category == "technology":
         tasks.extend(

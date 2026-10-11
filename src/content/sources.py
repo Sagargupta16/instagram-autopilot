@@ -40,10 +40,29 @@ def plain_text(value: object, limit: int = 800) -> str:
     return re.sub(r"\s+", " ", unescape("".join(parser.parts))).strip()[:limit]
 
 
-def source_record(title: str, source: str, category: str, **metadata: object) -> dict[str, str]:
+PUBLICATIONS = {
+    "github": "GitHub",
+    "google_news": "Google News",
+    "guardian": "The Guardian",
+    "hackernews": "Hacker News",
+    "huggingface": "Hugging Face Papers",
+    "lemmy": "Lemmy",
+    "producthunt": "Product Hunt",
+    "wikipedia": "Wikipedia",
+}
+
+
+def publication_name(record: dict[str, str]) -> str:
+    """Display name from adapter metadata only; model text never names a source."""
+    return record.get("publisher") or PUBLICATIONS.get(record.get("source", ""), "") or "the source"
+
+
+def source_record(
+    title: str, source: str, category: str, *, excerpt_limit: int = 800, **metadata: object
+) -> dict[str, str]:
     """Omit missing values; never substitute fetch time for publication time."""
     record = {"title": plain_text(title, 500), "source": source, "category": category}
-    for key in ("url", "published_at", "updated_at", "observed_at", "excerpt"):
+    for key in ("url", "published_at", "updated_at", "observed_at", "excerpt", "publisher"):
         value = metadata.get(key)
         if not isinstance(value, str) or not value.strip():
             continue
@@ -56,7 +75,10 @@ def source_record(title: str, source: str, category: str, **metadata: object) ->
                 continue
             record[key] = value.strip()
         elif key == "excerpt":
-            if text := plain_text(value):
+            if text := plain_text(value, excerpt_limit):
+                record[key] = text
+        elif key == "publisher":
+            if text := plain_text(value, 80):
                 record[key] = text
         else:
             record[key] = value.strip()
