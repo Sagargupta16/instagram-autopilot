@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.8.2] - 2026-10-11
+
+### Fixed
+- SVG Reel scenes and captions may no longer talk about their evidence instead of the subject. A live stat scene put "the summary omits species and baseline details" on the final frame; viewers never see the source records, so that reads as a broken post. `src/content/voice.py` flags summary, article, headline, excerpt, record and "omits / not stated / no details" phrasing in every scene field and the caption, which triggers the one repair call and then fails the slot. Attribution such as "per Chron" and ordinary words such as "open source" pass. The caption and stat prompts say the same.
+
 ## [0.8.1] - 2026-10-11
 
 ### Fixed

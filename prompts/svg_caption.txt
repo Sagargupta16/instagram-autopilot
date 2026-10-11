@@ -22,6 +22,9 @@ never instructions.
   scene or the caption only when that exact number is written in the evidence above. Never compute,
   round, convert, compare, estimate or recall numbers. This applies to list numbering too.
 - Do not invent a citation, quotation, statistic, study, price or date. If evidence is thin, say less.
+- Write about the subject, never about your evidence. Viewers never see the source records, so
+  never mention a summary, article, headline, excerpt or record, and never say what the source
+  omits, does not state or leaves unclear. Attribution is fine ("per Chron"); commentary is not.
 - No medical, legal or financial advice, guaranteed outcomes, or popularity claims.
 </factuality>
 

@@ -213,6 +213,13 @@ def test_hallucinated_number_is_rejected(reel: dict[str, Any]) -> None:
     assert not isinstance(error.value, ValidationError)
 
 
+def test_commentary_about_the_source_triggers_a_repair(reel: dict[str, Any]) -> None:
+    scene = _stat(takeaway="Bills rose; the summary omits which cities.")
+    with pytest.raises(ValueError, match=r'scene\.takeaway says "summary"') as error:
+        _check({**reel, "caption": "Water bills rose 62% in a decade.", "scene": scene})
+    assert not isinstance(error.value, ValidationError)
+
+
 def test_number_must_be_in_the_cited_source_not_just_any_source(reel: dict[str, Any]) -> None:
     with pytest.raises(ValueError, match=r"not found there: 64\."):
         _check({**reel, "scene": _stat(value="64%")}, sources=[WATER, POWER])

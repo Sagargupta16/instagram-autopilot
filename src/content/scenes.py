@@ -17,6 +17,7 @@ from pydantic import (
 from src.content.grounding import evidence_text, published_text, ungrounded
 from src.content.schemas import Nonempty, hashtag_list
 from src.content.sources import publication_name
+from src.content.voice import meta_commentary
 from src.media.reel_svg import LayoutError, compose
 
 STAT_VALUE = (
@@ -199,6 +200,8 @@ def validate_svg_content(raw: object, *, kind: str, sources: list[dict]) -> SvgR
     if scene["kind"] != kind:
         raise ValueError(f'scene.kind must be "{kind}" for this pillar')
     if problems := grounding_problems(scene, content.caption, kind, sources):
+        raise ValueError("; ".join(problems))
+    if problems := meta_commentary(scene, content.caption):
         raise ValueError("; ".join(problems))
     try:
         compose(scene, source_line=source_line(scene, sources))
