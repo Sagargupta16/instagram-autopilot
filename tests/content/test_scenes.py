@@ -235,6 +235,24 @@ def _check(raw: dict, kind: str = "stat", sources: list[dict] | None = None):
     return validate_svg_content(raw, kind=kind, sources=[WATER] if sources is None else sources)
 
 
+@pytest.mark.parametrize(
+    "context",
+    [
+        "Decline in a rare Texas shark species, per Chron",  # 2026-10-11 dry run
+        "Rise in U.S. drinking water bills in a decade",
+        "Drop in sea ice since 1979",
+        "How far the index fell this year",
+    ],
+)
+def test_ring_is_refused_for_a_change(context: str) -> None:
+    with pytest.raises(ValidationError, match="ring shows a share of a whole"):
+        StatScene.model_validate(_stat("ring", context=context))
+
+
+def test_ring_still_takes_a_share_of_a_whole() -> None:
+    assert StatScene.model_validate(_stat("ring")).variant == "ring"
+
+
 def test_grounded_stat_scene_passes(reel: dict[str, Any]) -> None:
     content = _check({**reel, "caption": "Water bills rose 62% in a decade.", "scene": _stat()})
     assert content.scene.value == "62%"

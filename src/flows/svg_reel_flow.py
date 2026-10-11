@@ -15,6 +15,7 @@ import tempfile
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit
 
 from src.adapters.cloudinary_host import upload_video
 from src.content.scenes import source_line
@@ -47,8 +48,10 @@ def credited(caption: str, scene: dict[str, Any], sources: list[dict]) -> str:
         return caption
     record = sources[scene["source_index"]]
     line = f"Source: {publication_name(record)}"
-    if record.get("url") and record["url"] not in caption:
-        line += f" {record['url']}"
+    url = record.get("url") or ""
+    # Google News RSS links are long opaque redirects, not the article: name the publisher only.
+    if url and urlsplit(url).hostname != "news.google.com" and url not in caption:
+        line += f" {url}"
     return caption if line in caption else f"{caption}\n\n{line}"
 
 
