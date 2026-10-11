@@ -64,6 +64,21 @@ def test_bake_9s_uses_correct_fadeout_offset(tmp_path: Path) -> None:
     assert "afade=t=out:st=8.5:d=0.5" in " ".join(cmd)
 
 
+@pytest.mark.parametrize(
+    ("seconds", "start"), [(17.8, "17.3"), (12.3, "11.8"), (20.25, "19.75"), (0.4, "0")]
+)
+def test_fade_out_ends_at_the_real_fractional_duration(tmp_path: Path, seconds, start) -> None:
+    with (
+        patch("src.media.audio_bake.shutil.which", return_value="/usr/bin/ffmpeg"),
+        patch("src.media.audio_bake.subprocess.run") as mock_run,
+    ):
+        mock_run.return_value = MagicMock(returncode=0, stderr="")
+        audio_bake.bake(tmp_path / "in.mp4", tmp_path / "track.mp3", duration_s=seconds)
+    joined = " ".join(mock_run.call_args[0][0])
+    assert f"afade=t=out:st={start}:d=0.5" in joined
+    assert "-shortest" in joined
+
+
 def test_bake_raises_on_ffmpeg_failure(tmp_path: Path) -> None:
     video = tmp_path / "in.mp4"
     track = tmp_path / "track.mp3"

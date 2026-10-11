@@ -32,8 +32,12 @@ assets/cache/
 *.wav
 *.png
 
-# Except curated audio tracks (Pixabay CC0, checked in via curate_audio.py)
-!assets/audio/**/*.mp3
+# Licensed audio is downloaded at run time (scripts/fetch_audio_catalog.py) and never
+# committed: this repository is public and the track licenses forbid redistribution.
+assets/audio/*/
+assets/audio/catalog_manifest.json
+*.m4a
+*.part
 
 # Logs
 *.log

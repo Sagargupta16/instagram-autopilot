@@ -73,8 +73,12 @@ def pipeline(monkeypatch, tmp_path):
     )
 
 
-def data(name: str = "stat-ring") -> dict:
-    return {"scene": copy.deepcopy(SCENES[name]), "sources": [SOURCE], "audio_theme": "chill"}
+def data(name: str = "stat-ring", look: int | None = None) -> dict:
+    caption_data = {"scene": copy.deepcopy(SCENES[name]), "sources": [SOURCE]}
+    caption_data["audio_theme"] = "chill"
+    if look is not None:
+        caption_data["look"] = look
+    return caption_data
 
 
 def post(caption_data=None, caption="caption", **kwargs):
@@ -171,10 +175,15 @@ def test_dry_run_saves_the_evidence_and_never_posts(pipeline, tmp_path) -> None:
     assert_nothing_posted(pipeline)
     (folder,) = (tmp_path / "output" / "dry-run").iterdir()
     assert (folder / "01.mp4").read_bytes() == b"baked-mp4"
-    expected = compose(caption_data["scene"], source_line="Source: The Guardian").svg
-    assert (folder / "reel.svg").read_text("utf-8") == expected
+    expected = compose(caption_data["scene"], source_line="Source: The Guardian")
+    assert (folder / "reel.svg").read_text("utf-8") == expected.svg
     evidence = json.loads((folder / "scene.json").read_text("utf-8"))
-    assert evidence == {"scene": caption_data["scene"], "sources": [SOURCE]}
+    assert evidence == {
+        "scene": caption_data["scene"],
+        "sources": [SOURCE],
+        "look": 0,
+        "thumb_offset_ms": expected.thumb_offset_ms,
+    }
     caption = json.loads((folder / "caption.json").read_text("utf-8"))["caption"]
     assert caption == f"caption\n\n{CREDIT}\n\n{ATTRIBUTION}"
 
@@ -191,9 +200,21 @@ def test_success_passes_the_callback_and_credits_source_and_music(pipeline) -> N
     svg, duration, _ = pipeline.render.call_args.args
     assert svg.startswith("<svg")
     assert duration == pytest.approx(12.3)
-    assert pipeline.bake.call_args.args[1:] == (pipeline.track.path, 12)
+    assert pipeline.bake.call_args.args[1:] == (pipeline.track.path, duration)  # not int(12.3)
     assert pipeline.verify.call_args.kwargs["audio"] is True
     pipeline.record.assert_called_once_with(pipeline.track)
+
+
+def test_the_cover_frame_and_look_come_from_the_composer(pipeline) -> None:
+    caption_data = data("steps-cicd", look=2)
+    assert post(caption_data, dry_run=False) == "reel-media"
+    reel = compose(caption_data["scene"], look=2)
+    svg = pipeline.render.call_args.args[0]
+    assert svg == reel.svg
+    assert "#fe8019" in svg  # the amber look's accent
+    offset = pipeline.publish.call_args.kwargs["thumb_offset"]
+    assert offset == reel.thumb_offset_ms == round(reel.cover * 1000)
+    assert 0 < offset < (reel.duration - 2) * 1000  # the complete scene, before the end card
 
 
 @pytest.mark.parametrize("error", [OSError("disk full"), ValueError("invalid history")])

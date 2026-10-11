@@ -14,6 +14,7 @@ import pytest
 from src.media import reel_svg, reel_svg_stats, svg_kit
 from src.media.reel_svg import Reel, compose
 from src.media.svg_kit import LayoutError
+from src.media.svg_look import DIM, LOOKS
 
 NS = "{http://www.w3.org/2000/svg}"
 SAMPLES = Path(__file__).resolve().parents[2] / "scripts" / "samples" / "svg_reel_scenes.json"
@@ -21,16 +22,22 @@ BY_NAME = {item["name"]: item for item in json.loads(SAMPLES.read_text("utf-8"))
 NAMES = sorted(BY_NAME)
 DASHES = (chr(0x2013), chr(0x2014))
 X0, Y0, X1, Y1 = svg_kit.SAFE
+TEXTS = {f"{NS}text", f"{NS}tspan"}
 
 
 @cache
 def reel(name: str) -> Reel:
     item = BY_NAME[name]
-    return compose(item["scene"], source_line=item["source_line"])
+    return compose(item["scene"], source_line=item["source_line"], look=item["look"])
 
 
 def texts(svg: str) -> list[ET.Element]:
     return list(ET.fromstring(svg).iter(f"{NS}text"))
+
+
+def words(element: ET.Element) -> str:
+    """A text element's characters, including the hook's per-word tspans."""
+    return "".join(element.itertext())
 
 
 def run_of(elements: list[ET.Element], phrase: str) -> list[ET.Element]:
@@ -38,7 +45,7 @@ def run_of(elements: list[ET.Element], phrase: str) -> list[ET.Element]:
     target = svg_kit.clean(phrase)
     for start in range(len(elements)):
         for end in range(start + 1, len(elements) + 1):
-            joined = " ".join(element.text or "" for element in elements[start:end])
+            joined = " ".join(words(element) for element in elements[start:end])
             if joined == target:
                 return elements[start:end]
             if not target.startswith(joined):
@@ -86,8 +93,7 @@ def test_type_meets_size_floors(name) -> None:
     scene = BY_NAME[name]["scene"]
     elements = texts(reel(name).svg)
     for element in elements:
-        badge = element.get("fill") == svg_kit.INK
-        assert size(element) >= (34 if badge else 36), element.text
+        assert size(element) >= 36, words(element)
     assert all(size(e) >= 80 for e in run_of(elements, scene.get("hook") or scene["headline"]))
     assert all(size(e) >= 48 for e in run_of(elements, scene["takeaway"]))
     for step in scene.get("steps", []):
@@ -104,7 +110,7 @@ def test_recorded_and_parsed_text_stay_in_safe_area(name) -> None:
     for element in elements:
         x, y, px = float(element.get("x")), float(element.get("y")), size(element)
         width = svg_kit.text_width(
-            element.text or "",
+            words(element),
             px,
             bold=element.get("font-weight") == "700",
             spacing=float(element.get("letter-spacing", 0)),
@@ -112,19 +118,19 @@ def test_recorded_and_parsed_text_stay_in_safe_area(name) -> None:
         anchor = element.get("text-anchor", "start")
         left = {"start": x, "middle": x - width / 2, "end": x - width}[anchor]
         top, bottom = y - svg_kit.ASCENT * px, y + svg_kit.DESCENT * px
-        assert inside(left, top, left + width, bottom), element.text
+        assert inside(left, top, left + width, bottom), words(element)
 
 
 @pytest.mark.parametrize("name", NAMES)
 def test_duration_rules(name) -> None:
     scene, duration = BY_NAME[name]["scene"], reel(name).duration
     if scene["kind"] == "steps":
-        assert duration == pytest.approx(2.5 + 2.2 * len(scene["steps"]) + 4.3)
+        assert duration == pytest.approx(2.5 + 2.2 * len(scene["steps"]) + 5.3)
     elif scene["kind"] == "timeline":
-        assert duration == pytest.approx(2.5 + 2.2 * len(scene["milestones"]) + 4.3)
+        assert duration == pytest.approx(2.5 + 2.2 * len(scene["milestones"]) + 5.3)
     else:
         assert duration >= 12
-    assert 12 <= duration <= 20
+    assert 12 <= duration <= 21
 
 
 @pytest.mark.parametrize("name", NAMES)
@@ -196,20 +202,50 @@ def contrast(a: str, b: str) -> float:
     return (light + 0.05) / (dark + 0.05)
 
 
-def test_palette_pairs_meet_wcag() -> None:
+def over(color: str, under: str, alpha: float) -> str:
+    """`color` painted at `alpha` over `under`, as the browser composites a dimmed group."""
+    top = [int(color[i : i + 2], 16) for i in (1, 3, 5)]
+    bottom = [int(under[i : i + 2], 16) for i in (1, 3, 5)]
+    mixed = (round(a * alpha + b * (1 - alpha)) for a, b in zip(top, bottom, strict=True))
+    return "#" + "".join(f"{channel:02x}" for channel in mixed)
+
+
+@pytest.mark.parametrize("look", LOOKS, ids=[look.name for look in LOOKS])
+def test_every_look_meets_wcag_also_when_dimmed(look) -> None:
     assert contrast("#ffffff", "#000000") == pytest.approx(21)  # the helper itself
     assert contrast("#777777", "#ffffff") == pytest.approx(4.48, abs=0.01)
-    for fg, backgrounds in svg_kit.TEXT_ON.items():
+    for fg, backgrounds in look.text_on().items():
         assert all(contrast(fg, bg) >= 4.5 for bg in backgrounds), fg
-    for fg, backgrounds in svg_kit.MARK_ON.items():
+        dimmed = over(look.card, look.bg, DIM)
+        assert contrast(over(fg, look.bg, DIM), dimmed) >= 4.5, fg
+    for fg, backgrounds in look.mark_on().items():
         assert all(contrast(fg, bg) >= 3 for bg in backgrounds), fg
-    assert contrast(svg_kit.INK, svg_kit.ACCENT) >= 4.5
+    assert contrast(over(look.accent, look.bg, DIM), over(look.card, look.bg, DIM)) >= 3
+    assert contrast(look.ink, look.accent) >= 4.5
+    tile = over(look.accent, look.card, 0.16)  # the icon tile under step icons and numbers
+    assert contrast(look.accent, tile) >= 3
+    assert contrast(look.accent_text, tile) >= 4.5
+
+
+def test_looks_differ_and_name_every_kicker() -> None:
+    assert len({look.accent for look in LOOKS}) == len(LOOKS) >= 3
+    assert len({look.tile for look in LOOKS}) == 2
+    for kind in ("steps", "stat", "timeline"):
+        assert len({look.kicker(kind) for look in LOOKS}) == len(LOOKS)
 
 
 @pytest.mark.parametrize("name", NAMES)
-def test_text_fills_come_from_the_checked_palette(name) -> None:
-    allowed = {*svg_kit.TEXT_ON, svg_kit.INK}
-    assert {element.get("fill") for element in texts(reel(name).svg)} <= allowed
+@pytest.mark.parametrize("index", range(len(LOOKS)))
+def test_text_fills_come_from_the_checked_palette(name, index) -> None:
+    look = LOOKS[index]
+    item = BY_NAME[name]
+    svg = compose(item["scene"], source_line=item["source_line"], look=index).svg
+    root = ET.fromstring(svg)
+    fills = {element.get("fill") for element in root.iter() if element.tag in TEXTS}
+    assert fills <= {*look.text_on(), look.ink}
+    background = next(root.iter(f"{NS}rect"))
+    assert background.get("fill") == look.bg
+    assert (background.get("width"), background.get("height")) == ("1080", "1920")
 
 
 def test_hostile_text_is_escaped() -> None:
@@ -225,9 +261,9 @@ def test_hostile_text_is_escaped() -> None:
     assert "<script" not in svg
     assert "]]>" not in svg
     assert next(root.iter(f"{NS}title")).text == svg_kit.clean(scene["hook"])
-    words = " ".join(e.text or "" for e in root.iter(f"{NS}text"))
-    assert "<b>" in words
-    assert "alert(1)" in words
+    visible = " ".join(words(e) for e in root.iter(f"{NS}text"))
+    assert "<b>" in visible
+    assert "alert(1)" in visible
 
 
 def test_oversized_scene_raises_layout_error() -> None:
@@ -238,13 +274,28 @@ def test_oversized_scene_raises_layout_error() -> None:
 
 
 def test_compose_drops_the_kicker_when_that_makes_it_fit() -> None:
-    scene = BY_NAME["steps-six"]["scene"]
+    scene = copy.deepcopy(BY_NAME["steps-six"]["scene"])
+    scene["hook"] = "What happens when your app calls an LLM"
     with pytest.raises(LayoutError):
-        reel_svg._draw(scene, None, kicker=True)
+        reel_svg._draw(scene, None, True, 0)
     built = compose(scene)
     assert "HOW IT WORKS" not in built.svg
+    assert built.svg.count('stroke-width="1.75"') == len(scene["steps"]) + 1  # icons kept
     assert all(inside(*box) for box in built.boxes)
     assert "HOW IT WORKS" in reel("steps-cicd").svg
+
+
+def test_compose_drops_icons_last_when_only_that_makes_it_fit() -> None:
+    item = copy.deepcopy(BY_NAME["stat-bars"])
+    scene = item["scene"]
+    scene["headline"] = "Which sample engineering team ships the most"
+    scene["takeaway"] = "Ranked bars grow in order so the leader lands first on the phone"
+    for kicker in (True, False):
+        with pytest.raises(LayoutError):
+            reel_svg._draw(scene, item["source_line"], kicker, 0)
+    built = compose(scene, source_line=item["source_line"])
+    assert built.svg.count('stroke-width="1.75"') == 1  # only the end card's icon
+    assert scene["icon"] == "chart-column"  # the caller's scene is not changed
 
 
 def test_wrap_never_exceeds_the_width() -> None:

@@ -1,0 +1,178 @@
+{
+  "license": "Mixkit Stock Music Free License",
+  "license_url": "https://mixkit.co/license/#musicFree",
+  "terms": [
+    "Allowed for social media video posts, commercial or not; no attribution is required.",
+    "Never register these tracks with a rights-management service such as Content ID.",
+    "Never remix a track into a music-only release, claim it as your own, or redistribute the files.",
+    "The audio files are downloaded at run time by scripts/fetch_audio_catalog.py and never committed."
+  ],
+  "checked": "2026-10-11",
+  "tracks": [
+    {
+      "track_id": "mixkit-digital-clouds-175",
+      "theme": "chill",
+      "title": "Digital Clouds",
+      "artist": "Alejandro Magaña (A. M.)",
+      "page_url": "https://mixkit.co/free-stock-music/chillout/",
+      "download_url": "https://assets.mixkit.co/music/175/175.mp3",
+      "duration_s": 101.0,
+      "bytes": 3232566,
+      "sha256": "71cd4ea39edcc7532672bd97311abadfd318d00e7a828310a88b4f57fad9cd48"
+    },
+    {
+      "track_id": "mixkit-curiosity-480",
+      "theme": "chill",
+      "title": "Curiosity",
+      "artist": "Diego Nava",
+      "page_url": "https://mixkit.co/free-stock-music/chillout/",
+      "download_url": "https://assets.mixkit.co/music/480/480.mp3",
+      "duration_s": 100.2,
+      "bytes": 3613867,
+      "sha256": "181e91737f341ca61a1641b2955cc794fa6276ca0854d06266d55841d655a24b"
+    },
+    {
+      "track_id": "mixkit-serene-view-443",
+      "theme": "chill",
+      "title": "Serene View",
+      "artist": "Arulo",
+      "page_url": "https://mixkit.co/free-stock-music/chillout/",
+      "download_url": "https://assets.mixkit.co/music/443/443.mp3",
+      "duration_s": 114.0,
+      "bytes": 3647991,
+      "sha256": "556ae7a19c783bd666593e60fbba776bac7f9ff6c2173bebded0bc200cc82ec3"
+    },
+    {
+      "track_id": "mixkit-lo-fi-01-763",
+      "theme": "chill",
+      "title": "Lo-Fi 01",
+      "artist": "Lily J",
+      "page_url": "https://mixkit.co/free-stock-music/chillout/",
+      "download_url": "https://assets.mixkit.co/music/763/763.mp3",
+      "duration_s": 102.4,
+      "bytes": 4095999,
+      "sha256": "7abbeca8d4573eaefbd4f8f28fa9c093890acab1e252c1a4569e7172fdb4cc53"
+    },
+    {
+      "track_id": "mixkit-hazy-after-hours-132",
+      "theme": "chill",
+      "title": "Hazy After Hours",
+      "artist": "Alejandro Magaña (A. M.)",
+      "page_url": "https://mixkit.co/free-stock-music/tag/technology/",
+      "download_url": "https://assets.mixkit.co/music/132/132.mp3",
+      "duration_s": 127.2,
+      "bytes": 4071238,
+      "sha256": "5a30d042dc51f517dc64b5d409e1ac0b9dba2a80241f8955f41257585e77890f"
+    },
+    {
+      "track_id": "mixkit-close-up-1167",
+      "theme": "upbeat",
+      "title": "Close Up",
+      "artist": "Michael Ramir C.",
+      "page_url": "https://mixkit.co/free-stock-music/tag/technology/",
+      "download_url": "https://assets.mixkit.co/music/1167/1167.mp3",
+      "duration_s": 95.1,
+      "bytes": 3045294,
+      "sha256": "a7f05a29d07a84d38072ccd2b35204bca812db86e75b2a837e71cc144d3e739b"
+    },
+    {
+      "track_id": "mixkit-raising-me-higher-34",
+      "theme": "upbeat",
+      "title": "Raising Me Higher",
+      "artist": "Ahjay Stelino",
+      "page_url": "https://mixkit.co/free-stock-music/corporate-music/",
+      "download_url": "https://assets.mixkit.co/music/34/34.mp3",
+      "duration_s": 97.7,
+      "bytes": 3126333,
+      "sha256": "619b82cea299230cca5beac36d049291a1cb2be8ce0afdafda3e06fb30d06525"
+    },
+    {
+      "track_id": "mixkit-motivating-mornings-33",
+      "theme": "upbeat",
+      "title": "Motivating Mornings",
+      "artist": "Ahjay Stelino",
+      "page_url": "https://mixkit.co/free-stock-music/corporate-music/",
+      "download_url": "https://assets.mixkit.co/music/33/33.mp3",
+      "duration_s": 96.2,
+      "bytes": 3080358,
+      "sha256": "9b433f0fa9f16f1dbc0a5fb374945eeb858d9441087eeadb540636622f056e86"
+    },
+    {
+      "track_id": "mixkit-pop-track-03-729",
+      "theme": "upbeat",
+      "title": "Pop Track 03",
+      "artist": "Lily J",
+      "page_url": "https://mixkit.co/free-stock-music/tag/technology/",
+      "download_url": "https://assets.mixkit.co/music/729/729.mp3",
+      "duration_s": 96.9,
+      "bytes": 3875525,
+      "sha256": "0bb90793c71a07e6d698afdd434b32ffb4fe93dbbdb0577d3e71a4de80b0337b"
+    },
+    {
+      "track_id": "mixkit-better-times-are-coming-173",
+      "theme": "upbeat",
+      "title": "Better Times are Coming",
+      "artist": "Alejandro Magaña (A. M.)",
+      "page_url": "https://mixkit.co/free-stock-music/tag/technology/",
+      "download_url": "https://assets.mixkit.co/music/173/173.mp3",
+      "duration_s": 100.1,
+      "bytes": 3202473,
+      "sha256": "9606a32daac982a5cc42ab4f333ca427ee394f9242a433617007952f4b20ea10"
+    },
+    {
+      "track_id": "mixkit-the-journey-79",
+      "theme": "cinematic",
+      "title": "The Journey",
+      "artist": "Ahjay Stelino",
+      "page_url": "https://mixkit.co/free-stock-music/tag/cinematic/",
+      "download_url": "https://assets.mixkit.co/music/79/79.mp3",
+      "duration_s": 108.2,
+      "bytes": 3463380,
+      "sha256": "8833ecd8301ecb7eeba77d9c073af481cdd560319dbbe08c597dddd69a19f7f3"
+    },
+    {
+      "track_id": "mixkit-drawing-the-sky-606",
+      "theme": "cinematic",
+      "title": "Drawing the Sky",
+      "artist": "Eugenio Mininni",
+      "page_url": "https://mixkit.co/free-stock-music/tag/cinematic/",
+      "download_url": "https://assets.mixkit.co/music/606/606.mp3",
+      "duration_s": 206.6,
+      "bytes": 6611577,
+      "sha256": "2057e6513605a3da566dfb72fb3335e7e704e346e882ecfafce42b4a53e6ad8e"
+    },
+    {
+      "track_id": "mixkit-classical-vibes-2-682",
+      "theme": "cinematic",
+      "title": "Classical vibes 2",
+      "artist": "Grigoriy Nuzhny",
+      "page_url": "https://mixkit.co/free-stock-music/mood/calm/",
+      "download_url": "https://assets.mixkit.co/music/682/682.mp3",
+      "duration_s": 113.2,
+      "bytes": 3623169,
+      "sha256": "da60c04a87dfe3052296c91daed3c41cd5e8dc05a18200aa027939f9ff019230"
+    },
+    {
+      "track_id": "mixkit-tapis-615",
+      "theme": "cinematic",
+      "title": "Tapis",
+      "artist": "Eugenio Mininni",
+      "page_url": "https://mixkit.co/free-stock-music/tag/cinematic/",
+      "download_url": "https://assets.mixkit.co/music/615/615.mp3",
+      "duration_s": 163.2,
+      "bytes": 5223117,
+      "sha256": "db34bc5dcfa5fdf237d334035e6933408aa07519032cb395daa791ce8d132884"
+    },
+    {
+      "track_id": "mixkit-vastness-184",
+      "theme": "cinematic",
+      "title": "Vastness",
+      "artist": "Andrew Ev",
+      "page_url": "https://mixkit.co/free-stock-music/tag/cinematic/",
+      "download_url": "https://assets.mixkit.co/music/184/184.mp3",
+      "duration_s": 229.9,
+      "bytes": 7356125,
+      "sha256": "3ffae7ccd5ea6f612f75efdf9a8318ccce79a5e4f355b26e233631330a57660f"
+    }
+  ]
+}

@@ -107,3 +107,32 @@ def test_missing_or_empty_tracks_fail_preflight(tmp_audio: Path) -> None:
     (tmp_audio / "chill" / "b.mp3").write_bytes(b"")
     with pytest.raises(audio_picker.NoTrackAvailableError):
         audio_picker.select("chill")
+
+
+def test_the_fetched_catalog_manifest_is_read_beside_the_committed_one(tmp_audio: Path) -> None:
+    (tmp_audio / "cinematic").mkdir()
+    (tmp_audio / "cinematic" / "mixkit-tapis-615.mp3").write_bytes(b"audio")
+    entry = {
+        "track_id": "mixkit-tapis-615",
+        "filename": "cinematic/mixkit-tapis-615.mp3",
+        "theme_tags": ["cinematic"],
+        "license": "Mixkit Stock Music Free License",
+        "attribution_required": False,
+        "attribution": "",
+    }
+    generated = tmp_audio / audio_picker.CATALOG_MANIFEST
+    generated.write_text(json.dumps({"tracks": [entry]}))
+    track = audio_picker.select("cinematic")
+    assert (track.track_id, track.attribution) == ("mixkit-tapis-615", "")
+    assert audio_picker.select("upbeat").track_id == "upbeat-001"  # the committed one still counts
+
+
+def test_a_broken_fetched_manifest_is_ignored(tmp_audio: Path) -> None:
+    (tmp_audio / audio_picker.CATALOG_MANIFEST).write_text("{not json")
+    assert audio_picker.select("upbeat").track_id == "upbeat-001"
+
+
+def test_the_committed_manifest_is_valid_and_holds_no_tracks() -> None:
+    data = json.loads(audio_picker.MANIFEST_PATH.read_text("utf-8"))
+    assert data["tracks"] == []
+    assert "fetch_audio_catalog.py" in data["_notes"]

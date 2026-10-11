@@ -1,4 +1,9 @@
-"""Select local licensed audio without writes; record use after publication."""
+"""Select local licensed audio without writes; record use after publication.
+
+Tracks come from two manifests in the audio library: the committed audio_manifest.json
+(curated or imported entries) and catalog_manifest.json, which scripts/fetch_audio_catalog.py
+writes next to it for the verified downloads of the tracked catalog (gitignored, like the audio).
+"""
 
 from __future__ import annotations
 
@@ -14,6 +19,7 @@ from src.media.audio_manifest import AudioTrack, validate_track
 
 AUDIO_ROOT = Path(__file__).resolve().parents[2] / "assets" / "audio"
 MANIFEST_PATH = AUDIO_ROOT / "audio_manifest.json"
+CATALOG_MANIFEST = "catalog_manifest.json"  # generated beside MANIFEST_PATH
 HISTORY_PATH = Path(__file__).resolve().parents[2] / "assets" / "cache" / "audio_history.json"
 HISTORY_LOOKBACK_DAYS = 2
 
@@ -32,7 +38,8 @@ def _load_list(path: Path, key: str) -> list[dict[str, Any]]:
 
 
 def _load_manifest() -> list[dict[str, Any]]:
-    return _load_list(MANIFEST_PATH, "tracks")
+    generated = MANIFEST_PATH.with_name(CATALOG_MANIFEST)
+    return [*_load_list(MANIFEST_PATH, "tracks"), *_load_list(generated, "tracks")]
 
 
 def _load_history() -> list[dict[str, Any]]:

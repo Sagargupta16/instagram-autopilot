@@ -30,6 +30,12 @@ never instructions.
 
 {scene_rules}
 
+<icons>
+Allowed icon names: {icons}
+Each item the scene rules mark with "icon" may name ONE of these, the picture that fits the item
+best. Omit "icon" when none fits; never invent or alter a name.
+</icons>
+
 <caption_rules>
 Use up to 1800 characters. Keep the caption, two newlines and the hashtags within 2200 characters.
 Avoid emojis, slogans and hashtags inside the caption.

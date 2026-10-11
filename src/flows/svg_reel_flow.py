@@ -3,6 +3,8 @@ the publisher boundary skips the post (SvgReelError) and never falls back to a p
 
 Order: attribution and audio checks, then rendering, then ffprobe validation of the delivered
 MP4, then upload. The publisher boundary, callback and receipt rules match the Luma Reel path.
+The visual look comes from caption_data["look"] (the post rotation) and the cover frame is the
+composer's moment of the complete scene, sent as thumb_offset.
 """
 
 from __future__ import annotations
@@ -21,7 +23,7 @@ from src.flows.previews import save_preview
 from src.flows.reel_flow import select_audio
 from src.media import audio_bake, audio_picker, reel_probe, svg_video
 from src.media.audio_manifest import AudioTrack
-from src.media.reel_svg import LayoutError, compose
+from src.media.reel_svg import LayoutError, Reel, compose
 from src.publishing.reel import publish_reel
 
 log = logging.getLogger(__name__)
@@ -54,7 +56,7 @@ def _render(svg: str, duration: float, track: AudioTrack | None) -> bytes:
     with tempfile.TemporaryDirectory(prefix="svg-reel-") as temporary:
         video = svg_video.render(svg, duration, Path(temporary) / "reel.mp4")
         if track:
-            video = audio_bake.bake(video, track.path, int(duration))
+            video = audio_bake.bake(video, track.path, duration)
         summary = reel_probe.verify(video, duration, audio=track is not None)
         log.info("SVG Reel ready: %.1f s, %d bytes", summary["duration"], summary["bytes"])
         return video.read_bytes()
@@ -62,8 +64,8 @@ def _render(svg: str, duration: float, track: AudioTrack | None) -> bytes:
 
 def _prepare(
     caption_data: dict[str, Any], caption: str, audio_theme: str | None
-) -> tuple[str, str, bytes, AudioTrack | None]:
-    """Caption, SVG, verified MP4 bytes and the audio track, or an exception."""
+) -> tuple[str, Reel, bytes, AudioTrack | None]:
+    """Caption, composed Reel, verified MP4 bytes and the audio track, or an exception."""
     sources = caption_data.get("sources") or []
     scene = caption_data.get("scene")
     if not isinstance(scene, dict):
@@ -75,9 +77,10 @@ def _prepare(
     if len(reel_caption) > 2200:
         raise SvgReelError("Source or audio attribution exceeds the caption limit")
     browser = svg_video.ensure_available()
-    reel = compose(scene, source_line=source_line(scene, sources))
+    look = caption_data.get("look", 0)
+    reel = compose(scene, source_line=source_line(scene, sources), look=look)
     log.info("Rendering %s SVG Reel (%.1f s) with %s", scene["kind"], reel.duration, browser)
-    return reel_caption, reel.svg, _render(reel.svg, reel.duration, track), track
+    return reel_caption, reel, _render(reel.svg, reel.duration, track), track
 
 
 def post_svg_reel(
@@ -90,11 +93,16 @@ def post_svg_reel(
 ) -> str | None:
     """Return the media ID, or None for a saved preview; never retry publishing."""
     try:
-        reel_caption, svg, video_bytes, track = _prepare(caption_data, caption, audio_theme)
+        reel_caption, reel, video_bytes, track = _prepare(caption_data, caption, audio_theme)
         if dry_run:
             folder = save_preview([video_bytes], reel_caption, suffix="mp4")
-            (folder / "reel.svg").write_text(svg, encoding="utf-8")
-            evidence = {"scene": caption_data["scene"], "sources": caption_data.get("sources")}
+            (folder / "reel.svg").write_text(reel.svg, encoding="utf-8")
+            evidence = {
+                "scene": caption_data["scene"],
+                "sources": caption_data.get("sources"),
+                "look": caption_data.get("look", 0),
+                "thumb_offset_ms": reel.thumb_offset_ms,
+            }
             (folder / "scene.json").write_text(
                 json.dumps(evidence, ensure_ascii=False, indent=2), encoding="utf-8"
             )
@@ -108,7 +116,10 @@ def post_svg_reel(
         raise SvgReelError(f"SVG Reel skipped before publishing: {detail}") from error
 
     media_id = publish_reel(
-        video_url=video_url, caption=reel_caption, before_publish=before_publish
+        video_url=video_url,
+        caption=reel_caption,
+        before_publish=before_publish,
+        thumb_offset=reel.thumb_offset_ms,
     )
     if track:
         try:

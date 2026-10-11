@@ -19,11 +19,12 @@ from src.flows.carousel_flow import post_carousel
 from src.flows.image_flow import post_image
 from src.flows.reel_flow import post_reel
 from src.flows.svg_reel_flow import post_svg_reel
+from src.media.svg_look import LOOKS
 from src.pillar import load_config
 from src.run_report import write_summary
 from src.schedule import SlotPlan, plan_today
 from src.settings import settings
-from src.slot_rules import forced_pillar, post_now_refusal, slot_time_used
+from src.slot_rules import forced_pillar, next_look, post_now_refusal, slot_time_used
 from src.state.factory import create_ledger
 from src.state.history import sync_history
 from src.state.ledger import MAX_ATTEMPTS, Ledger
@@ -51,6 +52,7 @@ def _run_slot(
     ledger: Ledger | None = None,
     key: str = "",
     clock: Callable[[], datetime] | None = None,
+    look: int = 0,
 ) -> str | None:
     current = clock or (lambda: datetime.now(UTC))
     content_type = random.choice(settings.content_type_list)  # NOSONAR -- variety, not secrecy
@@ -59,6 +61,8 @@ def _run_slot(
         brief["topic"], slot.pillar, config["persona"], sources=brief.get("sources", [])
     )
     content["sources"] = brief.get("sources", [])
+    if "scene" in content:
+        content["look"] = look  # stored on the receipt so the next post rotates past it
     caption = content["caption"] + "\n\n" + content["hashtags"]
     shape = content["scene"]["kind"] if "scene" in content else len(content["image_prompts"])
     log.info("Content ready | topic: %s | slides or scene: %s", brief["topic"], shape)
@@ -147,6 +151,7 @@ def run(
             raise RuntimeError("Publication requires reconciliation before another post")
         if post_now and (reason := post_now_refusal(slots, current, config["cadence"])):
             _refuse(reason)
+    look = next_look(slots, len(LOOKS), current.date())
     for slot in candidates:
         key = f"{current.date().isoformat()}|{slot.time_utc}|{slot.pillar['id']}"
         claimed = not slot_time_used(slots, key) and (
@@ -165,7 +170,9 @@ def run(
         try:
             cloudinary_host.configure()
             _preflight_all_auth(config["models"]["text"], dry_run=dry_run)
-            media_id = _run_slot(slot, config, dry_run=dry_run, ledger=ledger, key=key, clock=clock)
+            media_id = _run_slot(
+                slot, config, dry_run=dry_run, ledger=ledger, key=key, clock=clock, look=look
+            )
             if ledger:
                 ledger.complete(key, media_id, clock())
             result = {

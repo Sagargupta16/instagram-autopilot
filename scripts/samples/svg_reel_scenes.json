@@ -1,59 +1,65 @@
 {
-  "_notes": "Fixed scenes for rendering checks only. Stat values are labelled sample data and are never published.",
+  "_notes": "Fixed scenes for rendering checks only. Stat values are labelled sample data and are never published. look is the visual variant the sample MP4 uses; stills cover every look.",
   "scenes": [
     {
       "name": "steps-cicd",
       "source_line": null,
+      "look": 0,
       "scene": {
         "kind": "steps",
-        "hook": "How a CI/CD pipeline ships a commit",
+        "hook": "How CI/CD ships a commit",
         "steps": [
-          {"label": "Push", "detail": "A developer pushes a commit and the CI server picks it up"},
-          {"label": "Build", "detail": "The pipeline installs dependencies and compiles the code"},
-          {"label": "Test", "detail": "Automated tests run, and any failure stops the pipeline"},
-          {"label": "Package", "detail": "The build is packaged as an artifact or container image"},
-          {"label": "Deploy", "detail": "The artifact rolls out to staging, then to production"}
+          {"label": "Push", "detail": "A push to the repo starts the pipeline", "icon": "git-branch"},
+          {"label": "Build", "detail": "Dependencies install and the code compiles", "icon": "package"},
+          {"label": "Test", "detail": "Tests run, and any failure stops it", "icon": "bug"},
+          {"label": "Package", "detail": "The build becomes a container image", "icon": "layers"},
+          {"label": "Deploy", "detail": "It rolls out to staging, then production", "icon": "rocket"}
         ],
-        "takeaway": "Every commit takes the same tested path to production"
+        "takeaway": "Every commit takes the same tested path"
       }
     },
     {
       "name": "steps-six",
       "source_line": null,
+      "look": 1,
       "scene": {
         "kind": "steps",
-        "hook": "What happens when you call an LLM API",
+        "hook": "What happens in an LLM API call",
         "steps": [
-          {"label": "Request", "detail": "Your code sends a prompt and settings as a JSON request body"},
-          {"label": "Authenticate", "detail": "The service checks your key and the rate limit on your account"},
-          {"label": "Tokenize", "detail": "The prompt text is split into tokens the model can read as input"},
-          {"label": "Generate", "detail": "The model predicts one token at a time until it reaches a stop"},
-          {"label": "Stream", "detail": "Tokens can stream back to your app while generation continues"},
-          {"label": "Bill", "detail": "Input and output tokens are counted to measure what you used"}
+          {"label": "Request", "detail": "Your code sends a prompt as JSON", "icon": "send"},
+          {"label": "Authenticate", "detail": "The service checks your key and rate limit", "icon": "key"},
+          {"label": "Tokenize", "detail": "The prompt is split into tokens", "icon": "file-text"},
+          {"label": "Generate", "detail": "The model predicts one token at a time", "icon": "brain"},
+          {"label": "Stream", "detail": "Tokens stream back as they are made", "icon": "zap"},
+          {"label": "Bill", "detail": "Input and output tokens are counted", "icon": "coins"}
         ],
-        "takeaway": "An API call is a request, a token loop and a bill for every token used"
+        "takeaway": "A request, a token loop and a bill"
       }
     },
     {
       "name": "stat-big-number",
       "source_line": "Source: Sample data",
+      "look": 1,
       "scene": {
         "kind": "stat",
         "variant": "big_number",
-        "headline": "Water bills climbed fast in a decade",
+        "headline": "Water bills climbed fast",
+        "icon": "droplet",
         "value": "62%",
         "context": "Rise in average drinking water bills over ten years in this sample",
-        "takeaway": "A sample stat that shows how the count-up reveal reads on a phone",
+        "takeaway": "A sample stat that shows how the count-up reads",
         "source_index": 0
       }
     },
     {
       "name": "stat-bars",
       "source_line": "Source: Sample data",
+      "look": 2,
       "scene": {
         "kind": "stat",
         "variant": "bars",
-        "headline": "Which sample team ships the most",
+        "headline": "Which sample team ships most",
+        "icon": "chart-column",
         "bars": [
           {"label": "Platform", "value": "1,240"},
           {"label": "Mobile", "value": "860"},
@@ -63,30 +69,34 @@
           {"label": "Design", "value": "190"}
         ],
         "unit": "Deploys per year, sample",
-        "takeaway": "Ranked bars grow in order so the leader lands first",
+        "takeaway": "Ranked bars grow so the leader lands first",
         "source_index": 0
       }
     },
     {
       "name": "stat-ring",
       "source_line": "Source: Sample data",
+      "look": 0,
       "scene": {
         "kind": "stat",
         "variant": "ring",
-        "headline": "How much of the sample is covered",
+        "headline": "How much is covered",
+        "icon": "shield-check",
         "value": "73%",
         "context": "Share of sample services with automated tests on every change",
-        "takeaway": "The ring fills while the percentage counts up in the centre",
+        "takeaway": "The ring fills while the percentage counts up",
         "source_index": 0
       }
     },
     {
       "name": "stat-line",
       "source_line": "Source: Sample data",
+      "look": 2,
       "scene": {
         "kind": "stat",
         "variant": "line",
-        "headline": "A sample metric over seven years",
+        "headline": "A sample metric over time",
+        "icon": "trending-up",
         "points": [
           {"label": "2019", "value": "12.5"},
           {"label": "2020", "value": "14.1"},
@@ -97,22 +107,23 @@
           {"label": "2025", "value": "31.7"}
         ],
         "unit": "Millions, sample",
-        "takeaway": "The line draws in from left to right and the end value lands last",
+        "takeaway": "The line draws in and the end value lands last",
         "source_index": 0
       }
     },
     {
       "name": "timeline-hubble",
       "source_line": "Source: Wikipedia",
+      "look": 2,
       "scene": {
         "kind": "timeline",
-        "hook": "The story of the Hubble Space Telescope",
+        "hook": "The story of Hubble",
         "milestones": [
-          {"date": "1946", "event": "Lyman Spitzer proposes a telescope in space"},
-          {"date": "1990", "event": "Space Shuttle Discovery launches Hubble into orbit"},
-          {"date": "1993", "event": "Astronauts fix its flawed mirror in orbit"},
-          {"date": "2009", "event": "The fifth and final servicing mission upgrades it"},
-          {"date": "2021", "event": "The James Webb Space Telescope launches as a partner"}
+          {"date": "1946", "event": "Lyman Spitzer proposes a space telescope", "icon": "lightbulb"},
+          {"date": "1990", "event": "Discovery launches Hubble into orbit", "icon": "rocket"},
+          {"date": "1993", "event": "Astronauts fix its flawed mirror in orbit", "icon": "settings"},
+          {"date": "2009", "event": "The final servicing mission upgrades it", "icon": "satellite"},
+          {"date": "2021", "event": "Webb launches to work alongside it", "icon": "telescope"}
         ],
         "takeaway": "Repairable by design, Hubble kept working for decades"
       }

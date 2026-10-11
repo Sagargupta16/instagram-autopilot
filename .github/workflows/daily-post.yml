@@ -55,6 +55,34 @@ jobs:
           path: assets/cache
           key: instagram-cache-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: instagram-cache-
+      # Licensed music (assets/audio/catalog.json) is downloaded, never committed. The cache is
+      # keyed on the catalog and its fetch script; a failed download never fails the run, it
+      # only leaves the library short (ALLOW_SILENT_REELS decides whether a Reel may be silent).
+      - name: Restore the licensed audio library
+        id: audio-library
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            assets/audio/chill
+            assets/audio/upbeat
+            assets/audio/cinematic
+            assets/audio/catalog_manifest.json
+          key: audio-library-${{ hashFiles('assets/audio/catalog.json', 'scripts/fetch_audio_catalog.py') }}
+      - name: Download the licensed audio library
+        id: fetch-audio
+        if: steps.audio-library.outputs.cache-hit != 'true'
+        continue-on-error: true
+        run: uv run --frozen --no-dev --no-build python scripts/fetch_audio_catalog.py
+      - name: Save the licensed audio library
+        if: steps.audio-library.outputs.cache-hit != 'true' && steps.fetch-audio.outcome == 'success'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            assets/audio/chill
+            assets/audio/upbeat
+            assets/audio/cinematic
+            assets/audio/catalog_manifest.json
+          key: audio-library-${{ hashFiles('assets/audio/catalog.json', 'scripts/fetch_audio_catalog.py') }}
       - name: Install ffmpeg when Reels are enabled
         run: |
           if uv run --frozen --no-dev --no-build python -c 'from src.pillar import load_config; raise SystemExit(not any(p["content_format"] in {"reel", "svg_reel"} for p in load_config()["pillars"]))'; then

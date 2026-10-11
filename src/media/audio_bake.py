@@ -3,8 +3,9 @@
 Uses stream-copy on the video (preserves Luma pixels bit-for-bit) and
 transcodes audio to AAC-LC 48kHz 128kbps stereo -- matches Instagram's
 Reels spec so Meta doesn't server-side re-encode. Applies 0.5s
-audio fade-in and fade-out; -shortest trims audio to video length;
-+faststart moves the moov atom to the front for streaming.
+audio fade-in and a fade-out that ends at the video's real (fractional)
+duration; -shortest trims audio to video length; +faststart moves the
+moov atom to the front for streaming.
 """
 
 from __future__ import annotations
@@ -27,11 +28,11 @@ def ensure_available() -> None:
         raise AudioBakeError("ffmpeg not on PATH -- install with apt-get install -y ffmpeg")
 
 
-def bake(video: Path, track: Path, duration_s: int) -> Path:
+def bake(video: Path, track: Path, duration_s: float) -> Path:
     """Return path to `{video.stem}-baked.mp4` with `track` mixed in."""
     ensure_available()
     output = video.parent / f"{video.stem}-baked.mp4"
-    fade_out_start = max(0.0, duration_s - 0.5)
+    fade_out_start = f"{max(0.0, duration_s - 0.5):.3f}".rstrip("0").rstrip(".") or "0"
     cmd = [
         "ffmpeg",
         "-y",

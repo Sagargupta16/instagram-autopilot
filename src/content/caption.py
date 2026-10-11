@@ -13,6 +13,7 @@ from src.content.dedup import load_recent_image_prompts
 from src.content.scenes import validate_svg_content
 from src.content.schemas import CaptionContent
 from src.content.validation import generate_validated
+from src.media.lucide import NAMES as ICON_NAMES
 from src.pillar import load_config, scene_kind
 from src.settings import settings
 
@@ -94,6 +95,7 @@ def _scene_caption(
         pillar_hashtags=" ".join(pillar["hashtags"]),
         sources=json.dumps(sources, ensure_ascii=False),
         scene_rules=rules.strip(),
+        icons=", ".join(ICON_NAMES),
     )
     config = load_config()
     content = generate_validated(
