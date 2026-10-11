@@ -30,22 +30,25 @@ def publish_reel(
     *,
     location_id: str | None = None,
     before_publish: Callable[[str], None] | None = None,
+    thumb_offset: int | None = None,
 ) -> str:
     """Return the media ID; callback must durably record publishing or raise.
 
-    Any error after the callback leaves an uncertain outcome for the caller.
+    thumb_offset is the cover frame in milliseconds (the tool's documented integer field);
+    None keeps Instagram's default first frame. Any error after the callback leaves an
+    uncertain outcome for the caller.
     """
     log.info("Creating Instagram Reel container...")
-    container = _create_container(
-        {
-            "ig_user_id": settings.instagram_user_id,
-            "video_url": video_url,
-            "caption": caption,
-            "media_type": "REELS",
-            "share_to_feed": True,
-        },
-        location_id,
-    )
+    params: dict[str, Any] = {
+        "ig_user_id": settings.instagram_user_id,
+        "video_url": video_url,
+        "caption": caption,
+        "media_type": "REELS",
+        "share_to_feed": True,
+    }
+    if thumb_offset is not None:
+        params["thumb_offset"] = thumb_offset
+    container = _create_container(params, location_id)
     creation_id = media_id(container, "INSTAGRAM_CREATE_MEDIA_CONTAINER")
     log.info("Reel container created: %s", creation_id)
 

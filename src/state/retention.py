@@ -19,6 +19,7 @@ RECEIPT_FIELDS = {
     "error",
     "legacy_receipt",
     "topic",
+    "look",
 }
 
 

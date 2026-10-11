@@ -1,7 +1,9 @@
-"""Shared kit for 1080x1920 animated Reel SVGs: type, color, one-clock SMIL, safe-area layout.
+"""Shared kit for 1080x1920 animated Reel SVGs: type, one-clock SMIL and safe-area layout.
 
 Text is fitted with conservative per-character widths modelled on DejaVu Sans, the widest
-font in the stack, so a line never overflows when Linux CI falls back to it.
+font in the stack, so a line never overflows when Linux CI falls back to it. Colors come
+from the Canvas look (svg_look.py); framing parts (header, takeaway, end card) live in
+svg_parts.py.
 """
 
 from __future__ import annotations
@@ -11,6 +13,8 @@ from dataclasses import dataclass, field
 from html import escape
 from itertools import pairwise
 
+from src.media.svg_look import DIM, LOOKS, Look
+
 WIDTH, HEIGHT = 1080, 1920
 SAFE = (60, 250, 1020, 1600)  # x0, y0, x1, y1; Instagram's UI covers the rest
 LEFT, RIGHT = 72, 1008
@@ -19,19 +23,6 @@ FONT = "Inter, 'Segoe UI', 'Liberation Sans', 'DejaVu Sans', Arial, sans-serif"
 ASCENT, DESCENT = 0.8, 0.25  # of the font size, above and below the baseline
 EASE = "0.22 1 0.36 1"
 HOLD = "0 0 1 1"
-
-BG = "#0b1020"
-CARD = "#151d33"
-TAKE = "#1b2f5c"
-TEXT = "#f8fafc"
-MUTED = "#c3cfe2"
-ACCENT = "#60a5fa"
-ACCENT_TEXT = "#93c5fd"
-PACKET = "#e0f2fe"
-TRACK = "#334155"  # decoration, always drawn below 50% opacity
-INK = BG  # text on accent fills
-TEXT_ON = {TEXT: (BG, CARD, TAKE), MUTED: (BG, CARD, TAKE), ACCENT_TEXT: (BG, CARD, TAKE)}
-MARK_ON = {ACCENT: (BG, CARD, TAKE), MUTED: (BG,), PACKET: (BG, CARD)}
 _DASHES = re.compile("[" + chr(0x2013) + chr(0x2014) + "]")
 
 
@@ -120,11 +111,22 @@ def fmt(value: float) -> str:
     return f"{value:.4f}".rstrip("0").rstrip(".") or "0"
 
 
+def leading(size: float) -> float:
+    """Baseline to baseline: tight for display type, open for reading sizes."""
+    return size * (1.1 if size >= 64 else 1.22)
+
+
+def block_height(lines: int, size: float) -> float:
+    """Glyph top of the first line to the descender of the last, as Canvas.lines draws them."""
+    return ASCENT * size + (lines - 1) * leading(size) + DESCENT * size
+
+
 @dataclass
 class Canvas:
     """Elements on one clock of `total` seconds, with every text box recorded for checks."""
 
     total: float
+    look: Look = LOOKS[0]
     boxes: list[tuple[float, float, float, float]] = field(default_factory=list)
 
     def key(self, seconds: float) -> str:
@@ -170,10 +172,37 @@ class Canvas:
             extra='type="translate" ',
         )
 
-    def reveal(self, children: list[str], start: float, end: float | None = None) -> str:
-        """A group that fades and rises into place at `start`."""
+    def dimming(self, done: float, undim: float) -> list[tuple[float, str]]:
+        """Opacity frames that dim a finished element at `done` and restore it at `undim`."""
+        if done + 0.3 >= undim:
+            return []
+        return [(done, "1"), (done + 0.3, fmt(DIM)), (undim, fmt(DIM)), (undim + 0.3, "1")]
+
+    def reveal(
+        self,
+        children: list[str],
+        start: float,
+        end: float | None = None,
+        *,
+        dim: tuple[float, float] | None = None,
+    ) -> str:
+        """A group that fades and rises into place at `start`; `dim` is (done, undim)."""
         body = "".join(children)
-        return f'<g opacity="0">{self.fade(start, end)}{self.rise(start)}{body}</g>'
+        if dim is None:
+            return f'<g opacity="0">{self.fade(start, end)}{self.rise(start)}{body}</g>'
+        frames = [(start, "0"), (start + 0.35, "1"), *self.dimming(*dim)]
+        return f'<g opacity="0">{self.anim("opacity", frames)}{self.rise(start)}{body}</g>'
+
+    def scaled(
+        self, x: float, y: float, frames: list[tuple[float, str]], body: str, *, also: str = ""
+    ) -> str:
+        """`body` scaled about (x, y) by the factors in `frames` (it never moves otherwise);
+        `also` is another animation for the same group, such as its opacity."""
+        pulse = self.anim("transform", frames, tag="animateTransform", extra='type="scale" ')
+        return (
+            f'<g transform="translate({fmt(x)} {fmt(y)})"><g>{pulse}{also}'
+            f'<g transform="translate({fmt(-x)} {fmt(-y)})">{body}</g></g></g>'
+        )
 
     def text(
         self,
@@ -186,7 +215,9 @@ class Canvas:
         bold: bool = False,
         anchor: str = "start",
         spacing: float = 0.0,
+        body: str | None = None,
     ) -> str:
+        """One line of text; `body` replaces the escaped content (word tspans of the same text)."""
         content = clean(content)
         width = text_width(content, size, bold=bold, spacing=spacing)
         x0 = {"start": x, "middle": x - width / 2, "end": x - width}[anchor]
@@ -198,7 +229,7 @@ class Canvas:
             attrs += f' text-anchor="{anchor}"'
         if spacing:
             attrs += f' letter-spacing="{fmt(spacing)}"'
-        return f"<text {attrs}>{escape(content, quote=False)}</text>"
+        return f"<text {attrs}>{escape(content, quote=False) if body is None else body}</text>"
 
     def lines(
         self, x: float, top: float, lines: list[str], size: float, fill: str, *, bold: bool = False
@@ -215,68 +246,3 @@ class Canvas:
         for left, top, right, bottom in self.boxes:
             if left < x0 or right > x1 or top < y0 or bottom + RISE > y1:
                 raise LayoutError("text would leave the Reels safe area; shorten the scene text")
-
-
-def header(canvas: Canvas, kicker: str | None, hook: str) -> tuple[list[str], float]:
-    """Kicker and hook, visible from the first frame (the Reel cover); returns the bottom."""
-    top = SAFE[1] + 12
-    parts = []
-    if kicker:
-        parts.append(
-            canvas.text(LEFT, top + ASCENT * 36, kicker, 36, ACCENT_TEXT, bold=True, spacing=4)
-        )
-        top += 36 + 30
-    try:
-        size, hook_lines = fit(hook, (88, 80), RIGHT - LEFT, 2, bold=True)
-    except LayoutError:
-        size, hook_lines = fit(hook, (80,), RIGHT - LEFT, 3, bold=True)
-    more, bottom = canvas.lines(LEFT, top, hook_lines, size, TEXT, bold=True)
-    bar_y = bottom + 24
-    parts += [
-        *more,
-        f'<rect x="{LEFT}" y="{fmt(bar_y)}" width="0" height="8" rx="4" fill="{ACCENT}">'
-        + canvas.anim("width", [(0.3, "0"), (1.0, "160")])
-        + "</rect>",
-    ]
-    return parts, bar_y + 8
-
-
-def leading(size: float) -> float:
-    """Baseline to baseline: tight for display type, open for reading sizes."""
-    return size * (1.1 if size >= 64 else 1.22)
-
-
-def block_height(lines: int, size: float) -> float:
-    """Glyph top of the first line to the descender of the last, as Canvas.lines draws them."""
-    return ASCENT * size + (lines - 1) * leading(size) + DESCENT * size
-
-
-def takeaway_height(text: str) -> float:
-    size, lines = fit(text, (50, 48), RIGHT - LEFT - 96, 3, bold=True)
-    return block_height(len(lines), size) + 68
-
-
-def takeaway(canvas: Canvas, top: float, text: str, start: float) -> tuple[str, float]:
-    """Accent-edged card that fades in at `start`; returns the element and its bottom."""
-    size, lines = fit(text, (50, 48), RIGHT - LEFT - 96, 3, bold=True)
-    texts, _ = canvas.lines(LEFT + 56, top + 34, lines, size, TEXT, bold=True)
-    height = takeaway_height(text)
-    card = (
-        f'<rect x="{LEFT}" y="{fmt(top)}" width="{RIGHT - LEFT}" height="{fmt(height)}" '
-        f'rx="28" fill="{TAKE}"/>'
-        f'<rect x="{LEFT + 22}" y="{fmt(top + 28)}" width="8" height="{fmt(height - 56)}" '
-        f'rx="4" fill="{ACCENT}"/>'
-    )
-    return canvas.reveal([card, *texts], start), top + height
-
-
-def document(canvas: Canvas, parts: list[str], label: str) -> str:
-    """The finished file; raises LayoutError if any text box left the safe area."""
-    canvas.check()
-    title = escape(clean(label), quote=False)
-    return (
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {WIDTH} {HEIGHT}" '
-        f'width="{WIDTH}" height="{HEIGHT}" role="img" aria-labelledby="kr-title" '
-        f'font-family="{FONT}"><title id="kr-title">{title}</title>'
-        f'<rect width="{WIDTH}" height="{HEIGHT}" fill="{BG}"/>{"".join(parts)}</svg>'
-    )

@@ -5,9 +5,10 @@ Caption: say the stat in plain words, add one or two sentences of context from t
 then the takeaway. A "Source:" line naming the publication is appended automatically. Close with
 the line "Visuals: animated chart drafted with AI assistance."
 
-"scene": {"kind": "stat", "variant": "big_number", "headline": "...", "value": "62%",
- "context": "...", "takeaway": "...", "source_index": 0}
+"scene": {"kind": "stat", "variant": "big_number", "headline": "...", "icon": "...",
+ "value": "62%", "context": "...", "takeaway": "...", "source_index": 0}
 - source_index: zero-based position in <source_evidence> of the ONE record holding the numbers.
+- icon: the allowed icon that pictures what the number measures, or omit it.
 - Copy every number and date exactly as that record's title or excerpt states it. You may drop or
   add thousands commas and write "1.2bn" for "1.2 billion". Years and dates count as numbers.
 - variant "big_number": "value" is the figure; "context" (at most 80 characters) says what it

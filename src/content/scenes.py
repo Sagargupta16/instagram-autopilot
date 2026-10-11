@@ -18,6 +18,7 @@ from src.content.grounding import evidence_text, published_text, ungrounded
 from src.content.schemas import Nonempty, hashtag_list
 from src.content.sources import publication_name
 from src.content.voice import meta_commentary
+from src.media.lucide import ICONS
 from src.media.reel_svg import LayoutError, compose
 
 STAT_VALUE = (
@@ -28,7 +29,7 @@ StatValue = Annotated[
     str, StringConstraints(strict=True, strip_whitespace=True, max_length=14, pattern=STAT_VALUE)
 ]
 Label = Annotated[Nonempty, Field(max_length=18)]
-Detail = Annotated[Nonempty, Field(max_length=64)]
+Detail = Annotated[Nonempty, Field(max_length=48)]
 Hook = Annotated[Nonempty, Field(max_length=42)]
 Takeaway = Annotated[Nonempty, Field(max_length=70)]
 Headline = Annotated[Nonempty, Field(max_length=48)]
@@ -37,7 +38,16 @@ Unit = Annotated[Nonempty, Field(max_length=24)]
 BarLabel = Annotated[Nonempty, Field(max_length=16)]
 PointLabel = Annotated[Nonempty, Field(max_length=8)]
 DateLabel = Annotated[Nonempty, Field(max_length=12), StringConstraints(pattern=r"\d")]
-Event = Annotated[Nonempty, Field(max_length=56)]
+Event = Annotated[Nonempty, Field(max_length=44)]
+
+
+def _known_icon(name: str) -> str:
+    if name not in ICONS:
+        raise ValueError(f"unknown icon {name!r}; pick a name from the icon list or omit icon")
+    return name
+
+
+Icon = Annotated[str, StringConstraints(strict=True), AfterValidator(_known_icon)]
 
 
 class _Strict(BaseModel):
@@ -47,6 +57,7 @@ class _Strict(BaseModel):
 class Step(_Strict):
     label: Label
     detail: Detail
+    icon: Icon | None = None
 
 
 class StepsScene(_Strict):
@@ -70,6 +81,7 @@ class StatScene(_Strict):
     kind: Literal["stat"]
     variant: Literal["big_number", "bars", "ring", "line"]
     headline: Headline
+    icon: Icon | None = None
     value: StatValue | None = None
     context: Context | None = None
     bars: Annotated[list[Bar], Field(min_length=2, max_length=6)] | None = None
@@ -103,6 +115,7 @@ class StatScene(_Strict):
 class Milestone(_Strict):
     date: DateLabel
     event: Event
+    icon: Icon | None = None
 
 
 class TimelineScene(_Strict):
@@ -134,7 +147,7 @@ def scene_texts(scene: dict[str, Any]) -> list[str]:
     """Every model-written string a viewer can see in the scene."""
     out: list[str] = []
     for key, value in scene.items():
-        if key in {"kind", "variant", "source_index"}:
+        if key in {"kind", "variant", "source_index", "icon"}:
             continue
         if isinstance(value, str):
             out.append(value)

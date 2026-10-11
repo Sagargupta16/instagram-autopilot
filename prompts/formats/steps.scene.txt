@@ -2,14 +2,19 @@
 This post is an animated step-by-step explainer Reel.
 
 Caption: open with the plain question or benefit, then one short line per step in the same order
-(no list numbers), then the takeaway. Close with the line
+(no list numbers) that gives the full explanation, then the takeaway. Close with the line
 "Visuals: animated explainer drafted with AI assistance."
 
-"scene": {"kind": "steps", "hook": "...", "steps": [{"label": "...", "detail": "..."}], "takeaway": "..."}
-- hook: the line on the cover frame, at most 42 characters; a plain question or promise.
+"scene": {"kind": "steps", "hook": "...", "steps": [{"label": "...", "detail": "...",
+ "icon": "..."}], "takeaway": "..."}
+- The picture carries the Reel: each step is an icon, a label and a connector, so keep the
+  on-screen words few and leave the explanation to the caption.
+- hook: the opening line, at most 42 characters, ideally under 30 (two lines on a phone); a
+  plain question or promise.
 - steps: 3 to 6, in order. label: at most 18 characters, one to three words.
-  detail: at most 64 characters, one plain sentence saying what happens at that step.
-- takeaway: at most 70 characters, the one thing to remember.
+  detail: at most 48 characters, a short phrase saying what happens at that step.
+  icon: the allowed icon that pictures the step, or omit it.
+- takeaway: at most 70 characters, the one thing to remember; with 5 or 6 steps keep it under 50.
 - Be technically correct and plain. Explain the general mechanism, not one vendor's product.
   No hype words, no exaggeration, nothing you are unsure is true.
 - Numbers: most explainers need none. Write "a key pair", not "two keys"; "a handshake", not a

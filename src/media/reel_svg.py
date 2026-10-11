@@ -1,19 +1,26 @@
 """Compose a 1080x1920 animated SVG for a Reel from a validated scene.
 
 Self-contained SMIL on one clock: no scripts, external fonts or images. Every text box is
-checked against the Reels safe area, and the first frame already shows the hook (it is the
-default cover). The result is deterministic for a given scene and source line.
+checked against the Reels safe area, and the first frame already shows the hook. `cover` is
+the moment the whole scene is on screen (the final hold plus half a second, before the end
+card), which the publisher passes to Instagram as the cover frame. The result is
+deterministic for a given scene, source line and look.
 """
 
 from __future__ import annotations
 
+import copy
 from dataclasses import dataclass
 from typing import Any
 
 from src.media import reel_svg_stats, reel_svg_steps, reel_svg_timeline
-from src.media.svg_kit import Canvas, LayoutError, document
+from src.media.svg_kit import Canvas, LayoutError
+from src.media.svg_look import look as pick_look
+from src.media.svg_parts import COVER_AFTER_HOLD, document
 
 __all__ = ["LayoutError", "Reel", "compose"]
+
+LAYOUTS = {"steps": reel_svg_steps, "stat": reel_svg_stats, "timeline": reel_svg_timeline}
 
 
 @dataclass(frozen=True)
@@ -21,28 +28,44 @@ class Reel:
     svg: str
     duration: float
     boxes: tuple[tuple[float, float, float, float], ...]
+    cover: float
+
+    @property
+    def thumb_offset_ms(self) -> int:
+        return round(self.cover * 1000)
 
 
-def _draw(scene: dict[str, Any], source_line: str | None, kicker: bool) -> Reel:
+def _without_icons(scene: dict[str, Any]) -> dict[str, Any]:
+    bare = copy.deepcopy(scene)
+    bare.pop("icon", None)
+    for item in [*bare.get("steps", []), *bare.get("milestones", [])]:
+        item.pop("icon", None)
+    return bare
+
+
+def _draw(scene: dict[str, Any], source_line: str | None, kicker: bool, look: int) -> Reel:
     kind = scene["kind"]
-    if kind == "steps":
-        canvas = Canvas(reel_svg_steps.duration(scene))
-        parts = reel_svg_steps.compose(canvas, scene, kicker=kicker)
-    elif kind == "stat":
-        canvas = Canvas(reel_svg_stats.duration(scene))
-        parts = reel_svg_stats.compose(canvas, scene, source_line, kicker=kicker)
-    elif kind == "timeline":
-        canvas = Canvas(reel_svg_timeline.duration(scene))
-        parts = reel_svg_timeline.compose(canvas, scene, source_line, kicker=kicker)
-    else:
+    if kind not in LAYOUTS:
         raise LayoutError(f"unknown scene kind {kind!r}")
+    layout = LAYOUTS[kind]
+    canvas = Canvas(layout.duration(scene), pick_look(look))
+    if kind == "steps":
+        parts = layout.compose(canvas, scene, kicker=kicker)
+    else:
+        parts = layout.compose(canvas, scene, source_line, kicker=kicker)
     label = scene.get("hook") or scene["headline"]
-    return Reel(document(canvas, parts, label), canvas.total, tuple(canvas.boxes))
+    cover = layout.hold_start(scene) + COVER_AFTER_HOLD
+    return Reel(document(canvas, parts, label), canvas.total, tuple(canvas.boxes), cover)
 
 
-def compose(scene: dict[str, Any], *, source_line: str | None = None) -> Reel:
-    """The scene with its format kicker, or without it when that is what makes it fit."""
+def compose(scene: dict[str, Any], *, source_line: str | None = None, look: int = 0) -> Reel:
+    """The scene with its kicker and icons; without the kicker, then without icons, when
+    that is what makes it fit (both are optional decoration)."""
     try:
-        return _draw(scene, source_line, kicker=True)
+        return _draw(scene, source_line, True, look)
     except LayoutError:
-        return _draw(scene, source_line, kicker=False)
+        pass
+    try:
+        return _draw(scene, source_line, False, look)
+    except LayoutError:
+        return _draw(_without_icons(scene), source_line, False, look)

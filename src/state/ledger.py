@@ -88,6 +88,8 @@ class Ledger:
                 sources=content.get("sources", []),
                 alt_texts=content.get("alt_texts", []),
             )
+            if "look" in content:
+                entry["look"] = content["look"]
             data["history"].append(
                 {
                     "topic": topic,

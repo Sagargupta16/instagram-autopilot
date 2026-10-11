@@ -12,7 +12,10 @@ import pytest
 from src import main
 from src.content import dedup
 from src.flows import svg_reel_flow
+from src.media.reel_svg import Reel
+from src.media.svg_look import LOOKS
 from src.schedule import SlotPlan
+from src.slot_rules import next_look
 from src.state.ledger import Ledger
 from src.state.local import LocalStore
 
@@ -311,7 +314,7 @@ def test_post_now_dry_run_never_builds_the_ledger_or_uploads(
 ):
     monkeypatch.setattr(main, "create_ledger", Mock(side_effect=AssertionError("state touched")))
     sample_caption_data["scene"] = {"kind": "steps"}
-    prepared = ("caption", "<svg/>", b"mp4", None)
+    prepared = ("caption", Reel("<svg/>", 15.0, (), 11.5), b"mp4", None)
     monkeypatch.setattr(svg_reel_flow, "_prepare", Mock(return_value=prepared))
     upload, publish = Mock(), Mock()
     monkeypatch.setattr(svg_reel_flow, "upload_video", upload)
@@ -349,3 +352,36 @@ def test_cli_rejects_invalid_pillar_combinations(monkeypatch, argv):
     with pytest.raises(SystemExit) as error:
         main.main()
     assert error.value.code == 2
+
+
+def test_each_post_takes_the_look_after_the_last_published_one(
+    runner, flows, sample_config, sample_caption_data, monkeypatch
+):
+    ledger, slots = runner
+    svg, _ = flows
+    tech = pillar(sample_config, "tech-explainer")
+    slots[:] = [SlotPlan("10:00", tech, False), SlotPlan("14:00", tech, False)]
+    content = {**sample_caption_data, "scene": {"kind": "steps"}}
+    monkeypatch.setattr(main, "generate_caption", Mock(return_value=content))
+    first = NOW.replace(hour=10, minute=5)
+    main.run(now=first)
+    look = svg.call_args.args[0]["look"]
+    assert look == first.date().toordinal() % len(LOOKS)
+    assert ledger.get("2026-09-20|10:00|tech-explainer")["look"] == look
+    main.run(now=NOW.replace(hour=14, minute=5))
+    assert svg.call_args.args[0]["look"] == (look + 1) % len(LOOKS)
+    assert ledger.get("2026-09-20|14:00|tech-explainer")["look"] == (look + 1) % len(LOOKS)
+
+
+def test_next_look_rotates_past_the_latest_published_receipt():
+    day = NOW.date()
+    assert next_look({}, 3, day) == day.toordinal() % 3
+    slots = {
+        "a": {"status": "published", "published_at": "2026-09-19T10:00:00+00:00", "look": 2},
+        "b": {"status": "published", "published_at": "2026-09-20T09:00:00+00:00", "look": 0},
+        "c": {"status": "failed", "look": 1},
+        "d": {"status": "published", "published_at": "2026-09-20T11:00:00+00:00"},
+    }
+    assert next_look(slots, 3, day) == 1
+    slots["b"]["look"] = 2
+    assert next_look(slots, 3, day) == 0

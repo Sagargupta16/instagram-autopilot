@@ -12,9 +12,11 @@ from src.content.scenes import (
     StatScene,
     StepsScene,
     TimelineScene,
+    scene_texts,
     source_line,
     validate_svg_content,
 )
+from src.media.lucide import ICONS
 from src.media.reel_svg import LayoutError
 
 WATER = {
@@ -71,7 +73,7 @@ def _valid(model: type[BaseModel], scene: dict[str, Any]) -> bool:
 @pytest.mark.parametrize(("count", "ok"), [(2, False), (3, True), (6, True), (7, False)])
 def test_steps_count_bounds_at_max_field_lengths(count: int, ok: bool) -> None:
     scene = _steps(count, hook="h" * 42, takeaway="t" * 70)
-    scene["steps"][0] = {"label": "l" * 18, "detail": "d" * 64}
+    scene["steps"][0] = {"label": "l" * 18, "detail": "d" * 48, "icon": "rocket"}
     assert _valid(StepsScene, scene) is ok
 
 
@@ -81,14 +83,46 @@ def test_steps_count_bounds_at_max_field_lengths(count: int, ok: bool) -> None:
         {"hook": "h" * 43},
         {"takeaway": "t" * 71},
         {"steps": [{"label": "l" * 19, "detail": "Fine."}] * 3},
-        {"steps": [{"label": "Fine", "detail": "d" * 65}] * 3},
+        {"steps": [{"label": "Fine", "detail": "d" * 49}] * 3},
         {"subtitle": "Extra key"},
-        {"steps": [{"label": "Fine", "detail": "Fine.", "icon": "key"}] * 3},
+        {"steps": [{"label": "Fine", "detail": "Fine.", "icon": "not-an-icon"}] * 3},
+        {"steps": [{"label": "Fine", "detail": "Fine.", "icon": "Rocket"}] * 3},
+        {"steps": [{"label": "Fine", "detail": "Fine.", "image": "rocket"}] * 3},
         {"hook": "   "},
     ],
 )
 def test_steps_rejects_long_blank_or_extra_fields(overrides: dict[str, Any]) -> None:
     assert not _valid(StepsScene, _steps(**overrides))
+
+
+@pytest.mark.parametrize("name", sorted(ICONS))
+def test_every_vendored_icon_name_validates(name: str) -> None:
+    scene = _steps()
+    scene["steps"][0]["icon"] = name
+    assert StepsScene.model_validate(scene).steps[0].icon == name
+
+
+def test_unknown_icon_is_a_repairable_error_naming_the_field() -> None:
+    scene = _timeline()
+    scene["milestones"][1]["icon"] = "spaceship"
+    with pytest.raises(ValidationError, match="unknown icon 'spaceship'") as error:
+        TimelineScene.model_validate(scene)
+    assert error.value.errors()[0]["loc"] == ("milestones", 1, "icon")
+    assert not _valid(StatScene, _stat(icon="spaceship"))
+    assert StatScene.model_validate(_stat(icon="droplet")).icon == "droplet"
+
+
+def test_icons_are_optional_everywhere() -> None:
+    assert StepsScene.model_validate(_steps()).steps[0].icon is None
+    assert TimelineScene.model_validate(_timeline()).milestones[0].icon is None
+    assert StatScene.model_validate(_stat()).icon is None
+
+
+@pytest.mark.parametrize(("length", "ok"), [(44, True), (45, False)])
+def test_timeline_events_are_short(length: int, ok: bool) -> None:
+    scene = _timeline()
+    scene["milestones"][0]["event"] = "e" * length
+    assert _valid(TimelineScene, scene) is ok
 
 
 @pytest.mark.parametrize("variant", ["big_number", "ring", "bars", "line"])
@@ -254,11 +288,20 @@ def test_scene_kind_must_match_the_pillar(reel: dict[str, Any], scene: dict, kin
 
 def test_steps_number_word_needs_evidence(reel: dict[str, Any]) -> None:
     scene = _steps()
-    scene["steps"][0]["detail"] = "Your device creates two keys that belong together."
+    scene["steps"][0]["detail"] = "Your device creates two keys that belong together"
     with pytest.raises(ValueError, match=r"not found there: 2\."):
         _check({**reel, "scene": scene}, kind="steps", sources=[])
-    scene["steps"][0]["detail"] = "Your device creates a key pair that belongs together."
+    scene["steps"][0]["detail"] = "Your device creates a key pair"
     assert _check({**reel, "scene": scene}, kind="steps", sources=[]).scene.kind == "steps"
+
+
+def test_icon_names_are_not_scene_text(reel: dict[str, Any]) -> None:
+    scene = _steps()
+    for step in scene["steps"]:
+        step["icon"] = "chart-column"
+    texts = scene_texts(scene)
+    assert "chart-column" not in texts
+    assert _check({**reel, "scene": scene}, kind="steps", sources=[]).scene.steps[0].icon
 
 
 def test_scene_too_long_for_the_layout_is_a_value_error(reel: dict[str, Any]) -> None:
@@ -266,7 +309,7 @@ def test_scene_too_long_for_the_layout_is_a_value_error(reel: dict[str, Any]) ->
         6, hook=WIDE_HOOK, takeaway="WHEN MOM WAKES WARM MACHINES, MANY WORKERS WALK HOME"
     )
     for step in scene["steps"]:
-        step["detail"] = "The browser asks a resolver which server holds the domain record"
+        step["detail"] = "The browser asks which server holds the domain"
     assert _valid(StepsScene, scene)
     with pytest.raises(
         ValueError, match=r"scene does not fit the Reel layout: .*too long"

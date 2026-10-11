@@ -35,7 +35,7 @@ jobs:
   svg-reel-sample:
     name: SVG Reel sample render
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
@@ -48,6 +48,31 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg
+      - name: Restore the licensed audio library
+        id: audio-library
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            assets/audio/chill
+            assets/audio/upbeat
+            assets/audio/cinematic
+            assets/audio/catalog_manifest.json
+          key: audio-library-${{ hashFiles('assets/audio/catalog.json', 'scripts/fetch_audio_catalog.py') }}
+      - name: Download the licensed audio library (the samples render silent if this fails)
+        id: fetch-audio
+        if: steps.audio-library.outputs.cache-hit != 'true'
+        continue-on-error: true
+        run: uv run --frozen --no-dev --no-build python scripts/fetch_audio_catalog.py
+      - name: Save the licensed audio library
+        if: steps.audio-library.outputs.cache-hit != 'true' && steps.fetch-audio.outcome == 'success'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            assets/audio/chill
+            assets/audio/upbeat
+            assets/audio/cinematic
+            assets/audio/catalog_manifest.json
+          key: audio-library-${{ hashFiles('assets/audio/catalog.json', 'scripts/fetch_audio_catalog.py') }}
       - name: Show the renderer toolchain
         run: |
           google-chrome --version
@@ -55,10 +80,13 @@ jobs:
           fc-match "Inter"
           fc-match "Liberation Sans:bold"
           fc-match "DejaVu Sans:bold"
-      - name: Render the fixed sample scene to MP4 with real Chrome and ffmpeg
+      - name: Render one sample Reel per pillar to MP4 with real Chrome and ffmpeg
         run: uv run --frozen --no-dev --no-build python scripts/render_svg_reel_sample.py
-      - name: Probe the MP4
-        run: ffprobe -v error -show_entries format=duration,size:stream=codec_name,profile,width,height,pix_fmt,avg_frame_rate -of compact output/svg-reel-sample/steps-cicd.mp4
+      - name: Probe the MP4s
+        run: |
+          for video in output/svg-reel-sample/*.mp4; do
+            ffprobe -v error -show_entries format=duration,size:stream=codec_name,profile,width,height,pix_fmt,avg_frame_rate,sample_rate,channels -of compact "$video"
+          done
       - name: Upload the MP4 and frames
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:

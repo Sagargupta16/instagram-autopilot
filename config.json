@@ -11,10 +11,10 @@
     ]
   },
   "cadence": {
-    "max_posts_per_day": 4,
-    "post_probability": [0.04, 0.08, 0.18, 0.35, 0.35],
+    "max_posts_per_day": 2,
+    "post_probability": [0.05, 0.35, 0.60],
     "window_utc": {"start": "04:00", "end": "20:00"},
-    "min_gap_minutes": 60,
+    "min_gap_minutes": 180,
     "schedule_buffer_minutes": 40,
     "skip_probability": 0.05
   },

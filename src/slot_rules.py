@@ -1,8 +1,9 @@
-"""Which slot a run may fill: forced pillars, on-demand posts, and slot times already used."""
+"""Which slot a run may fill: forced pillars, on-demand posts, and slot times already used;
+and which visual look the post gets."""
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from typing import Any
 
 from src.state.ledger import MAX_ATTEMPTS
@@ -30,6 +31,20 @@ def slot_time_used(slots: dict[str, Any], key: str) -> bool:
         )
         for other, entry in slots.items()
     )
+
+
+def next_look(slots: dict[str, Any], count: int, today: date) -> int:
+    """The look after the last published post's, so consecutive posts never share one; the
+    day number picks it when no published receipt records a look (and in a dry-run)."""
+    published = [
+        entry
+        for entry in slots.values()
+        if entry.get("status") == "published" and isinstance(entry.get("look"), int)
+    ]
+    if not published:
+        return today.toordinal() % count
+    last = max(published, key=lambda entry: entry.get("published_at", ""))
+    return (last["look"] + 1) % count
 
 
 def post_now_refusal(slots: dict[str, Any], now: datetime, cadence: dict[str, Any]) -> str:

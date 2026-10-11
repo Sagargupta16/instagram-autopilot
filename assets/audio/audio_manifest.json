@@ -1,4 +1,4 @@
 {
   "tracks": [],
-  "_notes": "Populated by scripts/curate_audio.py using Pixabay Music (CC0-equivalent, no attribution). Ship 30 tracks split 10/10/10 across chill, upbeat, cinematic themes."
+  "_notes": "Committed, hand-curated or imported entries only; keep it free of audio files. The licensed Mixkit tracks listed in catalog.json are downloaded by scripts/fetch_audio_catalog.py into the gitignored theme folders, which also writes their gitignored catalog_manifest.json for the picker."
 }
