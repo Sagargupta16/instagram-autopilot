@@ -32,6 +32,40 @@ jobs:
           uv export --frozen --no-dev --no-hashes --output-file /tmp/requirements.txt
           diff <(grep -v '^#' requirements.txt) <(grep -v '^#' /tmp/requirements.txt)
         shell: bash
+  svg-reel-sample:
+    name: SVG Reel sample render
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          python-version: '3.14'
+          enable-cache: true
+      - name: Install locked runtime
+        run: uv sync --frozen --no-dev --no-build
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+      - name: Show the renderer toolchain
+        run: |
+          google-chrome --version
+          ffmpeg -hide_banner -version | head -1
+          fc-match "Inter"
+          fc-match "Liberation Sans:bold"
+          fc-match "DejaVu Sans:bold"
+      - name: Render the fixed sample scene to MP4 with real Chrome and ffmpeg
+        run: uv run --frozen --no-dev --no-build python scripts/render_svg_reel_sample.py output/svg-reel-sample
+      - name: Probe the MP4
+        run: ffprobe -v error -show_entries format=duration,size:stream=codec_name,profile,width,height,pix_fmt,avg_frame_rate -of compact output/svg-reel-sample/steps-cicd.mp4
+      - name: Upload the MP4 and frames
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: svg-reel-sample
+          path: output/svg-reel-sample/
+          if-no-files-found: error
+          retention-days: 14
   security:
     uses: Sagargupta16/shared-workflows/.github/workflows/security-scan.yml@7499fea0c880e95c82e038323e3614a180e69e95
     permissions:
