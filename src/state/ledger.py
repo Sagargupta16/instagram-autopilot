@@ -91,7 +91,7 @@ class Ledger:
             data["history"].append(
                 {
                     "topic": topic,
-                    "image_prompts": [p[:400] for p in content["image_prompts"]],
+                    "image_prompts": [p[:400] for p in content.get("image_prompts", [])],
                     "ts": now.isoformat(),
                 }
             )

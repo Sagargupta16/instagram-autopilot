@@ -7,6 +7,7 @@ import logging
 import random
 import sys
 from collections.abc import Callable
+from dataclasses import replace
 from datetime import UTC, datetime
 from typing import Any
 
@@ -17,10 +18,12 @@ from src.content.topic import generate_topic_brief
 from src.flows.carousel_flow import post_carousel
 from src.flows.image_flow import post_image
 from src.flows.reel_flow import post_reel
+from src.flows.svg_reel_flow import post_svg_reel
 from src.pillar import load_config
 from src.run_report import write_summary
 from src.schedule import SlotPlan, plan_today
 from src.settings import settings
+from src.slot_rules import forced_pillar, post_now_refusal, slot_time_used
 from src.state.factory import create_ledger
 from src.state.history import sync_history
 from src.state.ledger import MAX_ATTEMPTS, Ledger
@@ -57,12 +60,11 @@ def _run_slot(
     )
     content["sources"] = brief.get("sources", [])
     caption = content["caption"] + "\n\n" + content["hashtags"]
-    log.info(
-        "Content ready | topic: %s | slides: %d", brief["topic"], len(content["image_prompts"])
-    )
+    shape = content["scene"]["kind"] if "scene" in content else len(content["image_prompts"])
+    log.info("Content ready | topic: %s | slides or scene: %s", brief["topic"], shape)
     if ledger:
         ledger.remember(key, brief["topic"], content, current())
-        record_post(brief["topic"], content["image_prompts"])
+        record_post(brief["topic"], content.get("image_prompts", []))
 
     def before_publish(container_id: str) -> None:
         instant = current().astimezone(UTC)
@@ -80,18 +82,40 @@ def _run_slot(
     match slot.pillar.get("content_format", "carousel"):
         case "reel":
             return post_reel(content, caption, image_model, config["models"]["video"], **kwargs)
+        case "svg_reel":
+            theme = slot.pillar.get("audio_theme")
+            return post_svg_reel(content, caption, audio_theme=theme, **kwargs)
         case "image":
             return post_image(content, caption, image_model, **kwargs)
         case _:
             return post_carousel(content, caption, image_model, **kwargs)
 
 
-def run(*, dry_run: bool = False, now: datetime | None = None) -> dict[str, Any]:
+def _refuse(reason: str) -> None:
+    write_summary({"status": "refused", "reason": reason})
+    raise RuntimeError(f"Post-now refused: {reason}")
+
+
+def run(
+    *,
+    dry_run: bool = False,
+    now: datetime | None = None,
+    pillar_id: str | None = None,
+    post_now: bool = False,
+) -> dict[str, Any]:
+    """pillar_id swaps the content pillar of the slot this tick handles; never the timing.
+
+    post_now (with pillar_id) is the one exception to waiting for a planned slot: the current
+    minute becomes the only candidate, and the window, cap, gap and ledger claim still apply.
+    """
     if now is not None and now.tzinfo is None:
         raise ValueError("Scheduling requires a timezone-aware UTC time")
     clock = (lambda: now.astimezone(UTC)) if now else (lambda: datetime.now(UTC))
     current = clock()
     config = load_config()
+    forced = forced_pillar(config, pillar_id)
+    if post_now and forced is None:
+        raise ValueError("Post-now requires a pillar ID")
     plan = plan_today(current.date(), config["cadence"], config["pillars"])
     window = config["cadence"]["window_utc"]
     candidates = [
@@ -102,31 +126,41 @@ def run(*, dry_run: bool = False, now: datetime | None = None) -> dict[str, Any]
             dry_run or window["start"] <= slot.time_utc <= current.strftime("%H:%M") < window["end"]
         )
     ]
-    if dry_run and not candidates:
-        candidates = [SlotPlan(current.strftime("%H:%M"), config["pillars"][0], False)]
+    if (dry_run and not candidates) or post_now:
+        candidates = [SlotPlan(current.strftime("%H:%M"), forced or config["pillars"][0], False)]
+    if forced:
+        candidates = [replace(slot, pillar=forced) for slot in candidates]
     if not candidates:
         result = {"status": "skipped", "reason": "No due slots inside today's posting window"}
         write_summary(result)
         return result
     ledger = None if dry_run else create_ledger()
+    slots: dict[str, Any] = {}
     if ledger:
         sync_history(ledger)
+        slots = ledger.snapshot()["slots"]
         unresolved = [
-            key
-            for key, value in ledger.snapshot()["slots"].items()
-            if value["status"] in {"publishing", "uncertain"}
+            key for key, value in slots.items() if value["status"] in {"publishing", "uncertain"}
         ]
         if unresolved:
             write_summary({"status": "needs_reconciliation", "slots": unresolved})
             raise RuntimeError("Publication requires reconciliation before another post")
+        if post_now and (reason := post_now_refusal(slots, current, config["cadence"])):
+            _refuse(reason)
     for slot in candidates:
         key = f"{current.date().isoformat()}|{slot.time_utc}|{slot.pillar['id']}"
-        if ledger and not ledger.claim(
-            key,
-            current,
-            min_gap_minutes=config["cadence"]["min_gap_minutes"],
-            max_posts_per_day=config["cadence"]["max_posts_per_day"],
-        ):
+        claimed = not slot_time_used(slots, key) and (
+            not ledger
+            or ledger.claim(
+                key,
+                current,
+                min_gap_minutes=config["cadence"]["min_gap_minutes"],
+                max_posts_per_day=config["cadence"]["max_posts_per_day"],
+            )
+        )
+        if not claimed and post_now:
+            _refuse(f"slot {key} is already handled or owned by another run")
+        if not claimed:
             continue
         try:
             cloudinary_host.configure()
@@ -180,8 +214,20 @@ def main() -> None:
     resolution = parser.add_mutually_exclusive_group()
     resolution.add_argument("--media-id", help="Confirmed Instagram media ID for --resolve-slot")
     resolution.add_argument("--confirm-not-published", action="store_true")
+    parser.add_argument(
+        "--pillar", help="Pillar ID for the slot this run handles; schedule limits still apply"
+    )
+    parser.add_argument(
+        "--post-now",
+        action="store_true",
+        help="With --pillar: use the current minute as the slot; cap, gap and window still apply",
+    )
     args = parser.parse_args()
+    if args.post_now and not args.pillar:
+        parser.error("--post-now requires --pillar")
     if args.resolve_slot:
+        if args.pillar or args.post_now:
+            parser.error("--pillar and --post-now cannot be combined with --resolve-slot")
         if not args.media_id and not args.confirm_not_published:
             parser.error("--resolve-slot requires --media-id or --confirm-not-published")
         create_ledger().resolve(args.resolve_slot, media_id=args.media_id, now=datetime.now(UTC))
@@ -189,7 +235,7 @@ def main() -> None:
     if args.media_id or args.confirm_not_published:
         parser.error("Resolution options require --resolve-slot")
     try:
-        run(dry_run=args.dry_run)
+        run(dry_run=args.dry_run, pillar_id=args.pillar, post_now=args.post_now)
     except Exception as error:
         log.error("%s", error)
         raise SystemExit(1) from None

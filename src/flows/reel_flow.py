@@ -25,7 +25,7 @@ class ReelPipelineError(Exception):
     """A failure before the publisher has been called."""
 
 
-def _select_audio(theme: str) -> AudioTrack | None:
+def select_audio(theme: str) -> AudioTrack | None:
     try:
         track = audio_picker.select(theme)
         audio_bake.ensure_available()
@@ -61,7 +61,7 @@ def post_reel(
     try:
         if not settings.s3_video_bucket:
             raise ReelPipelineError("S3 output bucket is not configured")
-        track = _select_audio(caption_data.get("audio_theme") or "cinematic")
+        track = select_audio(caption_data.get("audio_theme") or "cinematic")
         reel_caption = caption
         if track and track.attribution:
             reel_caption = f"{caption}\n\n{track.attribution}"

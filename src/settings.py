@@ -42,8 +42,8 @@ class Settings(BaseSettings):
     meta_user_access_token: str = ""
     meta_graph_api_version: str = "v21.0"
 
-    # Content strategy (wide lifestyle: travel, food, fitness, entertainment, tech, lifestyle)
-    niche: str = "wide_lifestyle"
+    # Content strategy: animated tech explainers, stat stories and timelines
+    niche: str = "creative_data_tech"
     content_types: str = "tip,story,scene,guide,insight,list,how-to,showcase"
 
     # Legacy compatibility setting; current scheduling uses config.json cadence.

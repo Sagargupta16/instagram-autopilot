@@ -60,3 +60,33 @@ def test_invalid_cadence_fails_before_service_calls(tmp_path, monkeypatch, field
     monkeypatch.setattr(pillar, "CONFIG_PATH", path)
     with pytest.raises(ValueError):
         load_config()
+
+
+def test_shipped_pillars_are_the_three_svg_reel_formats() -> None:
+    pillars = load_config()["pillars"]
+    assert [(p["id"], p["weight"], p["scene_kind"]) for p in pillars] == [
+        ("tech-explainer", 1.0, "steps"),
+        ("cool-stats", 1.5, "stat"),
+        ("history-timeline", 0.8, "timeline"),
+    ]
+    for pillar in pillars:
+        assert pillar["content_format"] == "svg_reel"
+        assert pillar["audio_theme"] in {"chill", "upbeat", "cinematic"}
+
+
+@pytest.mark.parametrize(
+    ("content_format", "scene_kind"), [("svg_reel", None), ("carousel", "steps"), ("image", "stat")]
+)
+def test_scene_kind_must_match_content_format(tmp_path, monkeypatch, content_format, scene_kind):
+    import src.pillar as pillar
+
+    config = load_config()
+    config["pillars"][0]["content_format"] = content_format
+    config["pillars"][0].pop("scene_kind")
+    if scene_kind is not None:
+        config["pillars"][0]["scene_kind"] = scene_kind
+    path = tmp_path / "config.json"
+    path.write_text(json.dumps(config))
+    monkeypatch.setattr(pillar, "CONFIG_PATH", path)
+    with pytest.raises(ValueError, match="svg_reel pillars need a scene_kind"):
+        load_config()
