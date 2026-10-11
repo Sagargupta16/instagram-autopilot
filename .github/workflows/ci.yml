@@ -56,7 +56,7 @@ jobs:
           fc-match "Liberation Sans:bold"
           fc-match "DejaVu Sans:bold"
       - name: Render the fixed sample scene to MP4 with real Chrome and ffmpeg
-        run: uv run --frozen --no-dev --no-build python scripts/render_svg_reel_sample.py output/svg-reel-sample
+        run: uv run --frozen --no-dev --no-build python scripts/render_svg_reel_sample.py
       - name: Probe the MP4
         run: ffprobe -v error -show_entries format=duration,size:stream=codec_name,profile,width,height,pix_fmt,avg_frame_rate -of compact output/svg-reel-sample/steps-cicd.mp4
       - name: Upload the MP4 and frames

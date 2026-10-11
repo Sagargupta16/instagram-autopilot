@@ -1,10 +1,10 @@
 """Render the fixed SVG Reel sample to MP4 with real Chrome and ffmpeg, then extract frames.
 
 Usage:
-    uv run --frozen python scripts/render_svg_reel_sample.py OUT_DIR [--name steps-cicd]
+    uv run --frozen python scripts/render_svg_reel_sample.py [--name steps-cicd]
 
-Writes OUT_DIR/NAME.mp4 and NAME.svg, four PNG frames of the MP4 (hook, mid-steps,
-takeaway, final hold), one still per other sample layout, and probe.json. Uses no
+Writes output/svg-reel-sample/NAME.mp4 and NAME.svg, four PNG frames of the MP4 (hook,
+mid-steps, takeaway, final hold), one still per other sample layout, and probe.json. Uses no
 credentials and makes no network requests. Exits non-zero when the MP4 fails the spec.
 """
 
@@ -24,6 +24,7 @@ from src.media import reel_probe, svg_video  # noqa: E402
 from src.media.reel_svg import compose  # noqa: E402
 
 SAMPLES = ROOT / "scripts" / "samples" / "svg_reel_scenes.json"
+OUT = ROOT / "output" / "svg-reel-sample"
 
 
 def moments(duration: float) -> dict[str, float]:
@@ -48,33 +49,32 @@ def extract(video: Path, seconds: float, target: Path) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("out", type=Path)
-    parser.add_argument("--name", default="steps-cicd")
-    args = parser.parse_args()
-    args.out.mkdir(parents=True, exist_ok=True)
     samples = {item["name"]: item for item in json.loads(SAMPLES.read_text("utf-8"))["scenes"]}
+    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    parser.add_argument("--name", choices=sorted(samples), default="steps-cicd")
+    chosen = samples[parser.parse_args().name]
+    name = chosen["name"]
+    OUT.mkdir(parents=True, exist_ok=True)
     browser = svg_video.ensure_available()
-    chosen = samples[args.name]
     reel = compose(chosen["scene"], source_line=chosen["source_line"])
-    (args.out / f"{args.name}.svg").write_text(reel.svg, encoding="utf-8")
-    video = args.out / f"{args.name}.mp4"
+    (OUT / f"{name}.svg").write_text(reel.svg, encoding="utf-8")
+    video = OUT / f"{name}.mp4"
     started = time.perf_counter()
     svg_video.render(reel.svg, reel.duration, video, browser=browser)
     seconds = round(time.perf_counter() - started, 1)
     summary = reel_probe.verify(video, reel.duration, audio=False)
     summary["render_seconds"] = seconds
-    (args.out / "probe.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    (OUT / "probe.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     for label, at in moments(reel.duration).items():
-        extract(video, at, args.out / f"{args.name}-{label}.png")
-    for name, item in samples.items():
-        if name == args.name:
+        extract(video, at, OUT / f"{name}-{label}.png")
+    for other_name, item in samples.items():
+        if other_name == name:
             continue
         other = compose(item["scene"], source_line=item["source_line"])
         times = [round(other.duration * 0.45, 2), round(other.duration - 0.1, 2)]
-        png = svg_video.shoot(browser, other.svg, times, args.out / f"still-{name}")
+        png = svg_video.shoot(browser, other.svg, times, OUT / f"still-{other_name}")
         for frame, label in zip(svg_video.tiles(png, len(times)), ("middle", "hold"), strict=True):
-            frame.save(args.out / f"still-{name}-{label}.png")
+            frame.save(OUT / f"still-{other_name}-{label}.png")
         png.unlink()
         png.with_suffix(".html").unlink()
     sys.stdout.write(json.dumps(summary, indent=2) + "\n")

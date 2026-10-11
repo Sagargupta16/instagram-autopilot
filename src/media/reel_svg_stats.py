@@ -33,12 +33,12 @@ from src.media.svg_kit import (
 )
 
 HEAD_S, COUNT_S, STEPS = 2.0, 2.4, 24
-_VALUE = re.compile(r"^(?P<cur>[^\d]?)(?P<num>[\d,]+)(?P<dec>\.\d+)?(?P<suf>.*)$")
+_VALUE = re.compile(r"(?P<cur>\D?)(?P<num>[\d,]+)(?P<dec>\.\d+)?(?P<suf>\D*)")
 
 
 def number(value: str) -> float:
     """The magnitude used for scaling; suffix multipliers keep mixed bars comparable."""
-    m = _VALUE.match(value)
+    m = _VALUE.fullmatch(value)
     base = float(m["num"].replace(",", "") + (m["dec"] or "")) if m else 0.0
     suffix = (m["suf"] if m else "").strip().casefold()
     scale = {"k": 1e3, "thousand": 1e3, "m": 1e6, "million": 1e6, "bn": 1e9, "billion": 1e9}
@@ -47,7 +47,7 @@ def number(value: str) -> float:
 
 def counting(value: str, steps: int = STEPS) -> list[str]:
     """Count-up frames that share the final value's prefix, grouping, decimals and suffix."""
-    m = _VALUE.match(value)
+    m = _VALUE.fullmatch(value)
     if not m:
         return [value]
     final = float(m["num"].replace(",", "") + (m["dec"] or ""))
@@ -207,7 +207,7 @@ def _line(canvas: Canvas, scene: dict[str, Any], top: float, bottom: float) -> l
         reached += legs[i] if i < len(legs) else 0
         mark = [f'<circle cx="{fmt(x)}" cy="{fmt(y)}" r="11" fill="{ACCENT}"/>']
         edge = i in (0, len(points) - 1)
-        anchor = "start" if i == 0 else "end" if i == len(points) - 1 else "middle"
+        anchor = {0: "start", len(points) - 1: "end"}.get(i, "middle")
         if every or edge:
             mark.append(canvas.text(x, y1 + 80, point["label"], 36, MUTED, anchor=anchor))
         if edge:

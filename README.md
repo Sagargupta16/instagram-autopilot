@@ -54,7 +54,7 @@ Dry-run performs paid text generation and renders locally but **does not upload,
 
 ```bash
 uv run --frozen python -m src.main --dry-run --pillar cool-stats   # preview one pillar
-uv run --frozen python scripts/render_svg_reel_sample.py output/sample   # no credentials needed
+uv run --frozen python scripts/render_svg_reel_sample.py   # output/svg-reel-sample, no credentials needed
 ```
 
 ```bash

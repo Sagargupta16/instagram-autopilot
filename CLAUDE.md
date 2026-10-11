@@ -12,7 +12,7 @@ Headless Python Instagram publisher for a creative data and tech account. Three 
 - `uv run --frozen ruff check src tests scripts`
 - `uv run --frozen ruff format --check src tests scripts`
 - `uv run --frozen pytest --cov=src --cov-branch`
-- `uv run --frozen python scripts/render_svg_reel_sample.py OUT_DIR` renders the fixed sample scene with real Chrome and ffmpeg (no credentials, no network); CI uploads it as the `svg-reel-sample` artifact.
+- `uv run --frozen python scripts/render_svg_reel_sample.py` renders the fixed sample scene into `output/svg-reel-sample/` with real Chrome and ffmpeg (no credentials, no network); CI uploads it as the `svg-reel-sample` artifact.
 - `uv run --frozen python -m src.main --dry-run` is paid local generation, never upload/publication/history mutation.
 - `python -m src.main` is a live publishing command, not a test.
 
