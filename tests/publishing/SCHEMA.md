@@ -8,6 +8,11 @@ No credentials, model calls, or tool executions were used for verification.
 - `INSTAGRAM_CREATE_MEDIA_CONTAINER` accepts optional `alt_text` (string)
   for a single image or an image carousel child, at most 1,000 characters.
   It is unsupported for videos, Reels, Stories, or carousel parents.
+- Re-read 2026-10-11 (toolkit version 20261008): `INSTAGRAM_CREATE_MEDIA_CONTAINER`
+  also accepts optional integer `thumb_offset`, "millisecond offset used to capture
+  the cover thumbnail frame" for videos and Reels, and `cover_url`. It has **no**
+  `audio_name`; only the newer `INSTAGRAM_POST_IG_USER_MEDIA` lists one. Reels send
+  `thumb_offset` from the composer's cover moment and never send `audio_name`.
 - `INSTAGRAM_CREATE_POST` accepts required `ig_user_id` and `creation_id`
   (strings), plus optional `graph_api_version`. **It does not list
   `max_wait_seconds` or `poll_interval_seconds`.** Its description mentions

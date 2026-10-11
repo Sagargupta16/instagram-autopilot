@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.9.0] - 2026-10-11
+
+### Added
+- Licensed music for every SVG Reel. `assets/audio/catalog.json` lists 15 Mixkit tracks (five each for chill, upbeat and cinematic) with title, artist, listing page, direct download URL, duration and sha256, under the Mixkit Stock Music Free License (social media video posts, no attribution; never register the tracks with a rights-management service). `scripts/fetch_audio_catalog.py` (standard library only) downloads them into the gitignored theme folders, keeps a file only when its hash matches and writes the gitignored `catalog_manifest.json` the audio picker now reads beside the committed manifest. No audio file is committed. The publishing and CI workflows restore the library from a cache keyed on the catalog and the script, fetch it on a miss, and never fail a run on a failed download.
+- Icons: 60 vendored Lucide icons (release 1.55.0, ISC with the MIT notice for Feather-derived icons, in `src/media/lucide/`). Steps, milestones and stat headlines take an optional `icon` from that list, validated by the scene schema; an unknown name triggers the one repair call. Step icons are drawn at 96 px or more in the accent color.
+- Three looks (midnight blue, violet, amber, from the svg-forge themes) with their own kicker wording and icon tile shape. Each post takes the look after the last published post's, stored on its receipt, so consecutive posts never look the same.
+- A progress bar along the top of the safe area that fills over the Reel, and a 2-second end card with `@creativity.prompt` and "Follow for daily explainers" while the scene dims behind it.
+- The cover frame: the Reel container now sends `thumb_offset` (milliseconds) half a second into the final hold, so the profile grid shows the complete card, not the opening frame. The value comes from the composer's timeline (`Reel.cover`) and is saved in the dry-run `scene.json`.
+- The CI `svg-reel-sample` artifact now holds one MP4 per pillar in a different look, with music baked in when the library is available, four frames of each (hook entrance, middle, cover frame, end card) and a cover still of every sample in every look.
+
+### Changed
+- Cadence for a near-zero-follower account: at most two posts per UTC day, at least 180 minutes apart, with `post_probability` `[0.05, 0.35, 0.60]` (it was four posts and 60 minutes). Meta's spam policy names automated high-frequency posting of repetitive content.
+- Less text, more picture: a step's detail (now at most 48 characters) shows only while that step is active, its card glows and its icon pops, then the row collapses to icon and label and dims until the takeaway. Timeline events are at most 44 characters on a rail of icon nodes that pop while active. The prompts keep the full explanation in the caption.
+- A stronger opening: the hook is readable on the first frame and each word brightens in turn while its line pops (never past the safe area), under the kicker and an underline sweep.
+- Steps and timelines hold for 4 seconds (2 with the complete scene, then the end card), so they run 14.4 to 21 seconds.
+- `compose()` drops the kicker, then the icons, before a scene counts as not fitting.
+
+### Fixed
+- The baked audio fade now ends at the Reel's real length. It used `int(duration)`, which faded out early and left the last fraction of a second silent (0.8 s on an 18.8 s Reel).
+
 ## [0.8.2] - 2026-10-11
 
 ### Fixed

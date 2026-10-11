@@ -8,17 +8,21 @@ An Instagram publisher for a creative data and tech account, powered by AWS Bedr
 
   | Pillar | Format | Weight | Audio theme | Evidence |
   | --- | --- | --- | --- | --- |
-  | `tech-explainer` | Steps: 3 to 6 cards joined by connectors; a packet travels to each new step | 1.0 | chill | Tech feeds (Hugging Face, Product Hunt, GitHub, Hacker News, Google News, Guardian, Lemmy) or an evergreen mechanism |
-  | `cool-stats` | One stat story: big-number count-up, up to 6 ranked bars, a percent ring, or a line that draws in | 1.5 | upbeat | Google News, Guardian and Lemmy records that state the number |
-  | `history-timeline` | "The story of X": 4 to 6 dated milestones down a rail | 0.8 | cinematic | Trending Wikipedia articles with their lead sections, Guardian, Lemmy |
+  | `tech-explainer` | Steps: 3 to 6 icon rows joined by connectors; a packet travels to each new step, whose short detail shows only while it is active | 1.0 | chill | Tech feeds (Hugging Face, Product Hunt, GitHub, Hacker News, Google News, Guardian, Lemmy) or an evergreen mechanism |
+  | `cool-stats` | One stat story with an optional icon: big-number count-up, up to 6 ranked bars, a percent ring, or a line that draws in | 1.5 | upbeat | Google News, Guardian and Lemmy records that state the number |
+  | `history-timeline` | "The story of X": 4 to 6 dated milestones down a rail of icon nodes | 0.8 | cinematic | Trending Wikipedia articles with their lead sections, Guardian, Lemmy |
 
-- Up to four successful posts per UTC day (most days plan three or four), with a minimum 60-minute interval between actual successful publications.
+- At most two successful posts per UTC day (about 60% of days plan two, 35% one, 5% none), with a minimum 180-minute interval between actual successful publications. Meta's spam policy names automated high-frequency posting of repetitive content, so a near-zero-follower account stays well below it.
 - GitHub Actions checks every 20 minutes during 04:00-20:00 UTC. Each run handles at most one due slot; it never sleeps for hours or bursts overdue posts.
 - The daily plan is deterministic. A 40-minute buffer leaves time for a scheduler tick and generation before the window closes. GitHub can delay cron runs; missed slots are not published outside the window.
 - Topics use category-relevant, source-balanced discovery. Available URLs, timestamps, publishers and excerpts travel into caption generation. Stat and timeline Reels require evidence that states numbers or dates; with none, the slot fails instead of inventing them.
 - Every number, percentage, date and number word in a scene, and in its caption outside links and hashtags, must appear in the adapters' title or excerpt text (a stat must appear in the one record it cites). Content is schema-validated with at most one repair call; anything still ungrounded fails before rendering. The "Source:" line on the last frame and in the caption is built from adapter metadata, not model text.
-- Scenes are drawn as self-contained 1080x1920 SMIL SVGs: big type (hook 80-88 px, labels 52+ px, details 36+ px, takeaway 48+ px), a dark palette with every text color at least 4.5:1 and every mark at least 3:1, and all text inside the Reels safe area (x 60-1020, y 250-1600). The hook is visible on the first frame, which Instagram uses as the default cover. Each Reel runs 12 to 20 seconds on one clock.
-- Headless Chrome renders the frames, ffmpeg encodes H.264 High, yuv420p, BT.709, 30 fps with +faststart, licensed audio is baked in when available, and ffprobe checks the file before upload.
+- Scenes are drawn as self-contained 1080x1920 SMIL SVGs: big type (hook 80-88 px, labels 52+ px, details 36+ px, takeaway 48+ px), every text color at least 4.5:1 and every mark at least 3:1 (also when dimmed), and all text inside the Reels safe area (x 60-1020, y 250-1600). The icon and the diagram carry each beat and the on-screen words stay short (Instagram shows Reels that are mostly text less); the full explanation is in the caption.
+  - Icons come from a vendored set of 60 [Lucide](https://lucide.dev) icons (ISC, license in `src/media/lucide/`). The model picks one allowed name per step, milestone or stat headline; an unknown name fails validation and triggers the one repair call. Step icons are 96 px or larger, in the accent color.
+  - The hook is readable on the first frame and gets an entrance: each word brightens in turn while its line pops, under a kicker line and an underline sweep. A thin progress bar fills along the top of the safe area, the active step or milestone glows while earlier ones dim, and the last 2 seconds are an end card with `@creativity.prompt` and "Follow for daily explainers".
+  - Three looks (midnight blue, violet, amber, from the svg-forge themes) with their own kicker wording and icon tile shape. Each post takes the look after the last published post's (stored on its receipt), so consecutive posts never look the same.
+  - The cover frame is set with `thumb_offset` to half a second into the final hold, so the profile grid shows the complete card instead of the opening frame. Each Reel runs 12 to 21 seconds on one clock.
+- Headless Chrome renders the frames, ffmpeg encodes H.264 High, yuv420p, BT.709, 30 fps with +faststart, licensed music is baked in as AAC 48 kHz stereo with a fade that ends at the Reel's real length, and ffprobe checks the file before upload.
 - SVG Reels never fall back to photos. A failure before the publisher boundary (no audio, no browser or ffmpeg, a layout or render error, an upload error) skips the post; the slot can retry on a later tick within its three-attempt budget.
 - Instagram publication is checkpointed durably before the final API request. A missing response never causes blind automatic republishing.
 - The carousel, single-image and Luma Reel formats remain in the code and tests as supported `content_format` values, but no configured pillar uses them.
@@ -54,6 +58,7 @@ Dry-run performs paid text generation and renders locally but **does not upload,
 
 ```bash
 uv run --frozen python -m src.main --dry-run --pillar cool-stats   # preview one pillar
+uv run --frozen python scripts/fetch_audio_catalog.py      # download the licensed music (gitignored)
 uv run --frozen python scripts/render_svg_reel_sample.py   # output/svg-reel-sample, no credentials needed
 ```
 
@@ -114,13 +119,19 @@ Reconciliation updates state only; it does not publish a post. See [operations](
 
 ## Audio and Reels
 
-SVG Reels need licensed local audio in `assets/audio/audio_manifest.json`, or `ALLOW_SILENT_REELS=true` (a repository variable for the workflow, an environment setting locally). **The manifest ships empty**, so until tracks are curated or silent Reels are allowed, every SVG Reel is skipped before rendering. The curator supports chill, upbeat, cinematic, ambient, and energetic. Existing compatible downloaded tracks can be explicitly imported:
+SVG Reels need licensed local audio, or `ALLOW_SILENT_REELS=true` (a repository variable for the workflow, an environment setting locally). Muted Reels are shown less, so the shipped setup bakes music into every Reel:
+
+- `assets/audio/catalog.json` (tracked) lists 15 [Mixkit](https://mixkit.co/free-stock-music/) tracks, five each for chill, upbeat and cinematic, with title, artist, listing page, direct download URL, duration and the sha256 of the file. The [Mixkit Stock Music Free License](https://mixkit.co/license/#musicFree) allows "Social Media video posts" and asks for no attribution. It forbids registering the tracks with a rights-management service (Content ID or similar), remixing them into music-only releases, and redistributing the files.
+- `scripts/fetch_audio_catalog.py` (standard library only) downloads the catalog into `assets/audio/<theme>/`, keeps a file only when its sha256 matches, and writes `assets/audio/catalog_manifest.json` with the entries the picker reads. **Both are gitignored: this public repository never commits audio.** The publishing and CI workflows restore them from a cache keyed on the catalog and the script and run the fetch only on a cache miss; a failed download never fails the run.
+- Instagram's audio name stays "Original audio": the container tool this project keeps using has no `audio_name` field.
+
+The committed `assets/audio/audio_manifest.json` stays valid and empty for hand-curated entries. The curator supports chill, upbeat, cinematic, ambient, and energetic. Existing compatible downloaded tracks can be explicitly imported:
 
 ```bash
 uv run --frozen python scripts/curate_audio.py --import-legacy assets/audio/manifest.json
 ```
 
-The importer validates paths, files, schema, and attribution without downloading anything. Required music attribution is included in the Reel caption. Dry-run never records audio usage or uploads the result.
+The importer validates paths, files, schema, and attribution without downloading anything. Required music attribution (for example CC BY tracks) is included in the Reel caption; Mixkit tracks need none. Dry-run never records audio usage or uploads the result.
 
 The Luma Reel format (`content_format: reel`, unused by the shipped pillars) additionally needs `S3_VIDEO_BUCKET` as an `s3://bucket/prefix/` in the model region and AWS IAM credentials (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, optional `AWS_SESSION_TOKEN`) with read access to generated S3 objects. Bedrock continues using bearer-token authentication; IAM is used only for S3 retrieval.
 
@@ -132,11 +143,11 @@ uv run --frozen ruff format --check src tests scripts
 uv run --frozen pytest --cov=src --cov-branch
 ```
 
-Tests use dummy credentials, disable `.env` loading, and block network connections. CI runs the suite on Python 3.12 and 3.14, requires at least 80% combined statement/branch coverage, and fails on lint, formatting, test, or lock-export drift. A separate CI job renders the fixed sample scene with real Chrome and ffmpeg on the Ubuntu runner, checks it with ffprobe, and uploads the MP4, four frames and stills of every layout as the `svg-reel-sample` artifact. A real-render test runs locally when Chrome and ffmpeg are present and is skipped otherwise. Mocked tests do not prove a live account's authorization or provider availability.
+Tests use dummy credentials, disable `.env` loading, and block network connections. CI runs the suite on Python 3.12 and 3.14, requires at least 80% combined statement/branch coverage, and fails on lint, formatting, test, or lock-export drift. A separate CI job renders one sample Reel per pillar with real Chrome and ffmpeg on the Ubuntu runner (each in a different look, with music baked in when the audio library is available), checks them with ffprobe, and uploads the MP4s, four frames of each (hook entrance, middle, cover frame, end card) and a cover still of every sample in every look as the `svg-reel-sample` artifact. A real-render test runs locally when Chrome and ffmpeg are present and is skipped otherwise. Mocked tests do not prove a live account's authorization or provider availability.
 
 ## Cost and content quality
 
-SVG Reels make no image or video model calls: each post costs two Bedrock text calls (topic, then caption and scene), plus at most one repair call each. Rendering runs on the Actions runner; a 20-second Reel is 600 frames. Up to four posts a day also means more scheduler and render minutes and more Cloudinary video storage. For the unused photo formats, five images per post at the former README assumption of $0.14/image would be about $0.70 per post; that is arithmetic, not a current AWS price quote.
+SVG Reels make no image or video model calls: each post costs two Bedrock text calls (topic, then caption and scene), plus at most one repair call each. Rendering runs on the Actions runner; a 21-second Reel is 630 frames. Two posts a day at most keeps render minutes and Cloudinary video storage low. For the unused photo formats, five images per post at the former README assumption of $0.14/image would be about $0.70 per post; that is arithmetic, not a current AWS price quote.
 
 Grounding checks that each number appears in the fetched text; it does not prove the source is right, and a headline can be thin. The count-up animation briefly shows intermediate values on its way to the sourced figure. Inspect saved previews when changing editorial direction. There is no automated engagement-measurement loop, and the application does not claim an empirically optimal posting time or guaranteed growth.
 
