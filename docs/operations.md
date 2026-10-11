@@ -34,6 +34,7 @@ Use the GitHub workflow to reconcile the deployed ledger. A local default ledger
 ## Failure interpretation
 
 - A 401/403 before generation means credentials or model/account authorization need attention. A local credential failure does not prove GitHub repository secrets are broken.
+- "Composio Instagram connection is EXPIRED" means the Instagram login behind the Composio connected account lapsed (Instagram tokens expire after about 60 days unless refreshed). Every Instagram action then returns HTTP 410. Reconnect Instagram in the Composio dashboard; if Composio issues a new connected-account ID, update the `COMPOSIO_CONNECTED_ACCOUNT_ID` secret. The preflight checks the status before any paid generation, so the run fails red instead of finishing green with nothing posted (what happened from 2026-10-06 to 2026-10-11).
 - Cloudinary errors and Instagram 9004 media-download errors concern delivered media. Only explicit invalid-location identifiers trigger a retry without location.
 - A final-publication transport failure may hide a successful post. Keep it uncertain until checked.
 - Empty or unavailable optional trend sources produce evergreen explainers. Stat and timeline Reels need evidence with numbers or dates; without it the topic step fails before any model call rather than inventing figures.

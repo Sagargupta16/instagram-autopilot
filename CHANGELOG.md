@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.8.1] - 2026-10-11
+
+### Fixed
+- The Composio preflight now requires the Instagram connected account to be `ACTIVE`. The Instagram token expired on 2026-10-02, Composio marked the connection `EXPIRED` on 2026-10-06, and every run since failed at its first Instagram call with HTTP 410 while the preflight, which only checked that the record existed, kept reporting OK. An inactive connection now fails the run before any paid generation, with "Composio Instagram connection is EXPIRED; reconnect it in Composio before posting".
+
 ## [0.8.0] - 2026-10-11
 
 ### Added
