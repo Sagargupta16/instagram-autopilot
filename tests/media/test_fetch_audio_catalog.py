@@ -110,13 +110,18 @@ def test_fetch_verifies_hashes_and_writes_the_picker_manifest(library) -> None:
     opener = opener_for({item["download_url"]: Response(AUDIO)}, calls)
     assert fetch.fetch(opener=opener) == []
     assert calls == ["https://assets.mixkit.co/music/615/615.mp3"]
-    saved = root / "cinematic" / "mixkit-tapis-615.mp3"
+    saved = root / "cinematic" / "mixkit-615.mp3"
     assert saved.read_bytes() == AUDIO
     (entry,) = manifest()["tracks"]
-    assert entry["filename"] == "cinematic/mixkit-tapis-615.mp3"
-    assert entry["theme_tags"] == ["cinematic"]
-    assert entry["attribution_required"] is False
-    assert entry["license"] == "Mixkit Stock Music Free License"
+    assert entry == {
+        "track_id": "mixkit-615",
+        "filename": "cinematic/mixkit-615.mp3",
+        "theme_tags": ["cinematic"],
+        "license": "Mixkit Stock Music Free License",
+        "license_url": "https://mixkit.co/license/#musicFree",
+        "attribution_required": False,
+        "attribution": "",
+    }
     assert validate_track(entry, root).path == saved.resolve()
     assert not list(root.rglob("*.part"))
 
@@ -124,7 +129,7 @@ def test_fetch_verifies_hashes_and_writes_the_picker_manifest(library) -> None:
 def test_a_file_with_the_right_hash_is_not_downloaded_again(library) -> None:
     root = library(track())
     (root / "cinematic").mkdir()
-    (root / "cinematic" / "mixkit-tapis-615.mp3").write_bytes(AUDIO)
+    (root / "cinematic" / "mixkit-615.mp3").write_bytes(AUDIO)
     calls: list[str] = []
     assert fetch.fetch(opener=opener_for({}, calls)) == []
     assert calls == []
@@ -143,11 +148,11 @@ def test_a_bad_download_is_skipped_and_never_kept(library, capsys, response) -> 
     good, bad = track("mixkit-curiosity-480", "chill", 480), track()
     root = library(good, bad)
     (root / "cinematic").mkdir()
-    (root / "cinematic" / "mixkit-tapis-615.mp3").write_bytes(b"stale copy")
+    (root / "cinematic" / "mixkit-615.mp3").write_bytes(b"stale copy")
     responses = {good["download_url"]: Response(AUDIO), bad["download_url"]: response}
     assert fetch.fetch(opener=opener_for(responses, [])) == ["mixkit-tapis-615"]
-    assert not (root / "cinematic" / "mixkit-tapis-615.mp3").exists()
-    assert [entry["track_id"] for entry in manifest()["tracks"]] == ["mixkit-curiosity-480"]
+    assert not (root / "cinematic" / "mixkit-615.mp3").exists()
+    assert [entry["track_id"] for entry in manifest()["tracks"]] == ["mixkit-480"]
     assert "skip mixkit-tapis-615" in capsys.readouterr().err
 
 
@@ -186,6 +191,7 @@ def test_downloads_only_come_from_a_mixkit_music_asset_url(library, url) -> None
         ({"track_id": "../../escape"}, "lowercase words and hyphens"),
         ({"track_id": "Mixkit Tapis"}, "lowercase words and hyphens"),
         ({"sha256": "abc"}, "64 lowercase hex digits"),
+        ({"sha256": "A" * 64}, "64 lowercase hex digits"),
     ],
 )
 def test_a_malformed_catalog_entry_stops_the_fetch(library, overrides, problem) -> None:
@@ -193,6 +199,16 @@ def test_a_malformed_catalog_entry_stops_the_fetch(library, overrides, problem) 
     opener = opener_for({}, [])
     with pytest.raises(ValueError, match=problem):
         fetch.fetch(opener=opener)
+    assert not list(root.rglob("*.mp3"))
+
+
+def test_a_catalog_under_another_license_is_refused(library) -> None:
+    root = library(track())
+    data = json.loads(fetch.CATALOG.read_text("utf-8"))
+    data["license"] = "CC BY 4.0"
+    fetch.CATALOG.write_text(json.dumps(data), "utf-8")
+    with pytest.raises(ValueError, match="catalog license must be"):
+        fetch.fetch(opener=opener_for({}, []))
     assert not list(root.rglob("*.mp3"))
 
 

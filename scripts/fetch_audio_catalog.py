@@ -5,14 +5,15 @@ Usage:
 
 Each track in the tracked catalog (Mixkit Stock Music Free License: social media video posts,
 no attribution; never register the tracks with a rights-management service) is saved as
-assets/audio/<theme>/<track_id>.mp3 and checked against its recorded sha256. A file already
-on disk with the right hash is kept; a failed download or a hash mismatch is reported and the
-track is skipped, never kept. The result is assets/audio/catalog_manifest.json, listing only the
-verified files. Both the audio files and that manifest are gitignored: this public repository
-never commits audio. Standard library only. Exit status 1 when any track is missing afterwards.
+assets/audio/<theme>/mixkit-<asset number>.mp3 and checked against its recorded sha256. A file
+already on disk with the right hash is kept; a failed download or a hash mismatch is reported
+and the track is skipped, never kept. The result is assets/audio/catalog_manifest.json, listing
+only the verified files. Both the audio files and that manifest are gitignored: this public
+repository never commits audio. Standard library only. Exit status 1 when any track is missing.
 
 Requests go only to MIXKIT_MUSIC: the catalog's download_url must name a Mixkit asset number,
-and the request URL is rebuilt from that number, never taken from the catalog as text.
+and the request URL, file name and manifest row are rebuilt from that number and the code's
+own constants, never copied from the catalog as text.
 """
 
 from __future__ import annotations
@@ -33,6 +34,8 @@ CATALOG = ROOT / "assets" / "audio" / "catalog.json"
 AUDIO_ROOT = CATALOG.parent
 MANIFEST = AUDIO_ROOT / "catalog_manifest.json"
 MIXKIT_MUSIC = "https://assets.mixkit.co/music/"  # the only place tracks are downloaded from
+LICENSE = "Mixkit Stock Music Free License"
+LICENSE_URL = "https://mixkit.co/license/#musicFree"
 UA = "InstagramAutopilot/0.9 (+https://github.com/Sagargupta16/instagram-autopilot)"
 THEMES = ("chill", "upbeat", "cinematic")
 TRACK_ID = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
@@ -61,8 +64,8 @@ def asset_number(url: object) -> int:
     return int(match[1])
 
 
-def target_for(track: dict[str, Any]) -> Path:
-    """The track's file inside the audio library; a malformed catalog entry is an error."""
+def checked(track: dict[str, Any], catalog: dict[str, Any]) -> str:
+    """The track's theme as the code's own constant; a malformed catalog entry is an error."""
     track_id, theme = track.get("track_id"), track.get("theme")
     if not isinstance(track_id, str) or not TRACK_ID.fullmatch(track_id):
         raise ValueError(f"catalog track_id {track_id!r} must be lowercase words and hyphens")
@@ -70,10 +73,17 @@ def target_for(track: dict[str, Any]) -> Path:
         raise ValueError(f"{track_id}: unsupported theme {theme!r}")
     if not isinstance(track.get("sha256"), str) or not SHA256.fullmatch(track["sha256"]):
         raise ValueError(f"{track_id}: sha256 must be 64 lowercase hex digits")
+    if catalog.get("license") != LICENSE:
+        raise ValueError(f"the catalog license must be {LICENSE!r}")
+    return THEMES[THEMES.index(theme)]
+
+
+def target_for(theme: str, number: int) -> Path:
+    """mixkit-<asset number>.mp3 in the theme folder, built from code constants and an int."""
     root = AUDIO_ROOT.resolve()
-    target = (root / THEMES[THEMES.index(theme)] / f"{track_id}.mp3").resolve()
+    target = (root / THEMES[THEMES.index(theme)] / f"mixkit-{int(number)}.mp3").resolve()
     if not target.is_relative_to(root):
-        raise ValueError(f"{track_id}: path leaves the audio library")
+        raise ValueError(f"mixkit-{number}: path leaves the audio library")
     return target
 
 
@@ -102,41 +112,47 @@ def download(number: int, target: Path, sha256: str, *, opener=urllib.request.ur
         Path(temporary).unlink(missing_ok=True)
 
 
-def entry(track: dict[str, Any], catalog: dict[str, Any]) -> dict[str, Any]:
-    """The audio_manifest.json fields the picker validates, plus provenance."""
+def entry(theme: str, number: int) -> dict[str, Any]:
+    """The audio_manifest.json fields the picker validates. Title, artist, listing page and
+    hash stay in the tracked catalog, so the generated file holds only constants and the number."""
     return {
-        "track_id": track["track_id"],
-        "filename": f"{track['theme']}/{track['track_id']}.mp3",
-        "theme_tags": [track["theme"]],
-        "title": track["title"],
-        "artist": track["artist"],
-        "license": catalog["license"],
-        "license_url": catalog["license_url"],
+        "track_id": f"mixkit-{int(number)}",
+        "filename": f"{THEMES[THEMES.index(theme)]}/mixkit-{int(number)}.mp3",
+        "theme_tags": [THEMES[THEMES.index(theme)]],
+        "license": LICENSE,
+        "license_url": LICENSE_URL,
         "attribution_required": False,
         "attribution": "",
-        "source_url": track["page_url"],
-        "duration_s": track["duration_s"],
-        "sha256": track["sha256"],
     }
+
+
+def write_manifest(present: list[tuple[str, int]]) -> None:
+    """The generated manifest at its fixed path, from validated (theme, number) pairs."""
+    rows = [entry(theme, number) for theme, number in present]
+    MANIFEST.write_text(json.dumps({"tracks": rows}, indent=2), "utf-8")
 
 
 def fetch(*, opener=urllib.request.urlopen) -> list[str]:
     """Download what is missing, write the manifest; returns the track IDs that failed."""
     catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
-    present, failed = [], []
+    present: list[tuple[str, int]] = []
+    failed: list[str] = []
     for track in catalog["tracks"]:
-        target = target_for(track)
+        theme = checked(track, catalog)
+        target = None
         try:
             number = asset_number(track.get("download_url"))
+            target = target_for(theme, number)
             if not (target.is_file() and digest(target) == track["sha256"]):
                 download(number, target, track["sha256"], opener=opener)
         except FetchError as error:
-            target.unlink(missing_ok=True)
+            if target is not None:
+                target.unlink(missing_ok=True)
             failed.append(track["track_id"])
             sys.stderr.write(f"skip {track['track_id']}: {error}\n")
             continue
-        present.append(entry(track, catalog))
-    MANIFEST.write_text(json.dumps({"tracks": present}, ensure_ascii=False, indent=2), "utf-8")
+        present.append((theme, number))
+    write_manifest(present)
     sys.stdout.write(f"{len(present)} of {len(catalog['tracks'])} tracks ready in {MANIFEST}\n")
     return failed
 
