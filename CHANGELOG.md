@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.9.1] - 2026-10-11
+
+### Fixed
+- Stat Reels no longer draw a ring for a change. A CI dry run filled a ring to 99% for a 99% decline, which reads as 99% remaining. A ring whose context describes a decline, rise, drop or growth is a validation error (one repair call), and the stat prompt says to use `big_number` for changes.
+- The caption credit names only the publisher for Google News records. Their `news.google.com/rss/articles/...` links are 250-character redirects, not the article, and are not clickable in a caption anyway.
+
 ## [0.9.0] - 2026-10-11
 
 ### Added

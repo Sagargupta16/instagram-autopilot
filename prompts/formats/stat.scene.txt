@@ -13,7 +13,9 @@ the line "Visuals: animated chart drafted with AI assistance."
   add thousands commas and write "1.2bn" for "1.2 billion". Years and dates count as numbers.
 - variant "big_number": "value" is the figure; "context" (at most 80 characters) says what it
   measures, for whom and when, using the record's words.
-- variant "ring": "value" is a share of a whole from 0% to 100%; plus "context".
+- variant "ring": "value" is a share of a whole from 0% to 100%; plus "context". Never use a ring
+  for a change (a decline, rise, drop or growth): a ring filled to 99% for a 99% decline reads as
+  99% remaining. Use big_number for changes.
 - variant "bars": "bars" holds 2 to 6 items {"label": at most 16 characters, "value"} that the
   record itself compares in one unit; optional "unit" (at most 24 characters) names the unit.
 - variant "line": "points" holds 3 to 8 items {"label": at most 8 characters such as a year,

@@ -269,6 +269,16 @@ def test_credited_appends_the_source_once_for_stat_scenes() -> None:
     )
 
 
+def test_credited_names_only_the_publisher_for_google_news_redirects() -> None:
+    # A 2026-10-11 dry run put a 250-character news.google.com/rss/articles/... link here.
+    redirect = {
+        **SOURCE,
+        "publisher": "Chron",
+        "url": "https://news.google.com/rss/articles/CBMi?oc=5",
+    }
+    assert flow.credited("caption", SCENES["stat-ring"], [redirect]) == "caption\n\nSource: Chron"
+
+
 @pytest.mark.parametrize("name", ["steps-cicd", "timeline-hubble"])
 def test_credited_leaves_other_scenes_alone(name) -> None:
     assert flow.credited("caption", SCENES[name], [SOURCE]) == "caption"

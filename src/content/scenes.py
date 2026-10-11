@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Annotated, Any, Literal
 
 from pydantic import (
@@ -21,6 +22,11 @@ from src.content.voice import meta_commentary
 from src.media.lucide import ICONS
 from src.media.reel_svg import LayoutError, compose
 
+CHANGE = re.compile(
+    r"\b(?:declin\w*|decreas\w*|increas\w*|drop\w*|fell|fall\w*|plung\w*|rise[sn]?|rising|rose"
+    r"|grew|grow\w*|surg\w*|jump\w*|climb\w*|soar\w*|shr[iu]nk\w*|down|lost|loss(?:es)?|gain\w*)\b",
+    re.IGNORECASE,
+)
 STAT_VALUE = (
     r"^[$€£¥₹]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?"
     r"(?i:%|\s?(?:k|m|bn|tn|thousand|million|billion|trillion))?$"
@@ -106,6 +112,12 @@ class StatScene(_Strict):
             self.value.endswith("%") and 0 <= float(self.value[:-1].replace(",", "")) <= 100
         ):
             raise ValueError("ring value must be a percentage from 0% to 100%")
+        if self.variant == "ring" and CHANGE.search(self.context):
+            # a ring filled to 99% for a 99% decline reads as 99% remaining
+            raise ValueError(
+                "ring shows a share of a whole; a change (decline, rise, drop, growth) "
+                "must use variant big_number"
+            )
         labels = [item.label.casefold() for item in self.bars or self.points or []]
         if len(set(labels)) != len(labels):
             raise ValueError("bar and point labels must be distinct")
