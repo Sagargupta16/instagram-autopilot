@@ -15,14 +15,27 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
 
-from src.media import reel_svg_stats, reel_svg_steps, reel_svg_timeline
+from src.media import (
+    reel_svg_myths,
+    reel_svg_stats,
+    reel_svg_steps,
+    reel_svg_timeline,
+    reel_svg_versus,
+)
 from src.media.svg_kit import Canvas, LayoutError
 from src.media.svg_look import look as pick_look
 from src.media.svg_parts import COVER_AFTER_HOLD, document
 
 __all__ = ["LayoutError", "Reel", "compose"]
 
-LAYOUTS = {"steps": reel_svg_steps, "stat": reel_svg_stats, "timeline": reel_svg_timeline}
+LAYOUTS = {
+    "steps": reel_svg_steps,
+    "stat": reel_svg_stats,
+    "timeline": reel_svg_timeline,
+    "versus": reel_svg_versus,
+    "myths": reel_svg_myths,
+}
+WITHOUT_SOURCE = {"steps", "versus"}  # evergreen explainers that draw no source line
 
 
 @dataclass(frozen=True)
@@ -41,7 +54,8 @@ class Reel:
 def _without_icons(scene: dict[str, Any]) -> dict[str, Any]:
     bare = copy.deepcopy(scene)
     bare.pop("icon", None)
-    for item in [*bare.get("steps", []), *bare.get("milestones", [])]:
+    sides = [bare[side] for side in ("left", "right") if side in bare]
+    for item in [*bare.get("steps", []), *bare.get("milestones", []), *sides]:
         item.pop("icon", None)
     return bare
 
@@ -58,7 +72,7 @@ def _draw(
         raise LayoutError(f"unknown scene kind {kind!r}")
     layout = LAYOUTS[kind]
     canvas = Canvas(layout.duration(scene, pace), pick_look(look))
-    if kind == "steps":
+    if kind in WITHOUT_SOURCE:
         parts = layout.compose(canvas, scene, kicker=kicker, pace=pace)
     else:
         parts = layout.compose(canvas, scene, source_line, kicker=kicker, pace=pace)

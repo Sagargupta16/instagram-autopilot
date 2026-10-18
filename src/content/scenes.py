@@ -46,6 +46,9 @@ BarLabel = Annotated[Nonempty, Field(max_length=16)]
 PointLabel = Annotated[Nonempty, Field(max_length=8)]
 DateLabel = Annotated[Nonempty, Field(max_length=12), StringConstraints(pattern=r"\d")]
 Event = Annotated[Nonempty, Field(max_length=44)]
+Cell = Annotated[Nonempty, Field(max_length=40)]
+Belief = Annotated[Nonempty, Field(max_length=64)]
+Truth = Annotated[Nonempty, Field(max_length=84)]
 FEED_PREVIEW = 125  # caption characters the feed shows before "... more"
 
 
@@ -139,7 +142,48 @@ class TimelineScene(_Strict):
     takeaway: Takeaway
 
 
-Scene = Annotated[StepsScene | StatScene | TimelineScene, Field(discriminator="kind")]
+class Side(_Strict):
+    name: Label
+    icon: Icon | None = None
+
+
+class Row(_Strict):
+    aspect: Label
+    left: Cell
+    right: Cell
+
+
+class VersusScene(_Strict):
+    kind: Literal["versus"]
+    hook: Hook
+    left: Side
+    right: Side
+    rows: Annotated[list[Row], Field(min_length=3, max_length=4)]
+    takeaway: Takeaway
+
+    @model_validator(mode="after")
+    def two_things(self) -> VersusScene:
+        if self.left.name.casefold() == self.right.name.casefold():
+            raise ValueError("a versus scene compares two different things")
+        return self
+
+
+class Myth(_Strict):
+    myth: Belief
+    fact: Truth
+
+
+class MythsScene(_Strict):
+    kind: Literal["myths"]
+    hook: Hook
+    items: Annotated[list[Myth], Field(min_length=2, max_length=3)]
+    takeaway: Takeaway
+
+
+Scene = Annotated[
+    StepsScene | StatScene | TimelineScene | VersusScene | MythsScene,
+    Field(discriminator="kind"),
+]
 
 
 class SvgReelContent(_Strict):
@@ -174,6 +218,8 @@ def scene_texts(scene: dict[str, Any]) -> list[str]:
             out.append(value)
         elif isinstance(value, list):
             out.extend(text for item in value for text in scene_texts(item))
+        elif isinstance(value, dict):
+            out.extend(scene_texts(value))
     return out
 
 
@@ -181,7 +227,7 @@ def source_line(scene: dict[str, Any], sources: list[dict]) -> str | None:
     """Attribution drawn from adapter metadata, never from model text."""
     if scene["kind"] == "stat":
         return f"Source: {publication_name(sources[scene['source_index']])}"
-    if scene["kind"] == "timeline" and sources:
+    if scene["kind"] in {"timeline", "myths"} and sources:
         names = list(dict.fromkeys(publication_name(source) for source in sources))[:2]
         return "Source: " + " and ".join(names)
     return None

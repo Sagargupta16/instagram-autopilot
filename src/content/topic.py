@@ -25,11 +25,14 @@ NUMERIC_FORMATS = {"stat", "timeline"}
 
 
 def _check_evidence(kind: str | None, selected: list[dict]) -> None:
-    """Stat and timeline Reels can only show numbers that the chosen records contain."""
+    """Stat and timeline Reels can only show numbers that the chosen records contain, and a
+    myth-vs-fact Reel must cite the records its facts come from."""
     if kind == "stat" and not any(numbers(evidence_text([record])) for record in selected):
         raise ValueError("a stat Reel needs a selected source whose title or excerpt has a number")
     if kind == "timeline" and len(set(numbers(evidence_text(selected)))) < 4:
         raise ValueError("a timeline Reel needs selected sources that state at least four dates")
+    if kind == "myths" and not selected:
+        raise ValueError("a myth-vs-fact Reel needs selected source records that state each fact")
 
 
 def generate_topic(pillar: dict[str, Any], content_type: str) -> str:

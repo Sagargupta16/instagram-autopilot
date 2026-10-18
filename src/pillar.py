@@ -17,5 +17,5 @@ def load_config() -> dict[str, Any]:
 
 
 def scene_kind(pillar: dict[str, Any]) -> str | None:
-    """steps, stat or timeline for animated SVG Reel pillars; None for photo formats."""
+    """steps, stat, timeline, versus or myths for SVG Reel pillars; None for photo formats."""
     return pillar.get("scene_kind") if pillar.get("content_format") == "svg_reel" else None

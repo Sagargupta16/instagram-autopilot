@@ -55,6 +55,30 @@
       "location": {"regions": []},
       "hashtags": ["#history", "#timeline", "#onthisday", "#science", "#space", "#internetculture"],
       "weight": 0.8
+    },
+    {
+      "id": "tech-versus",
+      "label": "Tech Versus",
+      "category": "tech",
+      "content_format": "svg_reel",
+      "scene_kind": "versus",
+      "audio_theme": "upbeat",
+      "image_style": "clean product editorial, softbox at 45 degrees, shallow depth of field, matte surfaces",
+      "location": {"regions": []},
+      "hashtags": ["#tech", "#techexplained", "#softwareengineering", "#coding", "#learntocode"],
+      "weight": 1.0
+    },
+    {
+      "id": "myth-vs-fact",
+      "label": "Myth vs Fact",
+      "category": "stats",
+      "content_format": "svg_reel",
+      "scene_kind": "myths",
+      "audio_theme": "cinematic",
+      "image_style": "documentary still life, natural window light, tactile everyday objects, muted palette",
+      "location": {"regions": []},
+      "hashtags": ["#mythbusting", "#facts", "#science", "#didyouknow", "#space"],
+      "weight": 1.0
     }
   ],
   "models": {

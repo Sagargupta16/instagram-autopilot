@@ -127,6 +127,39 @@
         ],
         "takeaway": "Repairable by design, Hubble kept working for decades"
       }
+    },
+    {
+      "name": "versus-tcp-udp",
+      "source_line": null,
+      "look": 1,
+      "scene": {
+        "kind": "versus",
+        "hook": "TCP vs UDP: what really differs?",
+        "left": {"name": "TCP", "icon": "shield-check"},
+        "right": {"name": "UDP", "icon": "zap"},
+        "rows": [
+          {"aspect": "Connection", "left": "Handshake before sending", "right": "Sends with no handshake"},
+          {"aspect": "Delivery", "left": "Resends anything lost", "right": "Lost packets stay lost"},
+          {"aspect": "Order", "left": "Arrives in order", "right": "Can arrive out of order"},
+          {"aspect": "Best for", "left": "Web pages, email, files", "right": "Calls, games, live video"}
+        ],
+        "takeaway": "Pick TCP when every byte matters, UDP when speed does"
+      }
+    },
+    {
+      "name": "myths-space",
+      "source_line": "Source: NASA",
+      "look": 0,
+      "scene": {
+        "kind": "myths",
+        "hook": "Space myths, checked",
+        "items": [
+          {"myth": "The Great Wall of China is visible from space", "fact": "Astronauts say it is too narrow to spot from orbit with the eye"},
+          {"myth": "There is no gravity on the space station", "fact": "Gravity is still strong up there; the crew falls freely with the station"},
+          {"myth": "The far side of the Moon is always dark", "fact": "It gets as much sunlight as the near side; Earth just never sees it"}
+        ],
+        "takeaway": "Most space myths come from what we cannot see from down here"
+      }
     }
   ]
 }

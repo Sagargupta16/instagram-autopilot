@@ -51,7 +51,7 @@ class Pillar(BaseModel):
     id: str = Field(min_length=1, pattern=r"^[a-zA-Z0-9_-]+$")
     label: str = Field(min_length=1)
     content_format: Literal["carousel", "image", "reel", "svg_reel"] = "carousel"
-    scene_kind: Literal["steps", "stat", "timeline"] | None = None
+    scene_kind: Literal["steps", "stat", "timeline", "versus", "myths"] | None = None
     hashtags: list[str]
     image_style: str = Field(min_length=1)
     weight: Weight = 1

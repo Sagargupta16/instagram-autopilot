@@ -15,9 +15,12 @@ from src.media.svg_kit import (
     ASCENT,
     FONT,
     HEIGHT,
+    HOOK_PX,
     LEFT,
     RIGHT,
     SAFE,
+    SMALL_PX,
+    TAKE_PX,
     WIDTH,
     Canvas,
     LayoutError,
@@ -78,13 +81,21 @@ def header(canvas: Canvas, kicker: str | None, hook: str) -> tuple[list[str], fl
     parts = []
     if kicker:
         parts.append(
-            canvas.text(LEFT, top + ASCENT * 36, kicker, 36, look.accent_text, bold=True, spacing=4)
+            canvas.text(
+                LEFT,
+                top + ASCENT * SMALL_PX,
+                kicker,
+                SMALL_PX,
+                look.accent_text,
+                bold=True,
+                spacing=4,
+            )
         )
-        top += 36 + 24
+        top += SMALL_PX + 24
     try:
-        size, hook_lines = fit(hook, (88, 80), RIGHT - LEFT, 2, bold=True)
+        size, hook_lines = fit(hook, HOOK_PX, RIGHT - LEFT, 2, bold=True)
     except LayoutError:
-        size, hook_lines = fit(hook, (80,), RIGHT - LEFT, 3, bold=True)
+        size, hook_lines = fit(hook, HOOK_PX[-1:], RIGHT - LEFT, 3, bold=True)
     count = 0
     for row, line in enumerate(hook_lines):
         y = top + ASCENT * size + row * leading(size)
@@ -100,14 +111,14 @@ def header(canvas: Canvas, kicker: str | None, hook: str) -> tuple[list[str], fl
 
 
 def takeaway_height(text: str) -> float:
-    size, lines = fit(text, (50, 48), RIGHT - LEFT - 96, 3, bold=True)
+    size, lines = fit(text, TAKE_PX, RIGHT - LEFT - 96, 3, bold=True)
     return block_height(len(lines), size) + 68
 
 
 def takeaway(canvas: Canvas, top: float, text: str, start: float) -> tuple[str, float]:
     """Accent-edged card that fades in at `start`; returns the element and its bottom."""
     look = canvas.look
-    size, lines = fit(text, (50, 48), RIGHT - LEFT - 96, 3, bold=True)
+    size, lines = fit(text, TAKE_PX, RIGHT - LEFT - 96, 3, bold=True)
     texts, _ = canvas.lines(LEFT + 56, top + 34, lines, size, look.text, bold=True)
     height = takeaway_height(text)
     card = (
@@ -152,9 +163,31 @@ def end_card(canvas: Canvas) -> str:
         f'fill="{look.card}" stroke="{look.accent}" stroke-width="4"/>'
     )
     badge = tile(canvas, 540, top + 110, 64) + icon("users", 540 - 44, top + 66, 88, look.accent)
-    handle = canvas.text(540, top + 262, HANDLE, 64, look.text, bold=True, anchor="middle")
-    follow = canvas.text(540, top + 340, FOLLOW, 44, look.muted, anchor="middle")
+    handle = canvas.text(540, top + 262, HANDLE, 56, look.text, bold=True, anchor="middle")
+    follow = canvas.text(540, top + 334, FOLLOW, 38, look.muted, anchor="middle")
     return canvas.reveal([panel, badge, handle, follow], start + 0.15)
+
+
+SOURCE_H = SMALL_PX + 6 + 28  # room a source line takes under the takeaway card
+
+
+def source(canvas: Canvas, card_bottom: float, text: str, start: float) -> str:
+    """The adapter-named source line under the takeaway card, fading in at `start`."""
+    line = canvas.text(
+        LEFT, card_bottom + 28 + ASCENT * SMALL_PX, text, SMALL_PX, canvas.look.muted
+    )
+    return canvas.reveal([line], start)
+
+
+def lattice(canvas: Canvas, step: int = 60) -> str:
+    """A faint dot grid behind everything (decoration at 6% opacity, one static path)."""
+    dots = "".join(
+        f"M{x} {y}h0" for y in range(step // 2, HEIGHT, step) for x in range(step // 2, WIDTH, step)
+    )
+    return (
+        f'<path d="{dots}" stroke="{canvas.look.text}" stroke-opacity="0.06" stroke-width="5" '
+        'stroke-linecap="round" fill="none"/>'
+    )
 
 
 def dimmed(canvas: Canvas, parts: list[str]) -> str:
@@ -166,7 +199,7 @@ def dimmed(canvas: Canvas, parts: list[str]) -> str:
 
 def document(canvas: Canvas, parts: list[str], label: str) -> str:
     """The finished file; raises LayoutError if any text box left the safe area."""
-    body = dimmed(canvas, parts) + end_card(canvas) + progress(canvas)
+    body = dimmed(canvas, [lattice(canvas), *parts]) + end_card(canvas) + progress(canvas)
     canvas.check()
     title = escape(clean(label), quote=False)
     return (

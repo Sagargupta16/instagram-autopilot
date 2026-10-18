@@ -1,0 +1,26 @@
+<animated_reel>
+This post is an animated myth-vs-fact Reel: two or three common beliefs, each struck through and
+replaced by what the evidence says is true.
+
+Caption: open with one plain line naming the subject, then one short line per myth in the same
+order (no list numbers) giving the fact and a little context from the evidence, then the
+takeaway. Close with the line "Visuals: animated fact check drafted with AI assistance."
+
+"scene": {"kind": "myths", "hook": "...", "items": [{"myth": "...", "fact": "..."}],
+ "takeaway": "..."}
+- hook: at most 42 characters, ideally under 30 ("Space myths, checked"). Never open with a
+  greeting, filler, "in this video", "stop scrolling", a hashtag or an emoji.
+- items: 2 or 3. myth: at most 64 characters, ideally under 48, a belief people genuinely hold,
+  stated plainly as the belief (no "Myth:" prefix; the Reel adds the label). fact: at most 84
+  characters, ideally under 64, what is true, taken from the evidence and attributed when the
+  evidence attributes it. The fact must correct its own myth directly. A narrator reads every
+  myth and fact aloud, so fewer words keep the Reel short.
+- Every fact must be supported by the source evidence above. Never invent, round or remember
+  a fact, and never state a myth that is actually true.
+- takeaway: at most 70 characters, what the myths have in common; it ties back to the hook, so
+  the Reel reads as a loop when it replays.
+- Never count the myths in the hook or caption ("three myths", "3 myths") unless the evidence
+  states that number: every number word is checked against the evidence. Write "Space myths,
+  checked", not "3 space myths".
+- No medical, legal or financial advice. Use plain hyphens, never en or em dashes.
+</animated_reel>

@@ -1,0 +1,7 @@
+Choose ONE pair of technologies, tools or approaches within the pillar that people often mix up
+or choose between, for an animated "X vs Y" Reel: TCP vs UDP, RAM vs storage, HTTP vs HTTPS,
+SQL vs NoSQL, containers vs virtual machines, Git merge vs rebase, cache vs CDN. Both must be
+real, current and comparable on the same three or four aspects. A supplied launch or story may
+set the pair when the comparison is general and well understood; otherwise choose an evergreen
+pair and return an empty source_indices list. The comparison must be correct without quoting
+numbers, versions, prices or benchmark results. Never pick a winner on taste or brand.

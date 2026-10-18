@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.11.0] - 2026-10-18
+
+### Added
+- Two new SVG Reel formats and pillars. `tech-versus` ("X vs Y", `src/media/reel_svg_versus.py`) compares two named things with optional icons on 3 or 4 aspects in rows; each row lights up in turn and its right-hand cell arrives when the narrator reaches it. `myth-vs-fact` (`src/media/reel_svg_myths.py`) shows 2 or 3 common beliefs: each is labelled MYTH, struck through on its fact beat, and FACT appears beneath it, so the final frame shows every myth crossed out above its fact. Myth Reels need cited source records (the topic step refuses an empty selection) and narrate each myth and fact as two lines so the strike lands on the word "Fact". Both get their own topic and scene prompts, kickers in all three looks and sample scenes; pillar weights are now 1.0, 1.5, 0.8, 1.0 and 1.0.
+
+### Changed
+- Smaller type on the owner's ask: one scale in `svg_kit.py` (hook 68-76 px, labels 44-48, details 32-34, takeaway 42-44, nothing under 32), down about 14% from 80-88, 52-56, 36-40 and 48-50. Contract 16's floors and their tests follow it; three layout-overflow tests use wider text to keep checking the same fallbacks.
+- Design lessons from the portfolio-react cover scenes: a faint dot lattice (6% opacity, one static path, no references) sits behind every scene for depth, line draws and bar growth use an even travel easing (`0.45 0 0.25 1`) while entrances keep the ease-out, and the myth strike is a dash draw rather than a width animation.
+- The source line under the takeaway is one helper (`svg_parts.source`) instead of three copies, and the count-up helpers moved to `src/media/reel_svg_count.py`, which brings `reel_svg_stats.py` back under the 300-line limit.
+- The prompts tell the model never to count myths or rows in the hook or caption ("3 space myths"), since every number word is checked against the evidence, and to keep cells short because the narrator reads each one.
+
 ## [0.10.0] - 2026-10-18
 
 ### Added

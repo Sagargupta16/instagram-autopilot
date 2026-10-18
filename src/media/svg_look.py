@@ -11,6 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 DIM = 0.7  # opacity of finished steps and milestones while a later one is active
+KINDS = ("steps", "stat", "timeline", "versus", "myths")
 
 
 @dataclass(frozen=True)
@@ -26,7 +27,7 @@ class Look:
     packet: str
     track: str  # decoration, always drawn below 50% opacity
     tile: str  # "circle" or "square" behind step and milestone icons
-    kickers: tuple[str, str, str]  # steps, stat, timeline
+    kickers: tuple[str, ...]  # one per KINDS entry, in that order
 
     @property
     def ink(self) -> str:
@@ -45,7 +46,7 @@ class Look:
         }
 
     def kicker(self, kind: str) -> str:
-        return self.kickers[("steps", "stat", "timeline").index(kind)]
+        return self.kickers[KINDS.index(kind)]
 
 
 LOOKS = (
@@ -61,7 +62,7 @@ LOOKS = (
         packet="#e0f2fe",
         track="#334155",
         tile="circle",
-        kickers=("HOW IT WORKS", "BY THE NUMBERS", "TIMELINE"),
+        kickers=("HOW IT WORKS", "BY THE NUMBERS", "TIMELINE", "HEAD TO HEAD", "MYTH OR FACT"),
     ),
     Look(
         name="violet",
@@ -75,7 +76,13 @@ LOOKS = (
         packet="#f5e0dc",
         track="#585b70",
         tile="square",
-        kickers=("STEP BY STEP", "WHAT THE DATA SAYS", "HOW IT HAPPENED"),
+        kickers=(
+            "STEP BY STEP",
+            "WHAT THE DATA SAYS",
+            "HOW IT HAPPENED",
+            "SIDE BY SIDE",
+            "FACT CHECK",
+        ),
     ),
     Look(
         name="amber",
@@ -89,7 +96,13 @@ LOOKS = (
         packet="#fde68a",
         track="#57534e",
         tile="circle",
-        kickers=("UNDER THE HOOD", "THE BIG PICTURE", "MILESTONES"),
+        kickers=(
+            "UNDER THE HOOD",
+            "THE BIG PICTURE",
+            "MILESTONES",
+            "THIS VS THAT",
+            "MYTHS, CHECKED",
+        ),
     ),
 )
 
