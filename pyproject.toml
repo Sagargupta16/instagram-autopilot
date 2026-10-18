@@ -1,6 +1,6 @@
 [project]
 name = "instagram-autopilot"
-version = "0.9.1"
+version = "0.9.2"
 description = "Grounded animated SVG Reels for Instagram with durable publishing and AWS Bedrock"
 requires-python = ">=3.12"
 license = "MIT"

@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.9.2] - 2026-10-18
+
+### Fixed
+- Captions carry at most five hashtags, Instagram's cap on posts and Reels since 2025-12-18. All 16 posts published since 2026-09-20 went out with 7 to 9 because both caption prompts asked for 5 to 10. The prompts now ask for 3 to 5, most relevant first, and the hashtag validator keeps the first five rather than failing the slot or spending a repair call on extras.
+
 ## [0.9.1] - 2026-10-11
 
 ### Fixed
