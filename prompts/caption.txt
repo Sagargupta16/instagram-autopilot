@@ -89,7 +89,7 @@ under 400 characters, following the same positive phrasing and factual rules.
 location_query: a specific real place explicitly supported by the topic/evidence, otherwise JSON null.
 Do not guess a venue, geotag generic scenes, or return the string "null". At most 200 characters.
 audio_theme: exactly one of chill, upbeat, cinematic, ambient, energetic.
-hashtags: 5-10 distinct relevant space-separated #tags, at most 30 and 400 characters total.
+hashtags: 3-5 distinct relevant space-separated #tags, most relevant first; Instagram allows at most 5.
 Consider these pillar tags only where accurate: {pillar_hashtags}.
 Omit #viral, #trending, and format tags that misdescribe this carousel. Do not claim hashtag volume or popularity.
 </other_fields>

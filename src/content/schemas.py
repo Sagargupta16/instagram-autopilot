@@ -37,13 +37,18 @@ def _positive_scene(value: str) -> str:
     return value
 
 
+# Instagram caps posts and Reels at five hashtags (rolled out 2025-12-18).
+INSTAGRAM_HASHTAG_LIMIT = 5
+
+
 def hashtag_list(value: str) -> str:
     tags = value.split()
     if len(tags) > 30 or any(not re.fullmatch(r"#\w+", tag) for tag in tags):
         raise ValueError("hashtags must contain at most 30 space-separated #tags")
     if len({tag.casefold() for tag in tags}) != len(tags):
         raise ValueError("hashtags must be unique")
-    return " ".join(tags)
+    # Extra tags are not worth a repair call or a failed slot; keep the most relevant.
+    return " ".join(tags[:INSTAGRAM_HASHTAG_LIMIT])
 
 
 Nonempty = Annotated[
