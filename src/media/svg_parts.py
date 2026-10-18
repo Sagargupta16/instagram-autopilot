@@ -123,7 +123,7 @@ def takeaway(canvas: Canvas, top: float, text: str, start: float) -> tuple[str, 
     height = takeaway_height(text)
     card = (
         f'<rect x="{LEFT}" y="{fmt(top)}" width="{RIGHT - LEFT}" height="{fmt(height)}" '
-        f'rx="28" fill="{look.take}"/>'
+        f'rx="28" fill="{look.take}" stroke="{look.text}" stroke-opacity="0.10" stroke-width="2"/>'
         f'<rect x="{LEFT + 22}" y="{fmt(top + 28)}" width="8" height="{fmt(height - 56)}" '
         f'rx="4" fill="{look.accent}"/>'
     )
@@ -169,6 +169,41 @@ def end_card(canvas: Canvas) -> str:
 
 
 SOURCE_H = SMALL_PX + 6 + 28  # room a source line takes under the takeaway card
+GHOST = 'fill-opacity="0.03" stroke-opacity="0.10" stroke-width="2"'  # the waiting layer
+
+
+def ghost(canvas: Canvas, x: float, y: float, width: float, height: float, rx: float = 24) -> str:
+    """A panel's waiting outline: visible from the first frame, lit later by its beat."""
+    ink = canvas.look.text
+    return (
+        f'<rect x="{fmt(x)}" y="{fmt(y)}" width="{fmt(width)}" height="{fmt(height)}" '
+        f'rx="{fmt(rx)}" fill="{ink}" stroke="{ink}" {GHOST}/>'
+    )
+
+
+def ghost_dot(canvas: Canvas, cx: float, cy: float, radius: float) -> str:
+    """A node's waiting outline on a rail."""
+    ink = canvas.look.text
+    return f'<circle cx="{fmt(cx)}" cy="{fmt(cy)}" r="{fmt(radius)}" fill="{ink}" stroke="{ink}" {GHOST}/>'
+
+
+def ghost_line(canvas: Canvas, x: float, y0: float, y1: float) -> str:
+    """A connector's waiting path, drawn over later by the lit connector."""
+    return (
+        f'<line x1="{fmt(x)}" y1="{fmt(y0)}" x2="{fmt(x)}" y2="{fmt(y1)}" '
+        f'stroke="{canvas.look.text}" stroke-opacity="0.10" stroke-width="3" stroke-linecap="round"/>'
+    )
+
+
+def wash(canvas: Canvas) -> str:
+    """One soft tint glow where the story starts, the hook: 12% at its centre, fading out."""
+    accent = canvas.look.accent
+    return (
+        f'<defs><radialGradient id="kr-wash" gradientUnits="userSpaceOnUse" cx="{LEFT + 240}" '
+        f'cy="{HEADER_TOP + 140}" r="980"><stop offset="0" stop-color="{accent}" '
+        f'stop-opacity="0.12"/><stop offset="1" stop-color="{accent}" stop-opacity="0"/>'
+        f'</radialGradient></defs><rect width="{WIDTH}" height="{HEIGHT}" fill="url(#kr-wash)"/>'
+    )
 
 
 def source(canvas: Canvas, card_bottom: float, text: str, start: float) -> str:
@@ -199,7 +234,8 @@ def dimmed(canvas: Canvas, parts: list[str]) -> str:
 
 def document(canvas: Canvas, parts: list[str], label: str) -> str:
     """The finished file; raises LayoutError if any text box left the safe area."""
-    body = dimmed(canvas, [lattice(canvas), *parts]) + end_card(canvas) + progress(canvas)
+    back = [wash(canvas), lattice(canvas)]
+    body = dimmed(canvas, [*back, *parts]) + end_card(canvas) + progress(canvas)
     canvas.check()
     title = escape(clean(label), quote=False)
     return (

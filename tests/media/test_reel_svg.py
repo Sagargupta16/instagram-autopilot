@@ -79,8 +79,10 @@ def test_sample_is_inert_and_namespaced(name) -> None:
     tags = {element.tag.removeprefix(NS) for element in ET.fromstring(svg).iter()}
     assert not tags & {"script", "foreignObject", "image"}
     lowered = svg.lower()
-    for banned in ("<script", "foreignobject", "<image", "url(", "@import", "@font-face"):
+    for banned in ("<script", "foreignobject", "<image", "@import", "@font-face"):
         assert banned not in lowered
+    # the one paint server (the focal wash) is an internal kr- reference, never a file or URL
+    assert all(ref.startswith("#kr-") for ref in re.findall(r"url\(([^)]*)\)", svg))
     assert all(ref.startswith("#") for ref in re.findall(r'href\s*=\s*"([^"]*)"', svg))
     assert "prefers-reduced-motion" not in svg
     ids = [e.get("id") for e in ET.fromstring(svg).iter() if e.get("id")]

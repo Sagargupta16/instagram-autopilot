@@ -27,7 +27,17 @@ from src.media.svg_kit import (
     text_width,
     wrap,
 )
-from src.media.svg_parts import SOURCE_H, header, icon, source, takeaway, takeaway_height, tile
+from src.media.svg_parts import (
+    SOURCE_H,
+    ghost_dot,
+    ghost_line,
+    header,
+    icon,
+    source,
+    takeaway,
+    takeaway_height,
+    tile,
+)
 
 HOOK_S, ITEM_S, TAKE_S, HOLD_S = 2.5, 2.2, 1.3, 4.0
 DATE_PX, EVENT_PX = 38, 32
@@ -106,7 +116,7 @@ def compose(
     event_x, events, beside = _rows(milestones, rail_x + radius + 28)
     heights = [max(2 * radius, _text_block(len(lines), beside)) for lines in events]
     begin, take_at, _ = timing(scene, pace)
-    y, rows, rails, prev = top + 44, [], [], None
+    y, rows, rails, prev, ghosts = top + 44, [], [], None, []
     for i, (item, lines) in enumerate(zip(milestones, events, strict=True)):
         start = begin[i]
         appear = start + (0.15 if i == 0 else 0.45)
@@ -117,12 +127,14 @@ def compose(
         node = _node(canvas, item, rail_x, cy, (radius, size), (appear, done, take_at))
         texts = _texts(canvas, item, lines, (rail_x + radius + 28, event_x, text_top), beside)
         rows += [node, canvas.reveal(texts, appear, dim=(done, take_at))]
+        ghosts.append(ghost_dot(canvas, rail_x, cy, radius))
         if prev is not None:
+            ghosts.append(ghost_line(canvas, rail_x, prev + radius + 6, cy - radius - 6))
             rails.append(_rail(canvas, rail_x, prev + radius + 6, cy - radius - 6, start))
         prev = cy
         y += heights[i] + gap
     card, card_bottom = takeaway(canvas, take_top, scene["takeaway"], take_at + 0.1)
-    parts += [*rails, *rows, card]
+    parts += [*ghosts, *rails, *rows, card]
     if source_line:
         parts.append(source(canvas, card_bottom, source_line, take_at + 0.4))
     return parts
