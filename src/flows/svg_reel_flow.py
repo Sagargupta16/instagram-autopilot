@@ -28,6 +28,7 @@ from src.media import audio_bake, audio_picker, narration, reel_probe, svg_video
 from src.media.audio_manifest import AudioTrack
 from src.media.reel_svg import LayoutError, Reel, compose
 from src.publishing.reel import publish_reel
+from src.settings import settings
 
 log = logging.getLogger(__name__)
 
@@ -105,7 +106,11 @@ def _prepare(
     look = caption_data.get("look", 0)
     with tempfile.TemporaryDirectory(prefix="svg-reel-") as temporary:
         workdir = Path(temporary)
-        voice = narration.for_scene(scene, workdir)
+        voice = None
+        if settings.narration:
+            voice = narration.for_scene(scene, workdir, voice=settings.narration_voice)
+        else:
+            log.info("SVG Reel without narration: narration is off (NARRATION=false)")
         if voice and len(f"{reel_caption}\n\n{narration.CREDIT}") > 2200:
             log.warning("SVG Reel without narration: its credit would exceed the caption limit")
             voice = None

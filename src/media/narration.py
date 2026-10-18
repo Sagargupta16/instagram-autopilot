@@ -5,7 +5,8 @@ word or number the viewer cannot read on screen (contract 15 already grounds tha
 runs in its own locked environment, scripts/narrate.py on Python 3.13, because kokoro-onnx does
 not support the publisher's 3.14. Each line opens its beat: the layouts stretch a beat to fit
 its line (`Narration.pace`) and the mix starts the line LEAD_S after the beat begins. Any
-failure leaves the Reel music-only: narration improves a post, it never skips one.
+failure leaves the Reel music-only: narration improves a post, it never skips one. This
+module never reads credentials or settings, so the sample render runs without them.
 """
 
 from __future__ import annotations
@@ -19,14 +20,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from src.settings import settings
-
 ROOT = Path(__file__).resolve().parent.parent.parent
 SCRIPT = ROOT / "scripts" / "narrate.py"
 VOICE_DIR = ROOT / "assets" / "voice"
 MODEL = VOICE_DIR / "kokoro-v1.0.fp16.onnx"
 VOICES = VOICE_DIR / "voices-v1.0.bin"
 PYTHON = "3.13"  # kokoro-onnx 0.6.1 requires Python below 3.14
+VOICE = "af_heart"  # the default Kokoro voice; the publisher passes settings.narration_voice
 SPEED = 1.0
 LEAD_S, GAP_S = 0.25, 0.35  # silence before a line inside its beat, and after it
 TIMEOUT_S = 600
@@ -117,8 +117,6 @@ def lines(scene: dict[str, Any]) -> list[str]:
 
 def unavailable() -> str | None:
     """Why narration cannot run here, or None when it can."""
-    if not settings.narration:
-        return "narration is off (NARRATION=false)"
     if missing := [path.name for path in (MODEL, VOICES) if not path.is_file()]:
         return f"voice model missing ({', '.join(missing)}); run scripts/fetch_voice_model.py"
     if shutil.which("uv") is None:
@@ -126,24 +124,21 @@ def unavailable() -> str | None:
     return None
 
 
-def narrate(scene: dict[str, Any], workdir: Path) -> Narration:
-    """Synthesize every line into workdir; NarrationError when anything is off."""
+def narrate(scene: dict[str, Any], workdir: Path, *, voice: str = VOICE) -> Narration:
+    """Synthesize every line into workdir/narration; NarrationError when anything is off.
+
+    The request goes on stdin and holds no paths: the script reads its model from
+    assets/voice and writes into ./narration of the working directory it is given.
+    """
     spoken = [speakable(line) for line in lines(scene)]
     out = workdir / "narration"
-    request = workdir / "narration-request.json"
-    payload = {
-        "model": str(MODEL),
-        "voices": str(VOICES),
-        "voice": settings.narration_voice,
-        "speed": SPEED,
-        "lines": spoken,
-        "out": str(out),
-    }
-    request.write_text(json.dumps(payload), encoding="utf-8")
+    request = json.dumps({"voice": voice, "speed": SPEED, "lines": spoken})
     command = ["uv", "run", "--frozen", "--no-build", "--quiet", "--python", PYTHON]
-    command += ["--script", str(SCRIPT), str(request)]
+    command += ["--script", str(SCRIPT)]
     try:
-        result = subprocess.run(command, capture_output=True, text=True, timeout=TIMEOUT_S)
+        result = subprocess.run(
+            command, input=request, capture_output=True, text=True, timeout=TIMEOUT_S, cwd=workdir
+        )
     except subprocess.TimeoutExpired as error:
         raise NarrationError(f"narration timed out after {TIMEOUT_S} seconds") from error
     except OSError as error:
@@ -160,13 +155,13 @@ def narrate(scene: dict[str, Any], workdir: Path) -> Narration:
     return Narration(tuple(spoken), clips, tuple(float(seconds) for seconds in durations))
 
 
-def for_scene(scene: dict[str, Any], workdir: Path) -> Narration | None:
+def for_scene(scene: dict[str, Any], workdir: Path, *, voice: str = VOICE) -> Narration | None:
     """The narration, or None (logged) so the Reel goes out music-only."""
     if reason := unavailable():
         log.info("SVG Reel without narration: %s", reason)
         return None
     try:
-        narration = narrate(scene, workdir)
+        narration = narrate(scene, workdir, voice=voice)
     except NarrationError as error:
         log.warning("SVG Reel without narration (%s)", error)
         return None
