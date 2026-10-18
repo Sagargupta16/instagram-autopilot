@@ -18,6 +18,7 @@ from src.media.svg_kit import (
     RIGHT,
     RISE,
     SAFE,
+    TRAVEL,
     Canvas,
     LayoutError,
     block_height,
@@ -26,10 +27,10 @@ from src.media.svg_kit import (
     text_width,
     wrap,
 )
-from src.media.svg_parts import header, icon, takeaway, takeaway_height, tile
+from src.media.svg_parts import SOURCE_H, header, icon, source, takeaway, takeaway_height, tile
 
 HOOK_S, ITEM_S, TAKE_S, HOLD_S = 2.5, 2.2, 1.3, 4.0
-DATE_PX, EVENT_PX = 44, 36
+DATE_PX, EVENT_PX = 38, 32
 # Node radius, icon px and gap between rows: the roomiest that fits is used.
 SIZES = ((52, 76, 24), (48, 70, 18), (44, 64, 14), (40, 58, 10))
 
@@ -98,7 +99,7 @@ def compose(
     look = canvas.look
     parts, top = header(canvas, look.kicker("timeline") if kicker else None, scene["hook"])
     milestones = scene["milestones"]
-    source_h = 38 + 28 if source_line else 0
+    source_h = SOURCE_H if source_line else 0
     take_top = SAFE[3] - RISE - source_h - takeaway_height(scene["takeaway"])
     radius, size, gap = _size(milestones, take_top - 40 - (top + 44))
     rail_x = LEFT + 20 + radius
@@ -123,8 +124,7 @@ def compose(
     card, card_bottom = takeaway(canvas, take_top, scene["takeaway"], take_at + 0.1)
     parts += [*rails, *rows, card]
     if source_line:
-        line = canvas.text(LEFT, card_bottom + 28 + 29, source_line, 36, look.muted)
-        parts.append(canvas.reveal([line], take_at + 0.4))
+        parts.append(source(canvas, card_bottom, source_line, take_at + 0.4))
     return parts
 
 
@@ -185,7 +185,7 @@ def _rail(canvas: Canvas, x: float, y0: float, y1: float, start: float) -> str:
         f'<line x1="{fmt(x)}" y1="{fmt(y0)}" x2="{fmt(x)}" y2="{fmt(y1)}" stroke="{look.accent}" '
         f'stroke-width="8" stroke-linecap="round" stroke-dasharray="{dash}" '
         f'stroke-dashoffset="{dash}">'
-        + canvas.anim("stroke-dashoffset", [(start, dash), (start + 0.5, "0")])
+        + canvas.anim("stroke-dashoffset", [(start, dash), (start + 0.5, "0")], ease=TRAVEL)
         + "</line>"
     )
     times = ";".join(canvas.key(t) for t in (0, start + 0.05, start + 0.55, canvas.total))

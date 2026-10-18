@@ -105,12 +105,22 @@ def _stat_body(scene: dict[str, Any]) -> str:
 
 
 def lines(scene: dict[str, Any]) -> list[str]:
-    """One line per beat, from on-screen text only: the hook, each item, the takeaway."""
+    """One line per beat, from on-screen text only: the hook, each item, the takeaway (a
+    myth and its fact are two beats)."""
     if scene["kind"] == "steps":
         body = [f"{step['label']}. {step['detail']}" for step in scene["steps"]]
         return [scene["hook"], *body, scene["takeaway"]]
     if scene["kind"] == "timeline":
         body = [f"{item['date']}. {item['event']}" for item in scene["milestones"]]
+        return [scene["hook"], *body, scene["takeaway"]]
+    if scene["kind"] == "versus":
+        left, right = scene["left"]["name"], scene["right"]["name"]
+        body = [f"{r['aspect']}. {left}: {r['left']}. {right}: {r['right']}" for r in scene["rows"]]
+        return [scene["hook"], *body, scene["takeaway"]]
+    if scene["kind"] == "myths":  # two lines per item, so the strike lands on "Fact"
+        body = [
+            line for i in scene["items"] for line in (f"Myth: {i['myth']}", f"Fact: {i['fact']}")
+        ]
         return [scene["hook"], *body, scene["takeaway"]]
     return [scene["headline"], _stat_body(scene), scene["takeaway"]]
 

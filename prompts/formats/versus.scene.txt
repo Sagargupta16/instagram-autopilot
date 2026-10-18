@@ -1,0 +1,26 @@
+<animated_reel>
+This post is an animated "X vs Y" comparison Reel: two things side by side, row by row.
+
+Caption: open with the plain question the comparison answers, then one short line per aspect in
+the same order (no list numbers) that says how the two differ, then the takeaway. Close with the
+line "Visuals: animated comparison drafted with AI assistance."
+
+"scene": {"kind": "versus", "hook": "...", "left": {"name": "...", "icon": "..."},
+ "right": {"name": "...", "icon": "..."}, "rows": [{"aspect": "...", "left": "...",
+ "right": "..."}], "takeaway": "..."}
+- hook: at most 42 characters, ideally under 30, naming both things ("TCP vs UDP: what differs?").
+  Never open with a greeting, filler, "in this video", "stop scrolling", a hashtag or an emoji.
+- left and right: the two things. name: at most 18 characters, the short name people use.
+  icon: the allowed icon that pictures the thing, or omit it.
+- rows: 3 aspects in a sensible order (a 4th only when it matters). aspect: at most 18
+  characters, one or two words ("Delivery", "Ordering", "Best for"). left and right: at most 40
+  characters each, ideally under 28: a short phrase saying how that thing behaves on that
+  aspect; keep the two cells parallel in shape. A narrator reads every cell aloud, so fewer words
+  keep the Reel short.
+- takeaway: at most 70 characters, when to pick which; it answers the hook, so the Reel reads as
+  a loop when it replays. No winner unless one is simply better for everyone.
+- Be technically correct and plain. Compare the general approach, not one vendor's product.
+- Numbers: most comparisons need none. Use a number only when the evidence states it, and never
+  count the rows ("four differences") in the hook or caption.
+- Use plain hyphens, never en or em dashes.
+</animated_reel>

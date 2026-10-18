@@ -72,12 +72,14 @@ def test_shipped_cadence_is_two_spaced_posts_a_day_at_most() -> None:
     assert cadence["schedule_buffer_minutes"] == 40
 
 
-def test_shipped_pillars_are_the_three_svg_reel_formats() -> None:
+def test_shipped_pillars_are_the_five_svg_reel_formats() -> None:
     pillars = load_config()["pillars"]
     assert [(p["id"], p["weight"], p["scene_kind"]) for p in pillars] == [
         ("tech-explainer", 1.0, "steps"),
         ("cool-stats", 1.5, "stat"),
         ("history-timeline", 0.8, "timeline"),
+        ("tech-versus", 1.0, "versus"),
+        ("myth-vs-fact", 1.0, "myths"),
     ]
     for pillar in pillars:
         assert pillar["content_format"] == "svg_reel"

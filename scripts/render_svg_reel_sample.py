@@ -3,7 +3,8 @@
 Usage:
     uv run --frozen python scripts/render_svg_reel_sample.py [--name steps-cicd ...]
 
-By default renders one MP4 per pillar (steps-cicd, stat-big-number, timeline-hubble), each in
+By default renders one MP4 per pillar (steps-cicd, stat-big-number, timeline-hubble,
+versus-tcp-udp, myths-space), each in
 its sample look, with the pillar's licensed track baked in when the audio library has been
 fetched (scripts/fetch_audio_catalog.py) and silent otherwise. When the voice model has been
 fetched (scripts/fetch_voice_model.py) each sample is narrated and paced to its voice, as a
@@ -35,7 +36,7 @@ from src.pillar import load_config  # noqa: E402
 
 SAMPLES = ROOT / "scripts" / "samples" / "svg_reel_scenes.json"
 OUT = ROOT / "output" / "svg-reel-sample"
-DEFAULT = ("steps-cicd", "stat-big-number", "timeline-hubble")
+DEFAULT = ("steps-cicd", "stat-big-number", "timeline-hubble", "versus-tcp-udp", "myths-space")
 
 
 def moments(reel: Reel) -> dict[str, float]:

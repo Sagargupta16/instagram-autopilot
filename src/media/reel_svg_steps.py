@@ -12,10 +12,13 @@ from collections.abc import Sequence
 from typing import Any
 
 from src.media.svg_kit import (
+    DETAIL_PX,
+    LABEL_PX,
     LEFT,
     RIGHT,
     RISE,
     SAFE,
+    TRAVEL,
     Canvas,
     LayoutError,
     block_height,
@@ -28,7 +31,7 @@ from src.media.svg_parts import header, icon, takeaway, takeaway_height, tile
 HOOK_S, STEP_S, TAKE_S, HOLD_S = 2.5, 2.2, 1.3, 4.0
 # Icon px, row padding and gap between rows: the roomiest that fits is used.
 SIZES = ((128, 16, 28), (120, 14, 24), (112, 12, 20), (104, 10, 16), (96, 8, 14), (96, 6, 10))
-DETAIL_SIZES = (40, 36)
+DETAIL_SIZES = DETAIL_PX
 NUMBER_W = 96  # right-hand room for the step number
 
 
@@ -67,7 +70,8 @@ class _Rows:
         self.cx = LEFT + 20 + self.radius
         self.text_x = self.cx + self.radius + 28
         self.detail_px = px
-        self.label_top = self.row / 2 + 0.36 * 56 + 0.25 * 56 + 14  # detail top, from row top
+        label = LABEL_PX[0]
+        self.label_top = self.row / 2 + 0.36 * label + 0.25 * label + 14  # detail top, from row top
         self.open = [self.label_top + block_height(len(lines), px) + 22 for lines in details]
 
     def tops(self, top: float, take_h: float) -> list[float] | None:
@@ -155,12 +159,12 @@ def _card(
     mark = _mark(canvas, rows, step, index, cy)
     pop = [(appear + 0.1, "1"), (appear + 0.4, "1.14"), (done, "1.14"), (done + 0.35, "1")]
     mark = canvas.scaled(rows.cx, cy, pop, mark)
-    size, label = fit(step["label"], (56, 52), RIGHT - NUMBER_W - rows.text_x, 1, bold=True)
+    size, label = fit(step["label"], LABEL_PX, RIGHT - NUMBER_W - rows.text_x, 1, bold=True)
     title = canvas.text(rows.text_x, cy + 0.36 * size, label[0], size, look.text, bold=True)
     if step.get("icon"):  # the order, in the corner the label leaves free
         digit = str(index + 1)
         title += canvas.text(
-            RIGHT - 36, cy + 0.36 * 44, digit, 44, look.accent_text, bold=True, anchor="end"
+            RIGHT - 36, cy + 0.36 * 38, digit, 38, look.accent_text, bold=True, anchor="end"
         )
     lines, _ = canvas.lines(rows.text_x, top + rows.label_top, detail, rows.detail_px, look.muted)
     body = f'<g opacity="0">{canvas.fade(appear + 0.2, done)}{"".join(lines)}</g>'
@@ -176,7 +180,7 @@ def _mark(canvas: Canvas, rows: _Rows, step: dict[str, Any], index: int, cy: flo
         return shape + icon(name, rows.cx - half, cy - half, rows.size, look.accent)
     digit = str(index + 1)
     return shape + canvas.text(
-        rows.cx, cy + 0.36 * 64, digit, 64, look.accent_text, bold=True, anchor="middle"
+        rows.cx, cy + 0.36 * 56, digit, 56, look.accent_text, bold=True, anchor="middle"
     )
 
 
@@ -189,7 +193,7 @@ def _wire(canvas: Canvas, x: float, y0: float, y1: float, start: float) -> str:
         f'<line x1="{fmt(x)}" y1="{fmt(y0)}" x2="{fmt(x)}" y2="{fmt(y1)}" stroke="{look.accent}" '
         f'stroke-width="8" stroke-linecap="round" stroke-dasharray="{dash}" '
         f'stroke-dashoffset="{dash}">'
-        + canvas.anim("stroke-dashoffset", [(start, dash), (start + 0.4, "0")])
+        + canvas.anim("stroke-dashoffset", [(start, dash), (start + 0.4, "0")], ease=TRAVEL)
         + "</line>"
     )
     times = ";".join(canvas.key(t) for t in (0, start + 0.05, start + 0.5, canvas.total))

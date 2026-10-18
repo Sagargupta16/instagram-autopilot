@@ -25,7 +25,7 @@ WATER = {
     "publisher": "Reuters",
 }
 POWER = {"title": "Electricity prices climbed 64% since 2015", "source": "guardian"}
-WIDE_HOOK = "HOW DOES WORLDWIDE WEB MAIL MOVE MESSAGES?"  # 42 chars, wider than the cover
+WIDE_HOOK = "WWW WWW WWW WWW WWW WWW WWW WWW WWW WWW WW"  # 42 chars, wider than three lines
 
 
 def _steps(count: int = 3, **overrides: Any) -> dict[str, Any]:

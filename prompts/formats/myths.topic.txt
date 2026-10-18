@@ -1,0 +1,7 @@
+Choose ONE subject within the pillar where common beliefs are wrong and the supplied source text
+states what is actually true: a space mission or discovery, a science finding, a technology,
+an animal, the human body only when the evidence is not medical advice. The Reel shows two or
+three myths, each struck through and replaced by a fact, so every fact must be stated in the
+selected records. Return the indices of the records that state the facts. Avoid health
+treatments, diets, medicine, politics, religion and anything where being wrong could hurt
+someone. This format needs evidence: never choose an evergreen topic or facts you remember.

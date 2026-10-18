@@ -91,7 +91,7 @@ def test_hook_is_readable_on_the_first_frame_and_brightens_word_by_word(name) ->
     assert hook_lines
     starts = []
     for line in hook_lines:
-        assert float(line.get("font-size")) >= 80
+        assert float(line.get("font-size")) >= 68
         node = line
         while node in parents:  # nothing above the hook starts hidden
             node = parents[node]

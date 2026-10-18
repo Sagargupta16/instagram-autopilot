@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 
-from src.media import reel_svg, reel_svg_stats, svg_kit
+from src.media import reel_svg, reel_svg_count, svg_kit
 from src.media.reel_svg import Reel, compose
 from src.media.svg_kit import LayoutError
 from src.media.svg_look import DIM, LOOKS
@@ -93,12 +93,12 @@ def test_type_meets_size_floors(name) -> None:
     scene = BY_NAME[name]["scene"]
     elements = texts(reel(name).svg)
     for element in elements:
-        assert size(element) >= 36, words(element)
-    assert all(size(e) >= 80 for e in run_of(elements, scene.get("hook") or scene["headline"]))
-    assert all(size(e) >= 48 for e in run_of(elements, scene["takeaway"]))
+        assert size(element) >= 32, words(element)
+    assert all(size(e) >= 68 for e in run_of(elements, scene.get("hook") or scene["headline"]))
+    assert all(size(e) >= 42 for e in run_of(elements, scene["takeaway"]))
     for step in scene.get("steps", []):
-        assert all(size(e) >= 52 for e in run_of(elements, step["label"]))
-        assert all(size(e) >= 36 for e in run_of(elements, step["detail"]))
+        assert all(size(e) >= 44 for e in run_of(elements, step["label"]))
+        assert all(size(e) >= 32 for e in run_of(elements, step["detail"]))
 
 
 @pytest.mark.parametrize("name", NAMES)
@@ -275,7 +275,10 @@ def test_oversized_scene_raises_layout_error() -> None:
 
 def test_compose_drops_the_kicker_when_that_makes_it_fit() -> None:
     scene = copy.deepcopy(BY_NAME["steps-six"]["scene"])
-    scene["hook"] = "What happens when your app calls an LLM"
+    scene["hook"] = "Www Mom Wakes Warm Machines Many Workers"
+    for step in scene["steps"]:
+        step["detail"] = "Www mom wakes warm machines many workers walk"
+    scene["takeaway"] = "Www mom wakes warm machines many workers walk home when mows wow www"
     with pytest.raises(LayoutError):
         reel_svg._draw(scene, None, True, 0)
     built = compose(scene)
@@ -286,16 +289,18 @@ def test_compose_drops_the_kicker_when_that_makes_it_fit() -> None:
 
 
 def test_compose_drops_icons_last_when_only_that_makes_it_fit() -> None:
-    item = copy.deepcopy(BY_NAME["stat-bars"])
+    item = copy.deepcopy(BY_NAME["versus-tcp-udp"])
     scene = item["scene"]
-    scene["headline"] = "Which sample engineering team ships the most"
-    scene["takeaway"] = "Ranked bars grow in order so the leader lands first on the phone"
+    scene["hook"] = "Www Mom Wakes Warm Machines Many Workers"
+    for row in scene["rows"]:
+        row["left"] = row["right"] = "Www mom wakes warm machines many"
+    scene["takeaway"] = "Www mom wakes warm machines many workers walk home when mows wow www"
     for kicker in (True, False):
         with pytest.raises(LayoutError):
             reel_svg._draw(scene, item["source_line"], kicker, 0)
     built = compose(scene, source_line=item["source_line"])
     assert built.svg.count('stroke-width="1.75"') == 1  # only the end card's icon
-    assert scene["icon"] == "chart-column"  # the caller's scene is not changed
+    assert scene["left"]["icon"] == "shield-check"  # the caller's scene is not changed
 
 
 def test_wrap_never_exceeds_the_width() -> None:
@@ -323,15 +328,15 @@ def test_fit_picks_the_largest_size_or_raises() -> None:
 
 
 def test_counting_keeps_suffix_grouping_and_decimals() -> None:
-    percent = reel_svg_stats.counting("62%")
+    percent = reel_svg_count.counting("62%")
     assert percent[-1] == "62%"
     assert all(frame.endswith("%") for frame in percent)
     assert [float(f[:-1]) for f in percent] == sorted(float(f[:-1]) for f in percent)
-    grouped = reel_svg_stats.counting("1,240")
+    grouped = reel_svg_count.counting("1,240")
     assert grouped[-1] == "1,240"
     assert all(re.fullmatch(r"\d{1,3}(,\d{3})*", frame) for frame in grouped)
     assert any("," in frame for frame in grouped[:-1])
-    decimal = reel_svg_stats.counting("3.8")
+    decimal = reel_svg_count.counting("3.8")
     assert decimal[-1] == "3.8"
     assert all(re.fullmatch(r"\d+\.\d", frame) for frame in decimal)
 
@@ -342,4 +347,4 @@ NUMBERS |= {"$3bn": 3e9, "4tn": 4e12, "7 trillion": 7e12, "n/a": 0}
 
 @pytest.mark.parametrize(("value", "expected"), NUMBERS.items())
 def test_number_reads_suffixes(value, expected) -> None:
-    assert reel_svg_stats.number(value) == pytest.approx(expected)
+    assert reel_svg_count.number(value) == pytest.approx(expected)

@@ -21,7 +21,15 @@ LEFT, RIGHT = 72, 1008
 RISE = 20  # px an element travels upward while it fades in
 FONT = "Inter, 'Segoe UI', 'Liberation Sans', 'DejaVu Sans', Arial, sans-serif"
 ASCENT, DESCENT = 0.8, 0.25  # of the font size, above and below the baseline
-EASE = "0.22 1 0.36 1"
+# Type scale in px as (preferred, minimum) where text shrinks to fit. Set smaller than the
+# first Reels on the owner's ask (2026-10-18); contract 16's floors are these minimums.
+HOOK_PX = (76, 68)
+LABEL_PX = (48, 44)
+DETAIL_PX = (34, 32)
+TAKE_PX = (44, 42)
+SMALL_PX = 32  # kicker, source line and chart labels: the smallest text anywhere
+EASE = "0.22 1 0.36 1"  # entrances: fast out, soft landing
+TRAVEL = "0.45 0 0.25 1"  # line draws and growth: even travel with gentle ends
 HOLD = "0 0 1 1"
 _DASHES = re.compile("[" + chr(0x2013) + chr(0x2014) + "]")
 
@@ -140,6 +148,7 @@ class Canvas:
         tag: str = "animate",
         extra: str = "",
         discrete: bool = False,
+        ease: str = EASE,
     ) -> str:
         """frames are (seconds, value); the first value holds from 0 and the last to the end."""
         if frames[0][0] > 0:
@@ -150,7 +159,7 @@ class Canvas:
         values = ";".join(value for _, value in frames)
         mode = 'calcMode="discrete"'
         if not discrete:
-            splines = ";".join(HOLD if a == b else EASE for (_, a), (_, b) in pairwise(frames))
+            splines = ";".join(HOLD if a == b else ease for (_, a), (_, b) in pairwise(frames))
             mode = f'calcMode="spline" keySplines="{splines}"'
         return (
             f'<{tag} attributeName="{attr}" {extra}dur="{fmt(self.total)}s" fill="freeze" '
