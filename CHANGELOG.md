@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.11.1] - 2026-10-18
+
+### Fixed
+- "the source" in ordinary tech text ("the source system sends a POST") no longer counts as commentary about the evidence. The rule had failed the 2026-10-18 tech-explainer slot twice (a webhook explainer; the repair kept the phrase because it was correct). It now flags the source only when the text says what it reports or leaves out ("the source says", "the source does not give"); article, record, excerpt, snippet and evidence stay as before.
+
 ## [0.11.0] - 2026-10-18
 
 ### Added
