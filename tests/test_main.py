@@ -314,7 +314,7 @@ def test_post_now_dry_run_never_builds_the_ledger_or_uploads(
 ):
     monkeypatch.setattr(main, "create_ledger", Mock(side_effect=AssertionError("state touched")))
     sample_caption_data["scene"] = {"kind": "steps"}
-    prepared = ("caption", Reel("<svg/>", 15.0, (), 11.5), b"mp4", None)
+    prepared = ("caption", Reel("<svg/>", 15.0, (), 11.5), b"mp4", None, ())
     monkeypatch.setattr(svg_reel_flow, "_prepare", Mock(return_value=prepared))
     upload, publish = Mock(), Mock()
     monkeypatch.setattr(svg_reel_flow, "upload_video", upload)

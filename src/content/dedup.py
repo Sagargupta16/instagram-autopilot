@@ -63,7 +63,8 @@ def load_recent_image_prompts(limit: int = 25) -> list[str]:
 def _atomic_write(entries: list[dict[str, Any]]) -> None:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     tmp = POSTED_TOPICS_FILE.with_suffix(".json.tmp")
-    tmp.write_text(json.dumps(entries[-MAX_HISTORY:], indent=2))
+    with tmp.open("w") as stream:
+        json.dump(entries[-MAX_HISTORY:], stream, indent=2)
     tmp.replace(POSTED_TOPICS_FILE)
 
 

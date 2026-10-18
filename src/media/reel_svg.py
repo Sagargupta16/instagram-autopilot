@@ -3,13 +3,15 @@
 Self-contained SMIL on one clock: no scripts, external fonts or images. Every text box is
 checked against the Reels safe area, and the first frame already shows the hook. `cover` is
 the moment the whole scene is on screen (the final hold plus half a second, before the end
-card), which the publisher passes to Instagram as the cover frame. The result is
-deterministic for a given scene, source line and look.
+card), which the publisher passes to Instagram as the cover frame. `beats` are the moments
+each narration line starts, and `pace` (from the narration) lengthens beats to fit their
+lines. The result is deterministic for a given scene, source line, look and pace.
 """
 
 from __future__ import annotations
 
 import copy
+from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
 
@@ -29,6 +31,7 @@ class Reel:
     duration: float
     boxes: tuple[tuple[float, float, float, float], ...]
     cover: float
+    beats: tuple[float, ...] = ()
 
     @property
     def thumb_offset_ms(self) -> int:
@@ -43,29 +46,42 @@ def _without_icons(scene: dict[str, Any]) -> dict[str, Any]:
     return bare
 
 
-def _draw(scene: dict[str, Any], source_line: str | None, kicker: bool, look: int) -> Reel:
+def _draw(
+    scene: dict[str, Any],
+    source_line: str | None,
+    kicker: bool,
+    look: int,
+    pace: Sequence[float] = (),
+) -> Reel:
     kind = scene["kind"]
     if kind not in LAYOUTS:
         raise LayoutError(f"unknown scene kind {kind!r}")
     layout = LAYOUTS[kind]
-    canvas = Canvas(layout.duration(scene), pick_look(look))
+    canvas = Canvas(layout.duration(scene, pace), pick_look(look))
     if kind == "steps":
-        parts = layout.compose(canvas, scene, kicker=kicker)
+        parts = layout.compose(canvas, scene, kicker=kicker, pace=pace)
     else:
-        parts = layout.compose(canvas, scene, source_line, kicker=kicker)
+        parts = layout.compose(canvas, scene, source_line, kicker=kicker, pace=pace)
     label = scene.get("hook") or scene["headline"]
-    cover = layout.hold_start(scene) + COVER_AFTER_HOLD
-    return Reel(document(canvas, parts, label), canvas.total, tuple(canvas.boxes), cover)
+    cover = layout.hold_start(scene, pace) + COVER_AFTER_HOLD
+    svg = document(canvas, parts, label)
+    return Reel(svg, canvas.total, tuple(canvas.boxes), cover, tuple(layout.beats(scene, pace)))
 
 
-def compose(scene: dict[str, Any], *, source_line: str | None = None, look: int = 0) -> Reel:
+def compose(
+    scene: dict[str, Any],
+    *,
+    source_line: str | None = None,
+    look: int = 0,
+    pace: Sequence[float] = (),
+) -> Reel:
     """The scene with its kicker and icons; without the kicker, then without icons, when
     that is what makes it fit (both are optional decoration)."""
     try:
-        return _draw(scene, source_line, True, look)
+        return _draw(scene, source_line, True, look, pace)
     except LayoutError:
         pass
     try:
-        return _draw(scene, source_line, False, look)
+        return _draw(scene, source_line, False, look, pace)
     except LayoutError:
-        return _draw(_without_icons(scene), source_line, False, look)
+        return _draw(_without_icons(scene), source_line, False, look, pace)

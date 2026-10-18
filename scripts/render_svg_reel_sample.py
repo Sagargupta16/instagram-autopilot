@@ -5,11 +5,13 @@ Usage:
 
 By default renders one MP4 per pillar (steps-cicd, stat-big-number, timeline-hubble), each in
 its sample look, with the pillar's licensed track baked in when the audio library has been
-fetched (scripts/fetch_audio_catalog.py) and silent otherwise. Writes to
-output/svg-reel-sample/: NAME.mp4 and NAME.svg, four PNG frames of each MP4 (hook entrance,
-middle, cover frame, end card), a cover still of every sample in every look, and probe.json
-with each MP4's ffprobe summary, audio track and render time. Uses no credentials and makes
-no network requests. Exits non-zero when an MP4 fails the spec.
+fetched (scripts/fetch_audio_catalog.py) and silent otherwise. When the voice model has been
+fetched (scripts/fetch_voice_model.py) each sample is narrated and paced to its voice, as a
+published Reel is. Writes to output/svg-reel-sample/: NAME.mp4 and NAME.svg, four PNG frames
+of each MP4 (hook entrance, middle, cover frame, end card), a cover still of every sample in
+every look, and probe.json with each MP4's ffprobe summary, audio track, narration timings and
+render time. Uses no credentials; the only network use is uv installing the locked narration
+environment on first use. Exits non-zero when an MP4 fails the spec.
 """
 
 from __future__ import annotations
@@ -25,7 +27,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from src.media import audio_bake, audio_picker, reel_probe, svg_video  # noqa: E402
+from src.media import audio_bake, audio_picker, narration, reel_probe, svg_video  # noqa: E402
 from src.media.audio_manifest import AudioTrack  # noqa: E402
 from src.media.reel_svg import Reel, compose  # noqa: E402
 from src.media.svg_look import LOOKS  # noqa: E402
@@ -73,24 +75,37 @@ def track_for(kind: str) -> AudioTrack | None:
 
 def render(item: dict, browser: str) -> dict:
     name = item["name"]
-    reel = compose(item["scene"], source_line=item["source_line"], look=item["look"])
-    (OUT / f"{name}.svg").write_text(reel.svg, encoding="utf-8")
     video = OUT / f"{name}.mp4"
     track = track_for(item["scene"]["kind"])
     started = time.perf_counter()
     with tempfile.TemporaryDirectory(prefix="svg-reel-sample-") as temporary:
-        silent = svg_video.render(
-            reel.svg, reel.duration, Path(temporary) / "silent.mp4", browser=browser
-        )
-        baked = audio_bake.bake(silent, track.path, reel.duration) if track else silent
-        video.write_bytes(baked.read_bytes())
+        workdir = Path(temporary)
+        voice = narration.for_scene(item["scene"], workdir)
+        pace = voice.pace if voice else ()
+        reel = compose(item["scene"], source_line=item["source_line"], look=item["look"], pace=pace)
+        (OUT / f"{name}.svg").write_text(reel.svg, encoding="utf-8")
+        silent = svg_video.render(reel.svg, reel.duration, workdir / "silent.mp4", browser=browser)
+        starts = [beat + narration.LEAD_S for beat in reel.beats]
+        if voice:
+            clips = list(zip(voice.clips, starts, strict=True))
+            music = track.path if track else None
+            final = audio_bake.mix(silent, reel.duration, voice=clips, music=music)
+        else:
+            final = audio_bake.bake(silent, track.path, reel.duration) if track else silent
+        video.write_bytes(final.read_bytes())
     seconds = round(time.perf_counter() - started, 1)
-    summary = reel_probe.verify(video, reel.duration, audio=track is not None)
+    summary = reel_probe.verify(video, reel.duration, audio=bool(track or voice))
     summary |= {
         "render_seconds": seconds,
         "look": LOOKS[item["look"] % len(LOOKS)].name,
         "thumb_offset_ms": reel.thumb_offset_ms,
         "audio_track": track.track_id if track else None,
+        "narration": [
+            {"line": line, "start": round(start, 2), "seconds": spoken}
+            for line, start, spoken in zip(voice.lines, starts, voice.durations, strict=True)
+        ]
+        if voice
+        else None,
     }
     for label, at in moments(reel).items():
         extract(video, at, OUT / f"{name}-{label}.png")

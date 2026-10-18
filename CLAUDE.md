@@ -12,6 +12,7 @@ Headless Python Instagram publisher for a creative data and tech account. Three 
 - `uv run --frozen ruff check src tests scripts`
 - `uv run --frozen ruff format --check src tests scripts`
 - `uv run --frozen pytest --cov=src --cov-branch`
+- `uv run --frozen python scripts/fetch_voice_model.py` fetches the Kokoro narration model into the gitignored `assets/voice/`; with it, the sample render below narrates each sample. `scripts/narrate.py` is a PEP 723 script locked in `scripts/narrate.py.lock` (`uv lock --script scripts/narrate.py` after changing its dependencies) and runs on Python 3.13.
 - `uv run --frozen python scripts/render_svg_reel_sample.py` renders one sample Reel per pillar and a cover still of every sample in every look into `output/svg-reel-sample/` with real Chrome and ffmpeg (no credentials, no network); music is baked in when `uv run --frozen python scripts/fetch_audio_catalog.py` has fetched the library. CI uploads the result as the `svg-reel-sample` artifact.
 - The svg-forge validator (`skills/animated-svg/scripts/validate_svg.py FILE --strict-contrast --theme dark` in the svg-forge plugin) must report 0 errors for every sample SVG in every look.
 - `uv run --frozen python -m src.main --dry-run` is paid local generation, never upload/publication/history mutation.
@@ -23,7 +24,7 @@ Tests use dummy credentials, disable dotenv, and block sockets. CI exercises Pyt
 
 - `adapters/`: low-level service calls.
 - `content/`: category-relevant evidence, topic selection, validated content, SVG scenes (`scenes.py`) and number grounding (`grounding.py`). Preserve the legacy string topic wrapper; the orchestrator uses `generate_topic_brief` and passes its sources into captions.
-- `media/`: asset generation, JPEG normalization, S3 retrieval, audio, SVG composition (`svg_kit.py` type and clock, `svg_parts.py` framing, `svg_look.py` looks, `lucide/` vendored icons, `reel_svg*.py` layouts), Chrome and ffmpeg rendering (`svg_video.py`) and ffprobe checks (`reel_probe.py`).
+- `media/`: asset generation, JPEG normalization, S3 retrieval, audio, narration (`narration.py`, the Kokoro voice-over, and `audio_bake.mix`), SVG composition (`svg_kit.py` type and clock, `svg_parts.py` framing, `svg_look.py` looks, `lucide/` vendored icons, `reel_svg*.py` layouts), Chrome and ffmpeg rendering (`svg_video.py`) and ffprobe checks (`reel_probe.py`).
 - `slot_rules.py`: forced pillars, on-demand posting refusals and slot times already used.
 - `flows/`: compose media and publication; return a confirmed media ID or None for a dry-run.
 - `publishing/`: Composio schemas, draft readiness, alt text, final publish callback.
@@ -57,6 +58,8 @@ Tests use dummy credentials, disable dotenv, and block sockets. CI exercises Pyt
 24. The Reel container sends `thumb_offset` in integer milliseconds from the composer's `Reel.cover` (the final hold plus 0.5 s, before the 2-second end card), so the grid shows the complete scene. Keep `INSTAGRAM_CREATE_MEDIA_CONTAINER` until the replacement tool's `%23` hashtag encoding is verified against a live caption; it has no `audio_name` field, so none is sent.
 25. Cadence for the small account: at most 2 posts per UTC day, at least 180 minutes apart, `post_probability` with one entry per possible count (0 to 2), inside the 04:00-20:00 UTC window. Raising it is an owner decision, not a tuning knob. Consecutive posts rotate looks through the `look` stored on published receipts.
 26. Captions carry at most five hashtags, Instagram's cap on posts and Reels since 2025-12-18. The prompts ask for 3 to 5, most relevant first; `hashtag_list` in `content/schemas.py` keeps the first five instead of failing the slot.
+27. SVG Reel narration speaks only the validated scene's on-screen text (`narration.lines`), never extra model-written words or numbers, so contract 15 covers it. It runs in the locked `scripts/narrate.py` environment on Python 3.13. Any narration failure (model missing, environment install, synthesis, mix) leaves the Reel music-only and never skips the slot, and the caption carries "Narration: AI-generated voice." only when the voice is in the delivered audio. Beats only lengthen to fit a line; without narration every SVG, duration and cover frame is unchanged.
+28. The hook or stat headline never opens with a greeting, filler, a video preamble, "stop scrolling", a hashtag or an emoji (`content/hooks.py`, whole-word matches), and the caption's first line is one sentence under 125 characters. Both are validation errors that get the one repair call.
 
 ## Conventions
 

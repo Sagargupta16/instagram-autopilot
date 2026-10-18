@@ -16,6 +16,7 @@ from pydantic import (
 )
 
 from src.content.grounding import evidence_text, published_text, ungrounded
+from src.content.hooks import weak_hook
 from src.content.schemas import Nonempty, hashtag_list
 from src.content.sources import publication_name
 from src.content.voice import meta_commentary
@@ -45,6 +46,7 @@ BarLabel = Annotated[Nonempty, Field(max_length=16)]
 PointLabel = Annotated[Nonempty, Field(max_length=8)]
 DateLabel = Annotated[Nonempty, Field(max_length=12), StringConstraints(pattern=r"\d")]
 Event = Annotated[Nonempty, Field(max_length=44)]
+FEED_PREVIEW = 125  # caption characters the feed shows before "... more"
 
 
 def _known_icon(name: str) -> str:
@@ -152,6 +154,13 @@ class SvgReelContent(_Strict):
     def caption_fits_instagram(self) -> SvgReelContent:
         if len(f"{self.caption}\n\n{self.hashtags}") > 2200:
             raise ValueError("caption and hashtags together must fit 2200 characters")
+        first = self.caption.split("\n", 1)[0].strip()
+        if len(first) > FEED_PREVIEW:
+            raise ValueError(
+                f"the caption's first line is {len(first)} characters, but the feed shows about "
+                f"{FEED_PREVIEW} before '... more': open with one complete sentence under "
+                f"{FEED_PREVIEW} characters that names the subject"
+            )
         return self
 
 
@@ -227,6 +236,8 @@ def validate_svg_content(raw: object, *, kind: str, sources: list[dict]) -> SvgR
     if problems := grounding_problems(scene, content.caption, kind, sources):
         raise ValueError("; ".join(problems))
     if problems := meta_commentary(scene, content.caption):
+        raise ValueError("; ".join(problems))
+    if problems := weak_hook(scene):
         raise ValueError("; ".join(problems))
     try:
         compose(scene, source_line=source_line(scene, sources))

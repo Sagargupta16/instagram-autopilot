@@ -38,6 +38,8 @@ best. Omit "icon" when none fits; never invent or alter a name.
 
 <caption_rules>
 Use up to 1800 characters. Keep the caption, two newlines and the hashtags within 2200 characters.
+The feed shows only about the first 125 characters before "... more": make the first line one
+complete sentence under 125 characters that names the subject in the words people search for.
 Avoid emojis, slogans and hashtags inside the caption.
 x_post: a useful standalone summary up to 280 characters, with the same factual care.
 hashtags: 3-5 distinct relevant space-separated #tags, most relevant first; Instagram allows at most 5.

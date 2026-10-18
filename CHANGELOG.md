@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.10.0] - 2026-10-18
+
+### Added
+- Voice-over for every SVG Reel. A local Kokoro voice (kokoro-onnx 0.6.1, Apache-2.0 weights `kokoro-v1.0.fp16.onnx` and `voices-v1.0.bin`, pinned by sha256) reads the validated scene's own on-screen text, one line per beat: the hook, each step, milestone or stat line, and the takeaway. It runs in `scripts/narrate.py`, a PEP 723 script locked in `scripts/narrate.py.lock` that uv runs on Python 3.13, because kokoro-onnx does not support the publisher's 3.14. `scripts/fetch_voice_model.py` downloads the model into the gitignored `assets/voice/`; both workflows cache it and pre-install the environment, and a failure at any step never fails a run.
+- The layouts lengthen a beat to fit its spoken line and never shorten one. A narrated steps sample runs 27.05 s instead of 18.8 s, each spoken line starts within 80 ms of its planned beat, and the voice finishes before the cover frame and the end card. A chart's unit is said once, not after every value. Without narration every SVG, duration and cover frame is byte-identical to 0.9.2 (all 21 sample and look combinations compared).
+- `audio_bake.mix` places each voice clip at its beat, normalizes the speech to -16 LUFS (-1.5 dBTP), and ducks the music bed under it with a sidechain compressor (measured 4 to 7 dB under speech). Captions of narrated Reels end with "Narration: AI-generated voice."; a Reel whose narration fails goes out music-only without that line. The text sent to the voice (never the screen) reads "$3.4 billion" as "3.4 billion dollars", "1946" as "nineteen forty-six", "Apr" as "April" and "CI/CD" without "slash", checked against Kokoro's phonemes.
+- A hook check (`content/hooks.py`, after the MIT hook scorer in Jakeschincariol/instagram-agent-skill): the hook or stat headline may not open with a greeting, filler, a video preamble, "stop scrolling", a hashtag or an emoji. Matching is by whole word, so "your" and "solo" pass.
+- The caption's first line must be one complete sentence under 125 characters, the part the feed shows before "... more". The scene prompts ask the takeaway to answer the hook so a replay reads as a loop.
+
+### Fixed
+- A model response with a sentence before or after its JSON object is parsed instead of spending the repair call; both failures that cost the 2026-10-14 history-timeline slot ("Extra data" and "Expecting value") now parse. Empty or prose-only responses still go to repair.
+- The topic history file is written through a file handle, which clears SonarCloud's path-injection alert on `dedup._atomic_write` (it treated the written text as the path). The output is unchanged.
+
 ## [0.9.2] - 2026-10-18
 
 ### Fixed

@@ -23,6 +23,8 @@ An Instagram publisher for a creative data and tech account, powered by AWS Bedr
   - Three looks (midnight blue, violet, amber, from the svg-forge themes) with their own kicker wording and icon tile shape. Each post takes the look after the last published post's (stored on its receipt), so consecutive posts never look the same.
   - The cover frame is set with `thumb_offset` to half a second into the final hold, so the profile grid shows the complete card instead of the opening frame. Each Reel runs 12 to 21 seconds on one clock.
 - Headless Chrome renders the frames, ffmpeg encodes H.264 High, yuv420p, BT.709, 30 fps with +faststart, licensed music is baked in as AAC 48 kHz stereo with a fade that ends at the Reel's real length, and ffprobe checks the file before upload.
+- Every SVG Reel is narrated when the voice model is present. A local [Kokoro](https://github.com/hexgrad/kokoro) voice (Apache-2.0 weights, run through [kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx) in its own locked Python 3.13 environment, `scripts/narrate.py`) reads the scene's own on-screen words, one line per beat: the hook, each step, milestone or stat line, and the takeaway. Each beat stretches to fit its line, the voice is normalized to -16 LUFS, the music dips under it (sidechain ducking), and the caption ends with "Narration: AI-generated voice." The voice never says a word or number that is not on screen, and any narration failure leaves the Reel music-only instead of skipping it. `NARRATION=false` turns it off; `NARRATION_VOICE` picks another Kokoro voice (default `af_heart`).
+- The hook or stat headline may not open with a greeting, filler, a video preamble, "stop scrolling", a hashtag or an emoji, and the caption's first line must be one complete sentence under 125 characters, the part the feed shows before "... more". Either problem gets the one repair call. Captions carry at most five hashtags, Instagram's cap since 2025-12-18.
 - SVG Reels never fall back to photos. A failure before the publisher boundary (no audio, no browser or ffmpeg, a layout or render error, an upload error) skips the post; the slot can retry on a later tick within its three-attempt budget.
 - Instagram publication is checkpointed durably before the final API request. A missing response never causes blind automatic republishing.
 - The carousel, single-image and Luma Reel formats remain in the code and tests as supported `content_format` values, but no configured pillar uses them.
@@ -59,6 +61,7 @@ Dry-run performs paid text generation and renders locally but **does not upload,
 ```bash
 uv run --frozen python -m src.main --dry-run --pillar cool-stats   # preview one pillar
 uv run --frozen python scripts/fetch_audio_catalog.py      # download the licensed music (gitignored)
+uv run --frozen python scripts/fetch_voice_model.py        # download the narration voice (gitignored)
 uv run --frozen python scripts/render_svg_reel_sample.py   # output/svg-reel-sample, no credentials needed
 ```
 
@@ -143,7 +146,7 @@ uv run --frozen ruff format --check src tests scripts
 uv run --frozen pytest --cov=src --cov-branch
 ```
 
-Tests use dummy credentials, disable `.env` loading, and block network connections. CI runs the suite on Python 3.12 and 3.14, requires at least 80% combined statement/branch coverage, and fails on lint, formatting, test, or lock-export drift. A separate CI job renders one sample Reel per pillar with real Chrome and ffmpeg on the Ubuntu runner (each in a different look, with music baked in when the audio library is available), checks them with ffprobe, and uploads the MP4s, four frames of each (hook entrance, middle, cover frame, end card) and a cover still of every sample in every look as the `svg-reel-sample` artifact. A real-render test runs locally when Chrome and ffmpeg are present and is skipped otherwise. Mocked tests do not prove a live account's authorization or provider availability.
+Tests use dummy credentials, disable `.env` loading, and block network connections. CI runs the suite on Python 3.12 and 3.14, requires at least 80% combined statement/branch coverage, and fails on lint, formatting, test, or lock-export drift. A separate CI job renders one sample Reel per pillar with real Chrome and ffmpeg on the Ubuntu runner (each in a different look, with music baked in when the audio library is available and narrated when the voice model is), checks them with ffprobe, and uploads the MP4s, four frames of each (hook entrance, middle, cover frame, end card) and a cover still of every sample in every look as the `svg-reel-sample` artifact. A real-render test runs locally when Chrome and ffmpeg are present and is skipped otherwise. Mocked tests do not prove a live account's authorization or provider availability.
 
 ## Cost and content quality
 
