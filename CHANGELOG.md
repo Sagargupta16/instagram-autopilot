@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.11.2] - 2026-10-18
+
+### Fixed
+- The stat value pattern in `reel_svg_count.py` keeps digits, commas and dots out of its currency and suffix groups, so matching stays linear (SonarCloud S8786). It matches every schema-valid stat value exactly as before (20,016 inputs compared).
+
 ## [0.11.1] - 2026-10-18
 
 ### Fixed
