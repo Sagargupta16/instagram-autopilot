@@ -7,7 +7,9 @@ import re
 from src.media.svg_kit import Canvas
 
 STEPS = 24  # frames in a count-up
-_VALUE = re.compile(r"(?P<cur>\D?)(?P<num>[\d,]+)(?P<dec>\.\d+)?(?P<suf>\D*)")
+# Currency and suffix exclude digits, commas and dots, so no two groups can claim the same
+# character and matching stays linear (SonarCloud S8786).
+_VALUE = re.compile(r"(?P<cur>[^\d,.]?)(?P<num>[\d,]+)(?P<dec>\.\d+)?(?P<suf>[^\d,.]*)")
 
 
 def number(value: str) -> float:
