@@ -26,7 +26,15 @@ from src.media.svg_kit import (
     fmt,
     wrap,
 )
-from src.media.svg_parts import header, icon, takeaway, takeaway_height, tile
+from src.media.svg_parts import (
+    ghost,
+    ghost_line,
+    header,
+    icon,
+    takeaway,
+    takeaway_height,
+    tile,
+)
 
 HOOK_S, STEP_S, TAKE_S, HOLD_S = 2.5, 2.2, 1.3, 4.0
 # Icon px, row padding and gap between rows: the roomiest that fits is used.
@@ -109,20 +117,21 @@ def compose(
     rows, tops, details = _layout(scene, bottom + 32)
     begin, take_at, _ = timing(scene, pace)
     ends = [*begin[1:], take_at]
-    cards, wires = [], []
+    cards, wires, ghosts = [], [], []
     for i, step in enumerate(steps):
         appear = begin[i] + (0.15 if i == 0 else 0.55)
+        ghosts.append(ghost(canvas, LEFT, tops[i], RIGHT - LEFT, rows.row, 28))
         cards.append(
             _card(canvas, rows, step, i, (tops[i], details[i]), (appear, ends[i], take_at))
         )
         if i:
             y0 = tops[i - 1] + rows.row / 2 + rows.radius + 6
-            wires.append(
-                _wire(canvas, rows.cx, y0, tops[i] + rows.row / 2 - rows.radius - 6, begin[i])
-            )
+            y1 = tops[i] + rows.row / 2 - rows.radius - 6
+            ghosts.append(ghost_line(canvas, rows.cx, y0, y1))
+            wires.append(_wire(canvas, rows.cx, y0, y1, begin[i]))
     take_top = tops[-1] + rows.row + rows.gap
     card, _ = takeaway(canvas, take_top, scene["takeaway"], take_at + 0.35)
-    return [*parts, *cards, *wires, card]
+    return [*parts, *ghosts, *cards, *wires, card]
 
 
 def _card(

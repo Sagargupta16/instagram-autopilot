@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.0] - 2026-10-18
+
+### Changed
+- A ghost layer, the change the portfolio-react covers credit most: every step, versus row and myth card has a waiting panel (3% fill, 10% hairline) from the first frame, and every step connector and timeline node and rail has a waiting outline. Each beat lights its panel up on top, so the opening frame is already a composition rather than a hook over empty space, and the panels still to come stay legible below the active one. The ghosts are static, so they add no animated elements.
+- One focal wash: a soft radial glow in the look's accent, 12% at its centre behind the hook, fading out. It is the only `url()` reference in a Reel and points at an internal `kr-` gradient; the inert-SVG test now allows exactly that. Worst-case text contrast on the brightest point of the wash under a ghost panel is 7.7:1 (needs 4.5) and marks 5.3:1 (needs 3), across all three looks.
+- The takeaway card gets a 10% hairline border, matching the ghost panels.
+
 ## [0.11.2] - 2026-10-18
 
 ### Fixed

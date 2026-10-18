@@ -29,7 +29,7 @@ from src.media.svg_kit import (
     text_width,
     wrap,
 )
-from src.media.svg_parts import header, icon, takeaway, takeaway_height, tile
+from src.media.svg_parts import ghost, header, icon, takeaway, takeaway_height, tile
 
 HOOK_S, ROW_S, TAKE_S, HOLD_S = 2.5, 2.6, 1.3, 4.0
 GAP = 20
@@ -148,6 +148,7 @@ def compose(
     for index, (aspect, left, right, height) in enumerate(rows):
         start, done = begin[index] + 0.15, ends[index]
         right_at = start + 0.45 * (done - begin[index])
+        parts.append(ghost(canvas, LEFT, top, RIGHT - LEFT, height))
         parts.append(
             _row(canvas, (top, height), (aspect, left, right), (start, right_at, done, take_at))
         )

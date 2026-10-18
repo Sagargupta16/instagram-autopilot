@@ -29,7 +29,7 @@ from src.media.svg_kit import (
     text_width,
     wrap,
 )
-from src.media.svg_parts import SOURCE_H, header, source, takeaway, takeaway_height
+from src.media.svg_parts import SOURCE_H, ghost, header, source, takeaway, takeaway_height
 
 HOOK_S, MYTH_S, FACT_S, TAKE_S, HOLD_S = 2.5, 1.6, 2.2, 1.3, 4.0
 TEXT_PX, PAD, TAG_W, TAG_GAP = DETAIL_PX[-1], 20, 128, 14
@@ -99,6 +99,7 @@ def compose(
     ends = [*myths[1:], take_at]
     for index, (myth, fact, height) in enumerate(cards):
         window = (myths[index] + 0.15, facts[index], ends[index], take_at)
+        parts.append(ghost(canvas, LEFT, top, RIGHT - LEFT, height))
         parts.append(_card(canvas, top, height, (myth, fact), window))
         top += height + 16
     card, card_bottom = takeaway(canvas, take_top, scene["takeaway"], take_at + 0.1)
