@@ -16,6 +16,7 @@ os.environ["STATE_GITHUB_TOKEN"] = ""
 os.environ["META_USER_ACCESS_TOKEN"] = ""
 os.environ["GUARDIAN_API_KEY"] = ""
 os.environ["S3_VIDEO_BUCKET"] = ""
+os.environ["NARRATION"] = "false"  # a local voice model must not change test behavior
 os.environ["AWS_BEARER_TOKEN_BEDROCK"] = "test-token"
 os.environ.setdefault("AWS_REGION", "us-east-1")
 os.environ.setdefault("COMPOSIO_API_KEY", "test-composio-key")

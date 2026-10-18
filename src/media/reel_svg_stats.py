@@ -2,13 +2,16 @@
 
 One clock: headline 0-2 s, the visual reveal, its context, the takeaway with the source
 line, then a hold of at least 4 s whose last 2 s are the end card (12 s minimum overall).
-The optional headline icon sits above the number, inside the ring, or beside the unit.
+The optional headline icon sits above the number, inside the ring, or beside the unit. With
+narration the visual keeps its own clock; `pace` only delays the takeaway and the hold until
+the spoken headline and body have finished.
 """
 
 from __future__ import annotations
 
 import math
 import re
+from collections.abc import Sequence
 from itertools import pairwise
 from typing import Any
 
@@ -259,17 +262,37 @@ def reveal_seconds(scene: dict[str, Any]) -> float:
     return COUNT_S + 2.4
 
 
-def duration(scene: dict[str, Any]) -> float:
-    return max(12.0, round(HEAD_S + reveal_seconds(scene) + 5.5, 1))
+def timing(scene: dict[str, Any], pace: Sequence[float] = ()) -> tuple[float, float, float]:
+    """When the spoken body starts, when the takeaway appears and when the hold starts.
+    `pace` holds the seconds narration needs for the headline, the body and the takeaway."""
+    head, body, take = pace or (0.0, 0.0, 0.0)
+    body_at = max(HEAD_S, head)
+    take_at = max(HEAD_S + reveal_seconds(scene), body_at + body)
+    return body_at, take_at, take_at + max(TAKE_S, take)
 
 
-def hold_start(scene: dict[str, Any]) -> float:
+def beats(scene: dict[str, Any], pace: Sequence[float] = ()) -> list[float]:
+    """When each narration line starts: the headline, the body, the takeaway."""
+    body_at, take_at, _ = timing(scene, pace)
+    return [0.0, body_at, take_at]
+
+
+def duration(scene: dict[str, Any], pace: Sequence[float] = ()) -> float:
+    return max(12.0, round(timing(scene, pace)[2] + 5.5 - TAKE_S, 1))
+
+
+def hold_start(scene: dict[str, Any], pace: Sequence[float] = ()) -> float:
     """When the takeaway and source line have finished appearing."""
-    return HEAD_S + reveal_seconds(scene) + TAKE_S
+    return timing(scene, pace)[2]
 
 
 def compose(
-    canvas: Canvas, scene: dict[str, Any], source_line: str | None, *, kicker: bool = True
+    canvas: Canvas,
+    scene: dict[str, Any],
+    source_line: str | None,
+    *,
+    kicker: bool = True,
+    pace: Sequence[float] = (),
 ) -> list[str]:
     look = canvas.look
     parts, top = header(canvas, look.kicker("stat") if kicker else None, scene["headline"])
@@ -278,7 +301,7 @@ def compose(
     limit = SAFE[3] - RISE
     take_top = limit - source_h - take_h
     visual = VARIANTS[scene["variant"]](canvas, scene, top + 48, take_top - 40)
-    take_at = HEAD_S + reveal_seconds(scene)
+    take_at = timing(scene, pace)[1]
     card, card_bottom = takeaway(canvas, take_top, scene["takeaway"], take_at)
     parts += [*visual, card]
     if source_line:

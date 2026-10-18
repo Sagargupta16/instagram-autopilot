@@ -1,13 +1,14 @@
 """How-it-works layout: a chain of icon rows joined by connectors, with a packet riding each.
 
 One clock: hook 0-2.5 s, 2.2 s per step, the takeaway, then a 4 s hold whose last 2 s are
-the end card. The icon and the connector carry each beat: a step's one-line detail shows only
+the end card. With narration, `pace` lengthens any beat its spoken line needs (never shortens). The icon and the connector carry each beat: a step's one-line detail shows only
 while it is active (its card glows and its icon pops), then the row collapses to icon and
 label and dims until the takeaway, so the final frame is the whole path plus the takeaway.
 """
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import Any
 
 from src.media.svg_kit import (
@@ -31,12 +32,29 @@ DETAIL_SIZES = (40, 36)
 NUMBER_W = 96  # right-hand room for the step number
 
 
-def duration(scene: dict[str, Any]) -> float:
-    return round(HOOK_S + STEP_S * len(scene["steps"]) + TAKE_S + HOLD_S, 2)
+def timing(scene: dict[str, Any], pace: Sequence[float] = ()) -> tuple[list[float], float, float]:
+    """Each step's start, the takeaway's and the hold's. `pace` holds the seconds narration
+    needs for the hook, each step and the takeaway."""
+    need = list(pace) or [0.0] * (len(scene["steps"]) + 2)
+    at, begin = max(HOOK_S, need[0]), []
+    for index in range(len(scene["steps"])):
+        begin.append(at)
+        at += max(STEP_S, need[1 + index])
+    return begin, at, at + max(TAKE_S, need[-1])
 
 
-def hold_start(scene: dict[str, Any]) -> float:
-    return duration(scene) - HOLD_S
+def beats(scene: dict[str, Any], pace: Sequence[float] = ()) -> list[float]:
+    """When each narration line's beat starts: the hook, each step, the takeaway."""
+    begin, take_at, _ = timing(scene, pace)
+    return [0.0, *begin, take_at]
+
+
+def duration(scene: dict[str, Any], pace: Sequence[float] = ()) -> float:
+    return round(timing(scene, pace)[2] + HOLD_S, 2)
+
+
+def hold_start(scene: dict[str, Any], pace: Sequence[float] = ()) -> float:
+    return duration(scene, pace) - HOLD_S
 
 
 class _Rows:
@@ -78,13 +96,14 @@ def _layout(scene: dict[str, Any], top: float) -> tuple[_Rows, list[float], list
     raise LayoutError("the steps do not fit; shorten the hook or takeaway, or use fewer steps")
 
 
-def compose(canvas: Canvas, scene: dict[str, Any], *, kicker: bool = True) -> list[str]:
+def compose(
+    canvas: Canvas, scene: dict[str, Any], *, kicker: bool = True, pace: Sequence[float] = ()
+) -> list[str]:
     look = canvas.look
     parts, bottom = header(canvas, look.kicker("steps") if kicker else None, scene["hook"])
     steps = scene["steps"]
     rows, tops, details = _layout(scene, bottom + 32)
-    begin = [HOOK_S + STEP_S * i for i in range(len(steps))]
-    take_at = HOOK_S + STEP_S * len(steps)
+    begin, take_at, _ = timing(scene, pace)
     ends = [*begin[1:], take_at]
     cards, wires = [], []
     for i, step in enumerate(steps):

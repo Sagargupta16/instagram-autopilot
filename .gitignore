@@ -36,6 +36,8 @@ assets/cache/
 # committed: this repository is public and the track licenses forbid redistribution.
 assets/audio/*/
 assets/audio/catalog_manifest.json
+# Kokoro narration model and voices: fetched at run time, never committed
+assets/voice/
 *.m4a
 *.part
 

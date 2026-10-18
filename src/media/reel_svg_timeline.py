@@ -3,11 +3,13 @@
 One clock: hook 0-2.5 s, 2.2 s per milestone, the takeaway with its source line, then a 4 s
 hold whose last 2 s are the end card. The active milestone's node pops and glows while the
 earlier ones dim; every row is back at full strength for the takeaway and the hold. Dates sit
-beside their event when they are short and above it when they are not.
+beside their event when they are short and above it when they are not. With narration, `pace`
+lengthens any beat its spoken line needs (never shortens).
 """
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import Any
 
 from src.media.svg_kit import (
@@ -32,12 +34,29 @@ DATE_PX, EVENT_PX = 44, 36
 SIZES = ((52, 76, 24), (48, 70, 18), (44, 64, 14), (40, 58, 10))
 
 
-def duration(scene: dict[str, Any]) -> float:
-    return round(HOOK_S + ITEM_S * len(scene["milestones"]) + TAKE_S + HOLD_S, 2)
+def timing(scene: dict[str, Any], pace: Sequence[float] = ()) -> tuple[list[float], float, float]:
+    """Each milestone's start, the takeaway's and the hold's. `pace` holds the seconds
+    narration needs for the hook, each milestone and the takeaway."""
+    need = list(pace) or [0.0] * (len(scene["milestones"]) + 2)
+    at, begin = max(HOOK_S, need[0]), []
+    for index in range(len(scene["milestones"])):
+        begin.append(at)
+        at += max(ITEM_S, need[1 + index])
+    return begin, at, at + max(TAKE_S, need[-1])
 
 
-def hold_start(scene: dict[str, Any]) -> float:
-    return duration(scene) - HOLD_S
+def beats(scene: dict[str, Any], pace: Sequence[float] = ()) -> list[float]:
+    """When each narration line's beat starts: the hook, each milestone, the takeaway."""
+    begin, take_at, _ = timing(scene, pace)
+    return [0.0, *begin, take_at]
+
+
+def duration(scene: dict[str, Any], pace: Sequence[float] = ()) -> float:
+    return round(timing(scene, pace)[2] + HOLD_S, 2)
+
+
+def hold_start(scene: dict[str, Any], pace: Sequence[float] = ()) -> float:
+    return duration(scene, pace) - HOLD_S
 
 
 def _text_block(lines: int, beside: bool) -> float:
@@ -69,7 +88,12 @@ def _size(milestones: list[dict[str, str]], room: float) -> tuple[int, int, int]
 
 
 def compose(
-    canvas: Canvas, scene: dict[str, Any], source_line: str | None, *, kicker: bool = True
+    canvas: Canvas,
+    scene: dict[str, Any],
+    source_line: str | None,
+    *,
+    kicker: bool = True,
+    pace: Sequence[float] = (),
 ) -> list[str]:
     look = canvas.look
     parts, top = header(canvas, look.kicker("timeline") if kicker else None, scene["hook"])
@@ -80,12 +104,12 @@ def compose(
     rail_x = LEFT + 20 + radius
     event_x, events, beside = _rows(milestones, rail_x + radius + 28)
     heights = [max(2 * radius, _text_block(len(lines), beside)) for lines in events]
-    take_at = HOOK_S + ITEM_S * len(milestones)
+    begin, take_at, _ = timing(scene, pace)
     y, rows, rails, prev = top + 44, [], [], None
     for i, (item, lines) in enumerate(zip(milestones, events, strict=True)):
-        start = HOOK_S + ITEM_S * i
+        start = begin[i]
         appear = start + (0.15 if i == 0 else 0.45)
-        done = start + ITEM_S if i < len(milestones) - 1 else take_at
+        done = begin[i + 1] if i < len(milestones) - 1 else take_at
         cy = y + heights[i] / 2
         block = _text_block(len(lines), beside)
         text_top = cy - block / 2

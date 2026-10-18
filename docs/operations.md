@@ -8,13 +8,15 @@ The scheduler wakes every 20 minutes within the configured UTC window. GitHub cr
 
 `post_now` together with `pillar` is the single exception to waiting for a planned slot. The current minute becomes the only candidate for that run; it must be inside the posting window, the daily cap and minimum gap are read from the shared GitHub state, and the slot goes through the same ledger claim, durable publishing checkpoint and no-retry rule as a scheduled post. When any of these would be broken the run writes a `refused` summary with the reason and exits non-zero without generating anything. Combine `post_now` with `dry_run` to preview a pillar without touching state.
 
-## Look, cover frame and music
+## Look, cover frame, music and narration
 
 Each SVG Reel uses one of three looks (palette, kicker wording, icon tile shape; `src/media/svg_look.py`). The run picks the look after the one stored on the most recently published receipt, so consecutive posts never share a look; with no such receipt, and in a dry-run, the UTC day number picks it. The dry-run `scene.json` records the look and the cover offset.
 
 The container is created with `thumb_offset` in milliseconds: half a second into the final hold, when the whole scene is on screen and before the 2-second end card. The project keeps the deprecated `INSTAGRAM_CREATE_MEDIA_CONTAINER` tool on purpose: the documentation of its replacement asks for hashtags sent as `%23`, which could cut live captions short. That tool has no `audio_name` field, so the Reel's audio name stays Instagram's default.
 
 Music comes only from `assets/audio/catalog.json`: Mixkit tracks under the Mixkit Stock Music Free License, which covers social media video posts with no attribution. Never register these tracks with a rights-management service such as Content ID (the license forbids it), never remix them into a music-only track, and never commit or otherwise redistribute the files; the repository is public. To add or replace a track, download it from its Mixkit listing, record its title, artist, listing page, direct download URL, duration and sha256 in the catalog, run `uv run --frozen python scripts/fetch_audio_catalog.py`, and check the result with the sample renderer. Changing the catalog or the script changes the workflow cache key, so the next run downloads afresh.
+
+Narration reads the validated scene's on-screen text aloud, one line per beat, with the local Kokoro voice (`src/media/narration.py`). The model files are fetched by `scripts/fetch_voice_model.py` into the gitignored `assets/voice/` (pinned by sha256, cached in both workflows), and the voice runs through `scripts/narrate.py`, a PEP 723 script locked in `scripts/narrate.py.lock` that uv runs on Python 3.13 because kokoro-onnx does not support 3.14. The layouts lengthen each beat to fit its spoken line, the mix places each line 0.25 s after its beat starts, and the music bed sits under the voice and ducks while it speaks. Narration is optional by design: a missing model, a failed environment install, a synthesis error or a failed mix is logged as "SVG Reel without narration (REASON)" and the Reel goes out music-only, without the "Narration: AI-generated voice." caption line. `NARRATION=false` turns it off.
 
 ## Durable state
 
@@ -50,6 +52,8 @@ Use the GitHub workflow to reconcile the deployed ledger. A local default ledger
 - SVG Reels are skipped, never replaced by photos, when audio is missing (the music library is downloaded from `assets/audio/catalog.json` at run time; a failed download, logged as "skip TRACK_ID" in the "Download the licensed audio library" step, leaves that theme short, and `ALLOW_SILENT_REELS=true` lets the Reel go out silent instead), when Chrome, `ffmpeg` or `ffprobe` is missing, when a scene does not fit the layout, or when rendering, the ffprobe spec check or the upload fails. The log line "SVG Reel skipped before publishing" carries the reason. The attempt counts against the slot's three-attempt budget.
 - "unknown icon 'NAME'" in a validation message means the model named an icon outside the vendored Lucide set; the repair call gets the message, and icons are optional, so the repaired scene may simply omit it.
 - For the unused Luma format, empty audio manifests, missing ffmpeg, invalid audio assets, S3 retrieval failures and video preparation failures still fall back to a carousel before publication. Publisher failures never trigger any fallback.
+- "SVG Reel without narration (...)" is informational: the post still goes out, music-only. "voice model missing" means the voice-model cache and download both missed; the next run retries the download.
+- "is a greeting", "opens on filler", "is a preamble" or "asks for attention" in a validation message names a weak hook; "the caption's first line is N characters" names a first line too long for the feed preview. Both get the one repair call.
 - Exhausted generation retries fail the run, bounding additional paid work for that slot.
 
 ## Deployment and validation

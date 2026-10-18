@@ -24,7 +24,8 @@ the line "Visuals: animated chart drafted with AI assistance."
   Omit the fields that the other variants need.
 - value format: digits with optional thousands commas and decimals, an optional leading currency
   symbol and an optional suffix: %, k, m, bn, tn, thousand, million, billion or trillion.
-- headline: at most 48 characters, plain, no clickbait. takeaway: at most 70 characters, a careful
+- headline: at most 48 characters, plain, no clickbait, never a greeting, filler, "in this video",
+  "stop scrolling", a hashtag or an emoji. takeaway: at most 70 characters, a careful
   reading of what the number shows and nothing beyond it, said about the subject (for example
   "Almost the whole population is gone"), never about the source or its missing details.
 - Use plain hyphens, never en or em dashes.

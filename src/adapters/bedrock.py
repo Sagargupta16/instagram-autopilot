@@ -112,7 +112,11 @@ def get_async_invocation_status(invocation_arn: str) -> dict[str, Any]:
 
 
 def extract_json(raw: str) -> Any:
-    """Extract JSON from a Claude response, stripping markdown code fences."""
+    """Extract the first JSON value from a Claude response, stripping markdown code fences.
+
+    A sentence before the opening brace or after the closing one is ignored, so a correct
+    object is never sent back for repair (or a slot failed) over stray prose around it.
+    """
     raw = raw.strip()
     # `[ \t]*` (specific whitespace classes) instead of `\s*` around the
     # newlines avoids catastrophic backtracking on adversarial inputs --
@@ -120,4 +124,11 @@ def extract_json(raw: str) -> Any:
     match = re.search(r"```(?:json)?[ \t]*\n(.*?)\n[ \t]*```", raw, re.DOTALL)
     if match:
         raw = match.group(1).strip()
-    return json.loads(raw)
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        starts = [index for index in (raw.find("{"), raw.find("[")) if index >= 0]
+        if not starts:
+            raise
+        value, _ = json.JSONDecoder().raw_decode(raw, min(starts))
+        return value

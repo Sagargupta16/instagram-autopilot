@@ -1,8 +1,10 @@
 """Animated SVG Reels rendered locally. The account publishes SVG Reels only: a failure before
 the publisher boundary skips the post (SvgReelError) and never falls back to a photo format.
 
-Order: attribution and audio checks, then rendering, then ffprobe validation of the delivered
-MP4, then upload. The publisher boundary, callback and receipt rules match the Luma Reel path.
+Order: attribution and audio checks, then the optional narration (a local voice reading the
+scene's own words; any failure leaves the Reel music-only), then rendering paced to the
+narration, then ffprobe validation of the delivered MP4, then upload. The publisher boundary,
+callback and receipt rules match the Luma Reel path.
 The visual look comes from caption_data["look"] (the post rotation) and the cover frame is the
 composer's moment of the complete scene, sent as thumb_offset.
 """
@@ -22,7 +24,7 @@ from src.content.scenes import source_line
 from src.content.sources import publication_name
 from src.flows.previews import save_preview
 from src.flows.reel_flow import select_audio
-from src.media import audio_bake, audio_picker, reel_probe, svg_video
+from src.media import audio_bake, audio_picker, narration, reel_probe, svg_video
 from src.media.audio_manifest import AudioTrack
 from src.media.reel_svg import LayoutError, Reel, compose
 from src.publishing.reel import publish_reel
@@ -55,20 +57,40 @@ def credited(caption: str, scene: dict[str, Any], sources: list[dict]) -> str:
     return caption if line in caption else f"{caption}\n\n{line}"
 
 
-def _render(svg: str, duration: float, track: AudioTrack | None) -> bytes:
-    with tempfile.TemporaryDirectory(prefix="svg-reel-") as temporary:
-        video = svg_video.render(svg, duration, Path(temporary) / "reel.mp4")
-        if track:
-            video = audio_bake.bake(video, track.path, duration)
-        summary = reel_probe.verify(video, duration, audio=track is not None)
-        log.info("SVG Reel ready: %.1f s, %d bytes", summary["duration"], summary["bytes"])
-        return video.read_bytes()
+def _voiced(
+    video: Path, reel: Reel, voice: narration.Narration, track: AudioTrack | None
+) -> Path | None:
+    """The narrated mix, or None (logged) so the caller falls back to the music-only bake."""
+    starts = [beat + narration.LEAD_S for beat in reel.beats]
+    clips = list(zip(voice.clips, starts, strict=True))
+    try:
+        return audio_bake.mix(
+            video, reel.duration, voice=clips, music=track.path if track else None
+        )
+    except audio_bake.AudioBakeError as error:
+        log.warning("SVG Reel without narration (%s)", error)
+        return None
+
+
+def _render(
+    reel: Reel, track: AudioTrack | None, voice: narration.Narration | None, workdir: Path
+) -> tuple[bytes, bool]:
+    """Verified MP4 bytes and whether the narration made it into the audio."""
+    video = svg_video.render(reel.svg, reel.duration, workdir / "reel.mp4")
+    mixed = _voiced(video, reel, voice, track) if voice else None
+    if mixed:
+        video = mixed
+    elif track:
+        video = audio_bake.bake(video, track.path, reel.duration)
+    summary = reel_probe.verify(video, reel.duration, audio=bool(track or mixed))
+    log.info("SVG Reel ready: %.1f s, %d bytes", summary["duration"], summary["bytes"])
+    return video.read_bytes(), mixed is not None
 
 
 def _prepare(
     caption_data: dict[str, Any], caption: str, audio_theme: str | None
-) -> tuple[str, Reel, bytes, AudioTrack | None]:
-    """Caption, composed Reel, verified MP4 bytes and the audio track, or an exception."""
+) -> tuple[str, Reel, bytes, AudioTrack | None, tuple[str, ...]]:
+    """Caption, composed Reel, verified MP4 bytes, the audio track and the spoken lines."""
     sources = caption_data.get("sources") or []
     scene = caption_data.get("scene")
     if not isinstance(scene, dict):
@@ -81,9 +103,23 @@ def _prepare(
         raise SvgReelError("Source or audio attribution exceeds the caption limit")
     browser = svg_video.ensure_available()
     look = caption_data.get("look", 0)
-    reel = compose(scene, source_line=source_line(scene, sources), look=look)
-    log.info("Rendering %s SVG Reel (%.1f s) with %s", scene["kind"], reel.duration, browser)
-    return reel_caption, reel, _render(reel.svg, reel.duration, track), track
+    with tempfile.TemporaryDirectory(prefix="svg-reel-") as temporary:
+        workdir = Path(temporary)
+        voice = narration.for_scene(scene, workdir)
+        if voice and len(f"{reel_caption}\n\n{narration.CREDIT}") > 2200:
+            log.warning("SVG Reel without narration: its credit would exceed the caption limit")
+            voice = None
+        reel = compose(
+            scene,
+            source_line=source_line(scene, sources),
+            look=look,
+            pace=voice.pace if voice else (),
+        )
+        log.info("Rendering %s SVG Reel (%.1f s) with %s", scene["kind"], reel.duration, browser)
+        video, narrated = _render(reel, track, voice, workdir)
+    if narrated:
+        reel_caption = f"{reel_caption}\n\n{narration.CREDIT}"
+    return reel_caption, reel, video, track, voice.lines if narrated else ()
 
 
 def post_svg_reel(
@@ -96,7 +132,9 @@ def post_svg_reel(
 ) -> str | None:
     """Return the media ID, or None for a saved preview; never retry publishing."""
     try:
-        reel_caption, reel, video_bytes, track = _prepare(caption_data, caption, audio_theme)
+        reel_caption, reel, video_bytes, track, spoken = _prepare(
+            caption_data, caption, audio_theme
+        )
         if dry_run:
             folder = save_preview([video_bytes], reel_caption, suffix="mp4")
             (folder / "reel.svg").write_text(reel.svg, encoding="utf-8")
@@ -105,6 +143,7 @@ def post_svg_reel(
                 "sources": caption_data.get("sources"),
                 "look": caption_data.get("look", 0),
                 "thumb_offset_ms": reel.thumb_offset_ms,
+                **({"narration": list(spoken)} if spoken else {}),
             }
             (folder / "scene.json").write_text(
                 json.dumps(evidence, ensure_ascii=False, indent=2), encoding="utf-8"

@@ -83,6 +83,29 @@ jobs:
             assets/audio/cinematic
             assets/audio/catalog_manifest.json
           key: audio-library-${{ hashFiles('assets/audio/catalog.json', 'scripts/fetch_audio_catalog.py') }}
+      # Narration (Kokoro, assets/voice): model files are downloaded, never committed, and cached
+      # on the fetch script that pins their hashes. A failed download or environment install never
+      # fails the run; SVG Reels then go out music-only.
+      - name: Restore the narration voice model
+        id: voice-model
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: assets/voice
+          key: voice-model-${{ hashFiles('scripts/fetch_voice_model.py') }}
+      - name: Download the narration voice model
+        id: fetch-voice
+        if: steps.voice-model.outputs.cache-hit != 'true'
+        continue-on-error: true
+        run: uv run --frozen --no-dev --no-build python scripts/fetch_voice_model.py
+      - name: Save the narration voice model
+        if: steps.voice-model.outputs.cache-hit != 'true' && steps.fetch-voice.outcome == 'success'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: assets/voice
+          key: voice-model-${{ hashFiles('scripts/fetch_voice_model.py') }}
+      - name: Install the locked narration environment (Python 3.13)
+        continue-on-error: true
+        run: uv sync --frozen --no-build --python 3.13 --script scripts/narrate.py
       - name: Install ffmpeg when Reels are enabled
         run: |
           if uv run --frozen --no-dev --no-build python -c 'from src.pillar import load_config; raise SystemExit(not any(p["content_format"] in {"reel", "svg_reel"} for p in load_config()["pillars"]))'; then

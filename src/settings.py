@@ -34,6 +34,9 @@ class Settings(BaseSettings):
     # S3 output for Luma; its IAM credentials are separate from Bedrock bearer auth.
     s3_video_bucket: str = ""
     allow_silent_reels: bool = False
+    # Kokoro voice-over for SVG Reels (assets/voice from scripts/fetch_voice_model.py)
+    narration: bool = True
+    narration_voice: str = "af_heart"
 
     # Guardian Open Platform (dev-tier "test" key works without registration)
     guardian_api_key: str = ""
