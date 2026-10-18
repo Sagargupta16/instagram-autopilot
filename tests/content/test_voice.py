@@ -45,13 +45,23 @@ def test_the_published_shark_takeaway_is_rejected() -> None:
         "Shared without details on the method.",
         "Details are missing for 2024.",
         "This record covers one state.",
+        "The source does not give a date.",
+        "The source says the drop was steep.",
     ],
 )
 def test_meta_phrases_are_rejected_in_any_field(text: str) -> None:
     assert meta_commentary(_with(context=text), "") != []
 
 
-@pytest.mark.parametrize("text", ["Open source tools ship faster.", "The data source is public."])
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Open source tools ship faster.",
+        "The data source is public.",
+        "The source system sends a POST to your URL.",  # live 2026-10-18 webhook explainer
+        "The source app signs each event.",
+    ],
+)
 def test_ordinary_tech_words_are_not_flagged(text: str) -> None:
     assert meta_commentary(_with(context=text), text) == []
 

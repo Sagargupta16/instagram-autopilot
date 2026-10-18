@@ -16,7 +16,12 @@ META = re.compile(
     r"summar(?:y|ies|ised|ized)"
     r"|excerpts?"
     r"|headlines?"
-    r"|(?:the|this|that) (?:article|record|source|excerpt|snippet|evidence)"
+    r"|(?:the|this|that) (?:article|record|excerpt|snippet|evidence)"
+    # "the source system" and "the source code" are ordinary tech words; only flag the
+    # source when the text says what it reports or leaves out.
+    r"|(?:the|this|that) source (?:says|said|states|stated|notes|noted|mentions|mentioned"
+    r"|reports|reported|describes|lists|gives|omits|leaves|lacks|does(?:n't| not)"
+    r"|did(?:n't| not)|is (?:unclear|silent|vague))"
     r"|omit(?:s|ted)?"
     r"|not (?:stated|specified|mentioned|given|reported|provided|disclosed)"
     r"|(?:no|without) (?:details?|specifics|baseline)"
