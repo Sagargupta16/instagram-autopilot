@@ -11,7 +11,7 @@ the line "Visuals: animated chart drafted with AI assistance."
 - icon: the allowed icon that pictures what the number measures, or omit it.
 - Copy every number and date exactly as that record's title or excerpt states it. You may drop or
   add thousands commas and write "1.2bn" for "1.2 billion". Years and dates count as numbers.
-- variant "big_number": "value" is the figure; "context" (at most 80 characters) says what it
+- variant "big_number": "value" is the figure; "context" (at most 80 characters, ideally under 70) says what it
   measures, for whom and when, using the record's words.
 - variant "ring": "value" is a share of a whole from 0% to 100%; plus "context". Never use a ring
   for a change (a decline, rise, drop or growth): a ring filled to 99% for a 99% decline reads as
@@ -24,8 +24,8 @@ the line "Visuals: animated chart drafted with AI assistance."
   Omit the fields that the other variants need.
 - value format: digits with optional thousands commas and decimals, an optional leading currency
   symbol and an optional suffix: %, k, m, bn, tn, thousand, million, billion or trillion.
-- headline: at most 48 characters, plain, no clickbait, never a greeting, filler, "in this video",
-  "stop scrolling", a hashtag or an emoji. takeaway: at most 70 characters, a careful
+- headline: at most 48 characters, ideally under 40, plain, no clickbait, never a greeting, filler, "in this video",
+  "stop scrolling", a hashtag or an emoji. takeaway: at most 70 characters, ideally under 60, a careful
   reading of what the number shows and nothing beyond it, said about the subject (for example
   "Almost the whole population is gone"), never about the source or its missing details.
 - Use plain hyphens, never en or em dashes.

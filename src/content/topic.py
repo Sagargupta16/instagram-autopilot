@@ -10,6 +10,7 @@ from typing import Any
 from src.adapters.bedrock import invoke_claude
 from src.content.dedup import load_posted_topics
 from src.content.grounding import evidence_text, numbers
+from src.content.novelty import near_repeat
 from src.content.schemas import TopicChoice
 from src.content.sources import normalize_topic
 from src.content.trends import fetch_trending_topics
@@ -70,6 +71,11 @@ def generate_topic_brief(pillar: dict[str, Any], content_type: str) -> dict:
         choice = TopicChoice.model_validate(raw)
         if normalize_topic(choice.topic) in seen:
             raise ValueError("duplicate topic: choose different wording and a genuinely new angle")
+        if similar := near_repeat(choice.topic, posted[-100:]):
+            raise ValueError(
+                f'this restates a recent post ("{similar}"): choose a different subject, not new '
+                "wording for the same fact"
+            )
         if any(index < 0 or index >= len(trends) for index in choice.source_indices):
             raise ValueError("source_indices must reference supplied evidence, starting at zero")
         if len(set(choice.source_indices)) != len(choice.source_indices):

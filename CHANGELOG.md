@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.12.1] - 2026-10-20
+
+### Fixed
+- Nothing posted on 2026-10-19: its only slot (cool-stats) failed both attempts. The second failure was a 77-character takeaway "repaired" to 71 against a 70 cap. Every scene prompt now gives an "ideally under" target about 10 characters below each hard limit, the caption rules say one character over fails the post, and a repair after a too-long field asks for about 10 characters under its limit (only then; other repairs are unchanged).
+- The first 2026-10-19 attempt restated the 2026-10-16 post ("One in four new cars sold worldwide in 2025 was electric" against "1 in 4 ..."), which the exact-wording check missed. `content/novelty.py` now refuses a topic whose content words overlap a recent one by 75% or more (the repair call then picks a different subject). On the last 100 real topics no pair reaches 0.7, and the EV restatement scores 1.0.
+
 ## [0.12.0] - 2026-10-18
 
 ### Changed
