@@ -38,6 +38,8 @@ best. Omit "icon" when none fits; never invent or alter a name.
 
 <caption_rules>
 Use up to 1800 characters. Keep the caption, two newlines and the hashtags within 2200 characters.
+Every "at most N characters" limit here and in the scene rules is a hard cap checked by code: aim
+about 10 characters under it ("ideally under"), because a single character over fails the post.
 The feed shows only about the first 125 characters before "... more": make the first line one
 complete sentence under 125 characters that names the subject in the words people search for.
 Avoid emojis, slogans and hashtags inside the caption.

@@ -13,9 +13,10 @@ Caption: open with the plain question or benefit, then one short line per step i
   plain question or promise about the subject. Never open with a greeting, filler ("so",
   "basically"), "in this video", "stop scrolling", a hashtag or an emoji.
 - steps: 3 to 6, in order. label: at most 18 characters, one to three words.
-  detail: at most 48 characters, a short phrase saying what happens at that step.
+  detail: at most 48 characters, ideally under 40, a short phrase saying what happens at that step.
   icon: the allowed icon that pictures the step, or omit it.
-- takeaway: at most 70 characters, the one thing to remember; with 5 or 6 steps keep it under 50.
+- takeaway: at most 70 characters, ideally under 60, the one thing to remember; with 5 or 6 steps
+  keep it under 50.
   It answers the hook, so the Reel reads as a loop when it replays.
 - Be technically correct and plain. Explain the general mechanism, not one vendor's product.
   No hype words, no exaggeration, nothing you are unsure is true.

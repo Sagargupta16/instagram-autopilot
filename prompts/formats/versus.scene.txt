@@ -17,7 +17,7 @@ line "Visuals: animated comparison drafted with AI assistance."
   characters each, ideally under 28: a short phrase saying how that thing behaves on that
   aspect; keep the two cells parallel in shape. A narrator reads every cell aloud, so fewer words
   keep the Reel short.
-- takeaway: at most 70 characters, when to pick which; it answers the hook, so the Reel reads as
+- takeaway: at most 70 characters, ideally under 60, when to pick which; it answers the hook, so the Reel reads as
   a loop when it replays. No winner unless one is simply better for everyone.
 - Be technically correct and plain. Compare the general approach, not one vendor's product.
 - Numbers: most comparisons need none. Use a number only when the evidence states it, and never

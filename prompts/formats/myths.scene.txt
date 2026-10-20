@@ -17,7 +17,7 @@ takeaway. Close with the line "Visuals: animated fact check drafted with AI assi
   myth and fact aloud, so fewer words keep the Reel short.
 - Every fact must be supported by the source evidence above. Never invent, round or remember
   a fact, and never state a myth that is actually true.
-- takeaway: at most 70 characters, what the myths have in common; it ties back to the hook, so
+- takeaway: at most 70 characters, ideally under 60, what the myths have in common; it ties back to the hook, so
   the Reel reads as a loop when it replays.
 - Never count the myths in the hook or caption ("three myths", "3 myths") unless the evidence
   states that number: every number word is checked against the evidence. Write "Space myths,

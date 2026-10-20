@@ -9,11 +9,11 @@ takeaway. Close with the line "Visuals: animated timeline drafted with AI assist
 - hook: at most 42 characters, ideally under 30. Never open with a greeting, filler, "in this
   video", "stop scrolling", a hashtag or an emoji.
 - milestones: 4 to 6 in chronological order. date: at most 12 characters, written as the evidence
-  writes it; prefer a year ("1990") or month and year ("Apr 1990"). event: at most 44 characters,
+  writes it; prefer a year ("1990") or month and year ("Apr 1990"). event: at most 44 characters, ideally under 38,
   what happened, in plain words; the caption carries the detail.
   icon: the allowed icon that pictures the milestone, or omit it.
 - Every date and number must appear in the source evidence text. Never add a milestone from memory.
-- takeaway: at most 70 characters, why the story matters, without claims beyond the evidence;
+- takeaway: at most 70 characters, ideally under 60, why the story matters, without claims beyond the evidence;
   it ties back to the hook, so the Reel reads as a loop when it replays.
 - Use plain hyphens, never en or em dashes.
 </animated_reel>
