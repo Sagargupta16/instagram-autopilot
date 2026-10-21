@@ -6,6 +6,9 @@
 - The Reel end card no longer hard-codes `@creativity.prompt`. `publishing/account.py` reads the connected account's username live (a read-only `INSTAGRAM_GET_USER_INFO` call, `ig_user_id` "me") each time a Reel is drawn, so a rename shows up on the next Reel with no code change. A failed lookup or an unusable username leaves the card with the follow line alone, never a stale name, and never fails the slot. A long username steps down from 56 to 48 or 40 px and is dropped if it still does not fit on one line.
 - The follow line reads "Follow for more facts" instead of "Follow for daily explainers": the account posts on most days, not every day, and covers stats, timelines, comparisons and myths as well as explainers.
 
+### Fixed
+- The CI "SVG Reel sample render" job hit its 20-minute limit: since narration, the five samples run 15 to 38 s each and rendered one after another in about 19 minutes (218, 120, 243, 287 and 254 s on 2026-10-21). Each sample now renders in its own parallel job (`--name NAME`; the new `--no-stills` flag leaves the cover-still gallery to the stat job), and a final job merges the uploads into the same `svg-reel-sample` artifact, one folder per sample.
+
 ## [0.12.1] - 2026-10-20
 
 ### Fixed
