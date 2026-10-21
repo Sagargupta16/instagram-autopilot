@@ -33,15 +33,13 @@ An Instagram publisher for a creative data and tech account, powered by AWS Bedr
 
 ## Architecture
 
-```text
-GitHub scheduler -> validated strategy -> claim one due slot
-  -> category-relevant source evidence + recent topic history
-  -> Bedrock topic -> Bedrock caption + scene, every number grounded in the evidence
-  -> 1080x1920 SMIL SVG -> headless Chrome frames -> ffmpeg H.264 + licensed audio
-  -> ffprobe spec check -> checked Cloudinary delivery
-  -> Instagram Reel container -> readiness checks
-  -> durable publishing checkpoint -> publish -> confirmed media receipt
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/pipeline-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="docs/diagrams/pipeline-light.svg">
+  <img width="880" src="docs/diagrams/pipeline-light.svg" alt="The instagram-autopilot pipeline. The Daily Instagram Post GitHub Actions workflow runs every 20 minutes between 04:00 and 20:00 UTC and starts python -m src.main on the Actions runner. The runner claims one due slot from the validated plan on the autopilot-state branch (at most 2 posts a day, 180 minutes apart), fetches titles and excerpts from eight evidence sources (Google News, Guardian, Hacker News, Hugging Face, Product Hunt, GitHub search, Lemmy and Wikipedia) plus recent topics, and sends that evidence to Claude on Amazon Bedrock for a topic, then a scene and caption. A grounding gate checks every number against the sources, with one repair call. The scene is drawn as a 1080x1920 SMIL SVG, headless Chrome renders 30 fps frames, and ffmpeg encodes H.264 with Mixkit music and, optionally, Kokoro narration of the on-screen lines. An ffprobe check runs before any upload. The upload and publish step sends the MP4 to Cloudinary, writes a checkpoint to the autopilot-state branch before the final publish and the confirmed receipt after it, and asks Composio to create the Instagram container, wait on its status and publish it through the Graph API; Instagram fetches the video from the checked Cloudinary URL.">
+</picture>
+
+The spec behind the picture is [`docs/diagrams/pipeline.yaml`](docs/diagrams/pipeline.yaml), rendered with [orrery](https://github.com/Sagargupta16/orrery).
 
 `src/adapters` owns service boundaries; `content` owns evidence, generated text, scenes and number grounding; `media` draws, renders and checks assets; `flows` composes generation and publishing; `publishing` validates Instagram actions; `state` provides local and GitHub compare-and-swap storage.
 

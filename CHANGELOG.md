@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.13.1] - 2026-10-21
+
+### Added
+- The README's Architecture section shows the pipeline as a diagram (dark and light SVG) in place of the ASCII arrow chain: the scheduled workflow, the slot claim on the `autopilot-state` branch, the eight evidence sources, the Bedrock topic and scene calls, the grounding gate, the SVG, Chrome, ffmpeg and ffprobe render steps with the optional Kokoro narration, and the Cloudinary upload and Composio publish with the checkpoint written first. The spec is `docs/diagrams/pipeline.yaml` (made with orrery), and every node and edge in it carries the file and line it comes from.
+
 ## [0.13.0] - 2026-10-21
 
 ### Changed
