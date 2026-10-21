@@ -33,9 +33,14 @@ jobs:
           diff <(grep -v '^#' requirements.txt) <(grep -v '^#' /tmp/requirements.txt)
         shell: bash
   svg-reel-sample:
-    name: SVG Reel sample render
+    name: SVG Reel sample render (${{ matrix.sample }})
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        # One job per sample: five narrated Reels in a row (about 19 minutes) outgrew the budget.
+        sample: [steps-cicd, stat-big-number, timeline-hubble, versus-tcp-udp, myths-space]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
@@ -103,8 +108,14 @@ jobs:
           fc-match "Inter"
           fc-match "Liberation Sans:bold"
           fc-match "DejaVu Sans:bold"
-      - name: Render one sample Reel per pillar to MP4 with real Chrome and ffmpeg
-        run: uv run --frozen --no-dev --no-build python scripts/render_svg_reel_sample.py
+      - name: Render the sample Reel to MP4 with real Chrome and ffmpeg
+        run: |
+          args=(--name "$SAMPLE")
+          # The shortest sample's job also renders the cover-still gallery of every sample.
+          if [[ "$SAMPLE" != stat-big-number ]]; then args+=(--no-stills); fi
+          uv run --frozen --no-dev --no-build python scripts/render_svg_reel_sample.py "${args[@]}"
+        env:
+          SAMPLE: ${{ matrix.sample }}
       - name: Probe the MP4s
         run: |
           for video in output/svg-reel-sample/*.mp4; do
@@ -113,9 +124,23 @@ jobs:
       - name: Upload the MP4 and frames
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: svg-reel-sample
+          name: svg-reel-sample-${{ matrix.sample }}
           path: output/svg-reel-sample/
           if-no-files-found: error
+          retention-days: 1
+  svg-reel-sample-artifact:
+    name: SVG Reel sample artifact
+    needs: svg-reel-sample
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge the per-sample uploads into one artifact, a folder per sample
+        uses: actions/upload-artifact/merge@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: svg-reel-sample
+          pattern: svg-reel-sample-*
+          separate-directories: true
+          delete-merged: true
           retention-days: 14
   security:
     uses: Sagargupta16/shared-workflows/.github/workflows/security-scan.yml@7499fea0c880e95c82e038323e3614a180e69e95

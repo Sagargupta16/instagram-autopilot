@@ -1,7 +1,7 @@
 """Render the fixed SVG Reel samples to MP4 with real Chrome and ffmpeg, then extract frames.
 
 Usage:
-    uv run --frozen python scripts/render_svg_reel_sample.py [--name steps-cicd ...]
+    uv run --frozen python scripts/render_svg_reel_sample.py [--name steps-cicd ...] [--no-stills]
 
 By default renders one MP4 per pillar (steps-cicd, stat-big-number, timeline-hubble,
 versus-tcp-udp, myths-space), each in
@@ -10,8 +10,8 @@ fetched (scripts/fetch_audio_catalog.py) and silent otherwise. When the voice mo
 fetched (scripts/fetch_voice_model.py) each sample is narrated and paced to its voice, as a
 published Reel is. Writes to output/svg-reel-sample/: NAME.mp4 and NAME.svg, four PNG frames
 of each MP4 (hook entrance, middle, cover frame, end card), a cover still of every sample in
-every look, and probe.json with each MP4's ffprobe summary, audio track, narration timings and
-render time. Uses no credentials; the only network use is uv installing the locked narration
+every look unless --no-stills (CI renders each sample in its own job and the stills in one),
+and probe.json with each MP4's ffprobe summary, audio track, narration timings and render time. Uses no credentials; the only network use is uv installing the locked narration
 environment on first use. Exits non-zero when an MP4 fails the spec.
 """
 
@@ -37,6 +37,7 @@ from src.pillar import load_config  # noqa: E402
 SAMPLES = ROOT / "scripts" / "samples" / "svg_reel_scenes.json"
 OUT = ROOT / "output" / "svg-reel-sample"
 DEFAULT = ("steps-cicd", "stat-big-number", "timeline-hubble", "versus-tcp-udp", "myths-space")
+SAMPLE_HANDLE = "@creativity.prompt"  # stand-in: published Reels read the account's live handle
 
 
 def moments(reel: Reel) -> dict[str, float]:
@@ -83,7 +84,13 @@ def render(item: dict, browser: str) -> dict:
         workdir = Path(temporary)
         voice = narration.for_scene(item["scene"], workdir)
         pace = voice.pace if voice else ()
-        reel = compose(item["scene"], source_line=item["source_line"], look=item["look"], pace=pace)
+        reel = compose(
+            item["scene"],
+            source_line=item["source_line"],
+            look=item["look"],
+            pace=pace,
+            handle=SAMPLE_HANDLE,
+        )
         (OUT / f"{name}.svg").write_text(reel.svg, encoding="utf-8")
         silent = svg_video.render(reel.svg, reel.duration, workdir / "silent.mp4", browser=browser)
         starts = [beat + narration.LEAD_S for beat in reel.beats]
@@ -132,11 +139,13 @@ def main() -> int:
     samples = {item["name"]: item for item in json.loads(SAMPLES.read_text("utf-8"))["scenes"]}
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--name", action="append", choices=sorted(samples))
-    names = parser.parse_args().name or list(DEFAULT)
+    parser.add_argument("--no-stills", action="store_true", help="skip the cover-still gallery")
+    args = parser.parse_args()
+    names = args.name or list(DEFAULT)
     OUT.mkdir(parents=True, exist_ok=True)
     browser = svg_video.ensure_available()
     report = {"reels": {name: render(samples[name], browser) for name in names}}
-    report["stills"] = stills(samples, browser)
+    report["stills"] = 0 if args.no_stills else stills(samples, browser)
     (OUT / "probe.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
     sys.stdout.write(json.dumps(report, indent=2) + "\n")
     return 0

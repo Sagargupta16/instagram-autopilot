@@ -25,6 +25,7 @@ SOURCE = {
 }
 CREDIT = "Source: The Guardian https://www.theguardian.com/sample"
 ATTRIBUTION = "Music by Artist, CC BY 4.0"
+HANDLE = "@sample.account"
 
 
 @pytest.fixture
@@ -60,6 +61,7 @@ def pipeline(monkeypatch, tmp_path):
     monkeypatch.setattr(flow, "upload_video", upload)
     publish = Mock(return_value="reel-media")
     monkeypatch.setattr(flow, "publish_reel", publish)
+    monkeypatch.setattr(flow, "account_handle", Mock(return_value=HANDLE))
     return SimpleNamespace(
         select=select,
         record=record,
@@ -175,7 +177,7 @@ def test_dry_run_saves_the_evidence_and_never_posts(pipeline, tmp_path) -> None:
     assert_nothing_posted(pipeline)
     (folder,) = (tmp_path / "output" / "dry-run").iterdir()
     assert (folder / "01.mp4").read_bytes() == b"baked-mp4"
-    expected = compose(caption_data["scene"], source_line="Source: The Guardian")
+    expected = compose(caption_data["scene"], source_line="Source: The Guardian", handle=HANDLE)
     assert (folder / "reel.svg").read_text("utf-8") == expected.svg
     evidence = json.loads((folder / "scene.json").read_text("utf-8"))
     assert evidence == {
@@ -208,7 +210,7 @@ def test_success_passes_the_callback_and_credits_source_and_music(pipeline) -> N
 def test_the_cover_frame_and_look_come_from_the_composer(pipeline) -> None:
     caption_data = data("steps-cicd", look=2)
     assert post(caption_data, dry_run=False) == "reel-media"
-    reel = compose(caption_data["scene"], look=2)
+    reel = compose(caption_data["scene"], look=2, handle=HANDLE)
     svg = pipeline.render.call_args.args[0]
     assert svg == reel.svg
     assert "#fe8019" in svg  # the amber look's accent

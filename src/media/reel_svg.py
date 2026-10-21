@@ -5,7 +5,8 @@ checked against the Reels safe area, and the first frame already shows the hook.
 the moment the whole scene is on screen (the final hold plus half a second, before the end
 card), which the publisher passes to Instagram as the cover frame. `beats` are the moments
 each narration line starts, and `pace` (from the narration) lengthens beats to fit their
-lines. The result is deterministic for a given scene, source line, look and pace.
+lines. `handle` is the account name on the end card (None shows the follow line alone). The
+result is deterministic for a given scene, source line, look, pace and handle.
 """
 
 from __future__ import annotations
@@ -66,6 +67,7 @@ def _draw(
     kicker: bool,
     look: int,
     pace: Sequence[float] = (),
+    handle: str | None = None,
 ) -> Reel:
     kind = scene["kind"]
     if kind not in LAYOUTS:
@@ -78,7 +80,7 @@ def _draw(
         parts = layout.compose(canvas, scene, source_line, kicker=kicker, pace=pace)
     label = scene.get("hook") or scene["headline"]
     cover = layout.hold_start(scene, pace) + COVER_AFTER_HOLD
-    svg = document(canvas, parts, label)
+    svg = document(canvas, parts, label, handle)
     return Reel(svg, canvas.total, tuple(canvas.boxes), cover, tuple(layout.beats(scene, pace)))
 
 
@@ -88,14 +90,15 @@ def compose(
     source_line: str | None = None,
     look: int = 0,
     pace: Sequence[float] = (),
+    handle: str | None = None,
 ) -> Reel:
     """The scene with its kicker and icons; without the kicker, then without icons, when
     that is what makes it fit (both are optional decoration)."""
     try:
-        return _draw(scene, source_line, True, look, pace)
+        return _draw(scene, source_line, True, look, pace, handle)
     except LayoutError:
         pass
     try:
-        return _draw(scene, source_line, False, look, pace)
+        return _draw(scene, source_line, False, look, pace, handle)
     except LayoutError:
-        return _draw(_without_icons(scene), source_line, False, look, pace)
+        return _draw(_without_icons(scene), source_line, False, look, pace, handle)
