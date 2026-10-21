@@ -20,7 +20,7 @@ idna==3.20
     # via requests
 jmespath==1.1.0
     # via botocore
-pillow==12.3.0
+pillow==13.0.0
     # via instagram-autopilot
 pydantic==2.13.5
     # via
