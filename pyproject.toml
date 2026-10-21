@@ -10,7 +10,7 @@ dependencies = [
     "pydantic-settings>=2.13.0,<3",
     "cloudinary>=1.44.0,<2",
     "defusedxml>=0.7.1,<1",
-    "pillow>=11.3.0,<13",
+    "pillow>=13,<14",
     "botocore>=1.40.0,<2",
     "filelock>=3.19.0,<4",
 ]
