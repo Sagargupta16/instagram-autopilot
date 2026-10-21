@@ -13,7 +13,7 @@ import pytest
 from src.media import lucide, svg_kit
 from src.media.reel_svg import LAYOUTS, compose
 from src.media.svg_look import LOOKS
-from src.media.svg_parts import END_S, FOLLOW, HANDLE
+from src.media.svg_parts import END_S, FOLLOW
 
 NS = "{http://www.w3.org/2000/svg}"
 SAMPLES = Path(__file__).resolve().parents[2] / "scripts" / "samples" / "svg_reel_scenes.json"
@@ -22,12 +22,13 @@ ICON = re.compile(
     r'<g transform="translate\(([\d.]+) ([\d.]+)\) scale\(([\d.]+)\)" fill="none" '
     r'stroke="(#[0-9a-f]{6})" stroke-width="1.75"'
 )
+HANDLE = "@sample.account"
 
 
-def built(name: str, look: int | None = None):
+def built(name: str, look: int | None = None, handle: str | None = None):
     item = BY_NAME[name]
     chosen = item["look"] if look is None else look
-    return compose(item["scene"], source_line=item["source_line"], look=chosen)
+    return compose(item["scene"], source_line=item["source_line"], look=chosen, handle=handle)
 
 
 def times(element: ET.Element) -> list[float]:
@@ -146,11 +147,10 @@ def test_progress_bar_fills_over_the_whole_reel_inside_the_safe_area(name) -> No
 
 @pytest.mark.parametrize("name", sorted(BY_NAME))
 def test_end_card_shows_the_handle_in_the_last_two_seconds(name) -> None:
-    reel = built(name)
+    reel = built(name, handle=HANDLE)
     root = ET.fromstring(reel.svg)
     texts = {e.text: e for e in root.iter(f"{NS}text")}
-    assert HANDLE == "@creativity.prompt"
-    assert FOLLOW == "Follow for daily explainers"
+    assert FOLLOW == "Follow for more facts"
     parents = {child: parent for parent in root.iter() for child in parent}
     card = parents[texts[HANDLE]]
     assert parents[texts[FOLLOW]] is card
@@ -160,6 +160,21 @@ def test_end_card_shows_the_handle_in_the_last_two_seconds(name) -> None:
     dim = next(a for a in scene if a.tag == f"{NS}animate")
     assert dim.get("values").split(";")[-1] == "0.08"
     assert times(dim)[1] == pytest.approx((reel.duration - END_S) / reel.duration, 1e-3)
+
+
+@pytest.mark.parametrize("handle", [None, "@" + "w" * 30])
+def test_end_card_without_a_usable_handle_shows_the_follow_line_alone(handle) -> None:
+    root = ET.fromstring(built("steps-cicd", handle=handle).svg)
+    texts = [e.text for e in root.iter(f"{NS}text")]
+    assert FOLLOW in texts
+    assert not any(text and text.startswith("@") for text in texts)
+
+
+def test_a_long_handle_steps_down_and_stays_on_one_line() -> None:
+    handle = "@facts.in.motion.daily.explain"
+    root = ET.fromstring(built("steps-cicd", handle=handle).svg)
+    (line,) = [e for e in root.iter(f"{NS}text") if e.text == handle]
+    assert float(line.get("font-size")) < 56
 
 
 @pytest.mark.parametrize("name", sorted(BY_NAME))

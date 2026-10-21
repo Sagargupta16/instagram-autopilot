@@ -5,8 +5,9 @@ Order: attribution and audio checks, then the optional narration (a local voice 
 scene's own words; any failure leaves the Reel music-only), then rendering paced to the
 narration, then ffprobe validation of the delivered MP4, then upload. The publisher boundary,
 callback and receipt rules match the Luma Reel path.
-The visual look comes from caption_data["look"] (the post rotation) and the cover frame is the
-composer's moment of the complete scene, sent as thumb_offset.
+The visual look comes from caption_data["look"] (the post rotation), the end card's handle from
+a live read of the connected account, and the cover frame is the composer's moment of the
+complete scene, sent as thumb_offset.
 """
 
 from __future__ import annotations
@@ -27,6 +28,7 @@ from src.flows.reel_flow import select_audio
 from src.media import audio_bake, audio_picker, narration, reel_probe, svg_video
 from src.media.audio_manifest import AudioTrack
 from src.media.reel_svg import LayoutError, Reel, compose
+from src.publishing.account import handle as account_handle
 from src.publishing.reel import publish_reel
 from src.settings import settings
 
@@ -119,6 +121,7 @@ def _prepare(
             source_line=source_line(scene, sources),
             look=look,
             pace=voice.pace if voice else (),
+            handle=account_handle(),
         )
         log.info("Rendering %s SVG Reel (%.1f s) with %s", scene["kind"], reel.duration, browser)
         video, narrated = _render(reel, track, voice, workdir)

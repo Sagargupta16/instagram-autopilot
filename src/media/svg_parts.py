@@ -32,8 +32,8 @@ from src.media.svg_kit import (
     text_width,
 )
 
-HANDLE = "@creativity.prompt"
-FOLLOW = "Follow for daily explainers"
+FOLLOW = "Follow for more facts"
+HANDLE_PX = (56, 48, 40)  # a long username steps down; one that still overflows is dropped
 END_S = 2.0  # the end card covers the last END_S seconds of every Reel
 COVER_AFTER_HOLD = 0.5  # the cover frame: this long after the final hold starts
 BAR_Y, BAR_H = SAFE[1] + 6, 8
@@ -152,8 +152,17 @@ def tile(canvas: Canvas, cx: float, cy: float, radius: float) -> str:
     )
 
 
-def end_card(canvas: Canvas) -> str:
-    """Handle and follow line, centred in the safe area for the last END_S seconds."""
+def _handle_line(canvas: Canvas, y: float, handle: str) -> str | None:
+    try:
+        size, (line,) = fit(handle, HANDLE_PX, RIGHT - LEFT - 96, 1, bold=True)
+    except LayoutError:
+        return None
+    return canvas.text(540, y, line, size, canvas.look.text, bold=True, anchor="middle")
+
+
+def end_card(canvas: Canvas, handle: str | None = None) -> str:
+    """The account handle over the follow line, centred in the safe area for the last END_S
+    seconds; without a handle (unknown, or too wide) the follow line takes its place."""
     look = canvas.look
     start = canvas.total - END_S
     cy = (SAFE[1] + SAFE[3]) / 2
@@ -163,9 +172,12 @@ def end_card(canvas: Canvas) -> str:
         f'fill="{look.card}" stroke="{look.accent}" stroke-width="4"/>'
     )
     badge = tile(canvas, 540, top + 110, 64) + icon("users", 540 - 44, top + 66, 88, look.accent)
-    handle = canvas.text(540, top + 262, HANDLE, 56, look.text, bold=True, anchor="middle")
-    follow = canvas.text(540, top + 334, FOLLOW, 38, look.muted, anchor="middle")
-    return canvas.reveal([panel, badge, handle, follow], start + 0.15)
+    name = _handle_line(canvas, top + 262, handle) if handle else None
+    if name:
+        lines = [name, canvas.text(540, top + 334, FOLLOW, 38, look.muted, anchor="middle")]
+    else:
+        lines = [canvas.text(540, top + 300, FOLLOW, 56, look.text, bold=True, anchor="middle")]
+    return canvas.reveal([panel, badge, *lines], start + 0.15)
 
 
 SOURCE_H = SMALL_PX + 6 + 28  # room a source line takes under the takeaway card
@@ -232,10 +244,10 @@ def dimmed(canvas: Canvas, parts: list[str]) -> str:
     return f"<g>{fade}{''.join(parts)}</g>"
 
 
-def document(canvas: Canvas, parts: list[str], label: str) -> str:
+def document(canvas: Canvas, parts: list[str], label: str, handle: str | None = None) -> str:
     """The finished file; raises LayoutError if any text box left the safe area."""
     back = [wash(canvas), lattice(canvas)]
-    body = dimmed(canvas, [*back, *parts]) + end_card(canvas) + progress(canvas)
+    body = dimmed(canvas, [*back, *parts]) + end_card(canvas, handle) + progress(canvas)
     canvas.check()
     title = escape(clean(label), quote=False)
     return (

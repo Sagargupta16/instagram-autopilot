@@ -37,6 +37,7 @@ from src.pillar import load_config  # noqa: E402
 SAMPLES = ROOT / "scripts" / "samples" / "svg_reel_scenes.json"
 OUT = ROOT / "output" / "svg-reel-sample"
 DEFAULT = ("steps-cicd", "stat-big-number", "timeline-hubble", "versus-tcp-udp", "myths-space")
+SAMPLE_HANDLE = "@creativity.prompt"  # stand-in: published Reels read the account's live handle
 
 
 def moments(reel: Reel) -> dict[str, float]:
@@ -83,7 +84,13 @@ def render(item: dict, browser: str) -> dict:
         workdir = Path(temporary)
         voice = narration.for_scene(item["scene"], workdir)
         pace = voice.pace if voice else ()
-        reel = compose(item["scene"], source_line=item["source_line"], look=item["look"], pace=pace)
+        reel = compose(
+            item["scene"],
+            source_line=item["source_line"],
+            look=item["look"],
+            pace=pace,
+            handle=SAMPLE_HANDLE,
+        )
         (OUT / f"{name}.svg").write_text(reel.svg, encoding="utf-8")
         silent = svg_video.render(reel.svg, reel.duration, workdir / "silent.mp4", browser=browser)
         starts = [beat + narration.LEAD_S for beat in reel.beats]

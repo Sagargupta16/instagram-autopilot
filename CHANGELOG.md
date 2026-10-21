@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.13.0] - 2026-10-21
+
+### Changed
+- The Reel end card no longer hard-codes `@creativity.prompt`. `publishing/account.py` reads the connected account's username live (a read-only `INSTAGRAM_GET_USER_INFO` call, `ig_user_id` "me") each time a Reel is drawn, so a rename shows up on the next Reel with no code change. A failed lookup or an unusable username leaves the card with the follow line alone, never a stale name, and never fails the slot. A long username steps down from 56 to 48 or 40 px and is dropped if it still does not fit on one line.
+- The follow line reads "Follow for more facts" instead of "Follow for daily explainers": the account posts on most days, not every day, and covers stats, timelines, comparisons and myths as well as explainers.
+
 ## [0.12.1] - 2026-10-20
 
 ### Fixed
