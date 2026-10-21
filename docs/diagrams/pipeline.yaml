@@ -12,7 +12,7 @@ groups:
   sources: { type: internet, label: Evidence sources, cols: 4, evidence: "src/content/trends.py:62#_tasks" }
   runner: { type: zone, label: "Actions runner: python -m src.main", icon: logos:python, evidence: ".github/workflows/daily-post.yml:143#src.main" }
   render: { type: dashed, label: Render, cols: 4, in: runner, evidence: "src/flows/svg_reel_flow.py:93#_prepare" }
-  aws: { type: aws:cloud }
+  aws: { type: aws:cloud, evidence: "src/adapters/bedrock.py:17#amazonaws.com" }
 
 nodes:
   cron: { icon: logos:github-actions, label: Daily Instagram Post, note: "04:00-20:00 UTC", evidence: ".github/workflows/daily-post.yml:5#cron" }
@@ -42,17 +42,17 @@ nodes:
 edges:
   - cron -> claim: { label: every 20 min, evidence: ".github/workflows/daily-post.yml:5#cron" }
   - claim -> state: { label: "2/day cap, 180 min gap", evidence: "src/main.py:159#claim" }
-  - claim -> fetch
+  - claim -> fetch: { evidence: "src/main.py:59#generate_topic_brief" }
   - sources -> fetch: { label: titles + excerpts, evidence: "src/content/trends.py:152#_collect" }
   - fetch -> bedrock: { label: evidence, evidence: "src/content/topic.py:87#invoke_claude" }
   - bedrock -> gate: { label: scene + caption, evidence: "src/content/caption.py:104#validate_svg_content" }
-  - gate -> svg
-  - gate --> voice
-  - svg -> chrome
-  - chrome -> ffmpeg: frames
+  - gate -> svg: { evidence: "src/flows/svg_reel_flow.py:119#compose" }
+  - gate --> voice: { evidence: "src/flows/svg_reel_flow.py:113#for_scene" }
+  - svg -> chrome: { evidence: "src/flows/svg_reel_flow.py:82#render" }
+  - chrome -> ffmpeg: { label: frames, evidence: "src/media/svg_video.py:204#Popen" }
   - voice --> ffmpeg: { label: voice clips, evidence: "src/flows/svg_reel_flow.py:70#mix" }
-  - ffmpeg -> probe
-  - probe -> publish
+  - ffmpeg -> probe: { evidence: "src/flows/svg_reel_flow.py:88#verify" }
+  - probe -> publish: { evidence: "src/flows/svg_reel_flow.py:143#_prepare" }
   - publish -> cloudinary: { label: upload MP4, evidence: "src/flows/svg_reel_flow.py:160#upload_video" }
   - publish -> composio: { label: "container, status, publish", evidence: ["src/publishing/reel.py:51#_create_container", "src/publishing/reel.py:56#wait_until_ready", "src/publishing/reel.py:61#INSTAGRAM_CREATE_POST"] }
   - publish -> state: { label: "checkpoint, then receipt", evidence: ["src/main.py:82#before_publish", "src/main.py:177#complete"] }
