@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.13.2] - 2026-10-24
+
+### Changed
+- Redrew the pipeline diagram with orrery 0.12.0, which draws icons at 64 px instead of 48. The eight evidence sources go from 32 px (`size: sm`) to 48 px (`size: md`), so their logos read at the README's 880 px instead of shrinking to half the other tiles, and `layout.spacing: compact` keeps the figure at 1174x1562 (it was 1205x1594). Nodes, edges and evidence are unchanged.
+
 ## [0.13.1] - 2026-10-21
 
 ### Added

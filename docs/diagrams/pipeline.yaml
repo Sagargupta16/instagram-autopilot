@@ -5,6 +5,7 @@
 title: instagram-autopilot pipeline
 subtitle: One scheduled run, at most one Reel. Every number on screen must appear in the fetched sources.
 direction: down
+layout: { spacing: compact }
 legend:
   dashed: Optional narration path
 
@@ -16,14 +17,14 @@ groups:
 
 nodes:
   cron: { icon: logos:github-actions, label: Daily Instagram Post, note: "04:00-20:00 UTC", evidence: ".github/workflows/daily-post.yml:5#cron" }
-  gnews: { icon: si:googlenews, label: Google News, size: sm, in: sources, evidence: "src/adapters/google_news.py:23#fetch_headlines" }
-  guardian: { icon: si:theguardian, label: Guardian, size: sm, in: sources, evidence: "src/adapters/guardian.py:22#fetch_articles" }
-  hn: { icon: logos:ycombinator, label: Hacker News, size: sm, in: sources, evidence: "src/adapters/hackernews.py:12#search_stories" }
-  hf: { icon: logos:hugging-face-icon, label: Hugging Face, size: sm, in: sources, evidence: "src/adapters/huggingface_papers.py:14#fetch_daily_papers" }
-  ph: { icon: logos:producthunt, label: Product Hunt, size: sm, in: sources, evidence: "src/adapters/producthunt.py:15#fetch_ai_launches" }
-  ghsearch: { icon: logos:github-icon, label: GitHub search, size: sm, in: sources, evidence: "src/adapters/github_trending.py:18#fetch_trending" }
-  lemmy: { icon: ph:fediverse-logo, label: Lemmy, size: sm, in: sources, evidence: "src/adapters/lemmy.py:51#fetch_hot_posts" }
-  wiki: { icon: si:wikipedia, label: Wikipedia, size: sm, in: sources, evidence: "src/adapters/wikipedia.py:108#fetch_top_articles_with_extracts" }
+  gnews: { icon: si:googlenews, label: Google News, size: md, in: sources, evidence: "src/adapters/google_news.py:23#fetch_headlines" }
+  guardian: { icon: si:theguardian, label: Guardian, size: md, in: sources, evidence: "src/adapters/guardian.py:22#fetch_articles" }
+  hn: { icon: logos:ycombinator, label: Hacker News, size: md, in: sources, evidence: "src/adapters/hackernews.py:12#search_stories" }
+  hf: { icon: logos:hugging-face-icon, label: Hugging Face, size: md, in: sources, evidence: "src/adapters/huggingface_papers.py:14#fetch_daily_papers" }
+  ph: { icon: logos:producthunt, label: Product Hunt, size: md, in: sources, evidence: "src/adapters/producthunt.py:15#fetch_ai_launches" }
+  ghsearch: { icon: logos:github-icon, label: GitHub search, size: md, in: sources, evidence: "src/adapters/github_trending.py:18#fetch_trending" }
+  lemmy: { icon: ph:fediverse-logo, label: Lemmy, size: md, in: sources, evidence: "src/adapters/lemmy.py:51#fetch_hot_posts" }
+  wiki: { icon: si:wikipedia, label: Wikipedia, size: md, in: sources, evidence: "src/adapters/wikipedia.py:108#fetch_top_articles_with_extracts" }
   claim: { icon: tabler:calendar-clock, label: Claim due slot, note: from the validated plan, in: runner, evidence: "src/main.py:159#claim" }
   fetch: { icon: tabler:news, label: Fetch evidence, note: + recent topics, in: runner, align: claim, evidence: "src/content/topic.py:49#fetch_trending_topics" }
   bedrock: { icon: aws:bedrock, label: Amazon Bedrock, note: "Claude: topic, scene", in: aws, evidence: ["src/adapters/bedrock.py:17#INVOKE_URL", "config.json:85#text"] }
