@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.14.2] - 2026-10-24
+
+### Security
+- filelock 3.32.7 -> 4.2.4 (`>=4.2.1,<5`), which fixes GHSA-v4x8-3wr5-3wq8 (high), GHSA-567q-5qvw-pf92 and GHSA-9vhv-jxww-xfm5 (low). All three are in `ReadWriteLock` and `SoftFileLock`; the local state store only uses `FileLock(path, timeout=10)`, whose API 4.0 kept. The Renovate update pinned 4.2.1 in `requirements.txt` while `uv.lock` resolved 4.2.4, so CI's export check failed; both now say 4.2.4.
+
 ## [0.14.1] - 2026-10-24
 
 ### Security
