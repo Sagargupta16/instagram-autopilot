@@ -16,5 +16,5 @@ for attempt in 1 2 3; do
   sudo dpkg --configure -a || true # finish anything a killed try left half-installed
   sleep $((attempt * 10))
 done
-echo "::error::ffmpeg could not be installed after 3 tries"
+echo "::error::ffmpeg could not be installed after 3 tries" >&2
 exit 1
