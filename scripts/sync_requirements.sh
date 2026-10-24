@@ -9,7 +9,10 @@
 set -euo pipefail
 export LC_ALL=C
 
-pins() { tr -d '\r' <"$1" | grep -E '^[A-Za-z0-9._-]+==' | sort; }
+pins() {
+  local file=$1
+  tr -d '\r' <"$file" | grep -E '^[A-Za-z0-9._-]+==' | sort
+}
 
 current=$(mktemp)
 trap 'rm -f "$current"' EXIT
