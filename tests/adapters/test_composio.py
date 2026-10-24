@@ -10,6 +10,7 @@ import requests
 from src.adapters.composio import (
     ComposioActionError,
     ComposioConnectionInactiveError,
+    ComposioRequestError,
     ComposioResponseError,
     execute_action,
     verify_auth,
@@ -149,9 +150,8 @@ def test_final_publication_is_never_blindly_retried(monkeypatch, failure):
         post = MagicMock(side_effect=failure)
     monkeypatch.setattr("src.adapters.composio.requests.post", post)
     monkeypatch.setattr("src.adapters.composio.time.sleep", lambda _: None)
-    with pytest.raises(Exception) as caught:
+    with pytest.raises(ComposioRequestError) as caught:
         execute_action("INSTAGRAM_CREATE_POST", {"creation_id": "parent"})
-    assert type(caught.value).__name__ == "ComposioRequestError"
     assert not isinstance(caught.value, ComposioActionError)
     assert post.call_count == 1
 
@@ -171,9 +171,8 @@ def test_final_publication_is_never_blindly_retried(monkeypatch, failure):
 def test_malformed_response_is_not_a_definite_action_failure(monkeypatch, payload):
     post = MagicMock(return_value=MagicMock(ok=True, status_code=200, json=lambda: payload))
     monkeypatch.setattr("src.adapters.composio.requests.post", post)
-    with pytest.raises(Exception) as caught:
+    with pytest.raises(ComposioResponseError) as caught:
         execute_action("INSTAGRAM_CREATE_POST", {})
-    assert type(caught.value).__name__ == "ComposioResponseError"
     assert not isinstance(caught.value, ComposioActionError)
     assert post.call_count == 1
 
@@ -185,9 +184,8 @@ def test_invalid_json_is_an_ambiguous_response(monkeypatch):
         )
     )
     monkeypatch.setattr("src.adapters.composio.requests.post", post)
-    with pytest.raises(Exception) as caught:
+    with pytest.raises(ComposioResponseError):
         execute_action("INSTAGRAM_CREATE_POST", {})
-    assert type(caught.value).__name__ == "ComposioResponseError"
     assert post.call_count == 1
 
 
@@ -223,7 +221,6 @@ def test_container_network_retries_are_bounded(monkeypatch):
     post = MagicMock(side_effect=requests.Timeout("unavailable"))
     monkeypatch.setattr("src.adapters.composio.requests.post", post)
     monkeypatch.setattr("src.adapters.composio.time.sleep", lambda _: None)
-    with pytest.raises(Exception) as caught:
+    with pytest.raises(ComposioRequestError):
         execute_action("INSTAGRAM_CREATE_MEDIA_CONTAINER", {})
-    assert type(caught.value).__name__ == "ComposioRequestError"
     assert post.call_count == 3

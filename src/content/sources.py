@@ -57,31 +57,35 @@ def publication_name(record: dict[str, str]) -> str:
     return record.get("publisher") or PUBLICATIONS.get(record.get("source", ""), "") or "the source"
 
 
+def _web_url(value: str) -> bool:
+    try:
+        parsed = urlsplit(value)
+    except ValueError:
+        return False
+    return parsed.scheme in {"https", "http"} and bool(parsed.netloc)
+
+
+def _field(key: str, value: object, excerpt_limit: int) -> str | None:
+    """One metadata value as a record keeps it, or None to leave it out."""
+    if not isinstance(value, str) or not value.strip():
+        return None
+    if key == "url":
+        return value.strip() if _web_url(value) else None
+    if key == "excerpt":
+        return plain_text(value, excerpt_limit) or None
+    if key == "publisher":
+        return plain_text(value, 80) or None
+    return value.strip()
+
+
 def source_record(
     title: str, source: str, category: str, *, excerpt_limit: int = 800, **metadata: object
 ) -> dict[str, str]:
     """Omit missing values; never substitute fetch time for publication time."""
     record = {"title": plain_text(title, 500), "source": source, "category": category}
     for key in ("url", "published_at", "updated_at", "observed_at", "excerpt", "publisher"):
-        value = metadata.get(key)
-        if not isinstance(value, str) or not value.strip():
-            continue
-        if key == "url":
-            try:
-                parsed = urlsplit(value)
-                if parsed.scheme not in {"https", "http"} or not parsed.netloc:
-                    continue
-            except ValueError:
-                continue
-            record[key] = value.strip()
-        elif key == "excerpt":
-            if text := plain_text(value, excerpt_limit):
-                record[key] = text
-        elif key == "publisher":
-            if text := plain_text(value, 80):
-                record[key] = text
-        else:
-            record[key] = value.strip()
+        if (text := _field(key, metadata.get(key), excerpt_limit)) is not None:
+            record[key] = text
     return record
 
 
