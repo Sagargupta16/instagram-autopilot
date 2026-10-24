@@ -11,6 +11,11 @@
 - `apt-get` could stall the ffmpeg install: on 2026-10-24 it hung for 19 minutes and two main-branch CI runs ran out of time before rendering, and the post workflow ran the same step. `scripts/install_ffmpeg.sh` time-boxes each try (3 minutes for `apt-get update`, 5 for the install) and retries three times, in both workflows.
 - 47 of the 48 open SonarCloud findings, without behavior changes: `main.run`, `ledger.claim`, `grounding.numbers`, `source_record`, `_balanced_records` and `sync_history` are split under the cognitive-complexity limit (S3776), a redundant `UnidentifiedImageError` catch is gone (S5713), and the tests build their arguments before `pytest.raises` (S5778, 22), name exact exception types (S5958), split composite assertions (S9073), let a missing module fail naturally (S8714), compare two plans instead of one expression with itself (S5863) and drop empty fixture parentheses (S9083). Left on purpose: S8572 in `main()` would log the full exception chain, which can carry third-party messages and URLs, against the no-credentials-in-logs rule.
 
+## [0.14.2] - 2026-10-24
+
+### Security
+- filelock 3.32.7 -> 4.2.4 (`>=4.2.1,<5`), which fixes GHSA-v4x8-3wr5-3wq8 (high), GHSA-567q-5qvw-pf92 and GHSA-9vhv-jxww-xfm5 (low). All three are in `ReadWriteLock` and `SoftFileLock`; the local state store only uses `FileLock(path, timeout=10)`, whose API 4.0 kept. The Renovate update pinned 4.2.1 in `requirements.txt` while `uv.lock` resolved 4.2.4, so CI's export check failed; both now say 4.2.4.
+
 ## [0.14.1] - 2026-10-24
 
 ### Security
