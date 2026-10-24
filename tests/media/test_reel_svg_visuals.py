@@ -113,8 +113,12 @@ def test_hook_pop_never_leaves_the_safe_area(name) -> None:
     root = ET.fromstring(built(name).svg)
     parents = {child: parent for parent in root.iter() for child in parent}
     for pulse in root.iter(f"{NS}animateTransform"):
-        if pulse.get("type") == "scale":
-            assert max(float(v) for v in pulse.get("values").split(";")) <= 1.15
+        if pulse.get("type") != "scale" or not list(parents[pulse].iter(f"{NS}text")):
+            continue  # hinges, flips, the ring's tilt and the floor scale shapes, never text
+        factors = [float(f) for value in pulse.get("values").split(";") for f in value.split()]
+        assert max(factors) <= 1.15
+        texts_squashed = min(factors) < 1 and pulse.get("values").split(";")[0] != "0"
+        assert not texts_squashed  # text only ever pops from nothing or grows, never thins
     for line in (e for e in root.iter(f"{NS}text") if list(e.iter(f"{NS}tspan"))):
         pulse = next(parents[parents[line]].iter(f"{NS}animateTransform"))
         peak = max(float(v) for v in pulse.get("values").split(";"))

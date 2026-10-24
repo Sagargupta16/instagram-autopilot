@@ -5,8 +5,10 @@ word or number the viewer cannot read on screen (contract 15 already grounds tha
 runs in its own locked environment, scripts/narrate.py on Python 3.13, because kokoro-onnx does
 not support the publisher's 3.14. Each line opens its beat: the layouts stretch a beat to fit
 its line (`Narration.pace`) and the mix starts the line LEAD_S after the beat begins. Any
-failure leaves the Reel music-only: narration improves a post, it never skips one. This
-module never reads credentials or settings, so the sample render runs without them.
+failure leaves the Reel music-only: narration improves a post, it never skips one. A Reel
+the narration would stretch past MAX_S is read again faster (at most MAX_SPEED), so Reels stay
+within 15 to 30 seconds where the words allow. This module never reads credentials or
+settings, so the sample render runs without them.
 """
 
 from __future__ import annotations
@@ -16,6 +18,7 @@ import logging
 import re
 import shutil
 import subprocess
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -28,7 +31,9 @@ VOICES = VOICE_DIR / "voices-v1.0.bin"
 PYTHON = "3.13"  # kokoro-onnx 0.6.1 requires Python below 3.14
 VOICE = "af_heart"  # the default Kokoro voice; the publisher passes settings.narration_voice
 SPEED = 1.0
-LEAD_S, GAP_S = 0.25, 0.35  # silence before a line inside its beat, and after it
+MAX_S, MAX_SPEED = 30.0, 1.25  # longest Reel the voice should make, and its fastest read
+REREADS = 2  # faster reads at most; each one lands closer, since pauses do not speed up
+LEAD_S, GAP_S = 0.15, 0.2  # silence before a line inside its beat, and after it
 TIMEOUT_S = 600
 CREDIT = "Narration: AI-generated voice."
 _SUFFIX = re.compile(r"(\d)\s?(k|m|bn|tn)$", re.IGNORECASE)
@@ -55,6 +60,7 @@ class Narration:
     lines: tuple[str, ...]
     clips: tuple[Path, ...]
     durations: tuple[float, ...]
+    speed: float = SPEED
 
     @property
     def pace(self) -> tuple[float, ...]:
@@ -134,7 +140,9 @@ def unavailable() -> str | None:
     return None
 
 
-def narrate(scene: dict[str, Any], workdir: Path, *, voice: str = VOICE) -> Narration:
+def narrate(
+    scene: dict[str, Any], workdir: Path, *, voice: str = VOICE, speed: float = SPEED
+) -> Narration:
     """Synthesize every line into workdir/narration; NarrationError when anything is off.
 
     The request goes on stdin and holds no paths: the script reads its model from
@@ -142,7 +150,7 @@ def narrate(scene: dict[str, Any], workdir: Path, *, voice: str = VOICE) -> Narr
     """
     spoken = [speakable(line) for line in lines(scene)]
     out = workdir / "narration"
-    request = json.dumps({"voice": voice, "speed": SPEED, "lines": spoken})
+    request = json.dumps({"voice": voice, "speed": speed, "lines": spoken})
     command = ["uv", "run", "--frozen", "--no-build", "--quiet", "--python", PYTHON]
     command += ["--script", str(SCRIPT)]
     try:
@@ -162,20 +170,55 @@ def narrate(scene: dict[str, Any], workdir: Path, *, voice: str = VOICE) -> Narr
     clips = tuple(out / f"{index:02d}.wav" for index in range(len(spoken)))
     if len(durations) != len(spoken) or not all(clip.is_file() for clip in clips):
         raise NarrationError("narration output does not match its lines")
-    return Narration(tuple(spoken), clips, tuple(float(seconds) for seconds in durations))
+    seconds = tuple(float(value) for value in durations)
+    return Narration(tuple(spoken), clips, seconds, speed)
 
 
-def for_scene(scene: dict[str, Any], workdir: Path, *, voice: str = VOICE) -> Narration | None:
+def for_scene(
+    scene: dict[str, Any], workdir: Path, *, voice: str = VOICE, speed: float = SPEED
+) -> Narration | None:
     """The narration, or None (logged) so the Reel goes out music-only."""
     if reason := unavailable():
         log.info("SVG Reel without narration: %s", reason)
         return None
     try:
-        narration = narrate(scene, workdir, voice=voice)
+        narration = narrate(scene, workdir, voice=voice, speed=speed)
     except NarrationError as error:
         log.warning("SVG Reel without narration (%s)", error)
         return None
     log.info(
         "Narration ready: %d lines, %.1f s spoken", len(narration.lines), sum(narration.durations)
     )
+    return narration
+
+
+def quicker(narration: Narration, over: float) -> float:
+    """The speed that takes `over` seconds off the spoken lines, at most MAX_SPEED."""
+    spoken = sum(narration.durations)
+    if spoken <= over:
+        return MAX_SPEED
+    return min(MAX_SPEED, round(narration.speed * spoken / (spoken - over), 2))
+
+
+def fitted(
+    scene: dict[str, Any],
+    workdir: Path,
+    length: Callable[[tuple[float, ...]], float],
+    *,
+    voice: str = VOICE,
+) -> Narration | None:
+    """The narration for a Reel whose length `length(pace)` gives; while that runs past MAX_S
+    the lines are read again faster (at most REREADS times, never past MAX_SPEED), and a read
+    that fails leaves the last good one."""
+    narration = for_scene(scene, workdir, voice=voice)
+    for _ in range(REREADS):
+        if narration is None or narration.speed >= MAX_SPEED:
+            break
+        if (over := length(narration.pace) - MAX_S) <= 0:
+            break
+        speed = quicker(narration, over)
+        log.info("Narrated Reel would run %.1f s; reading again at %.2fx", MAX_S + over, speed)
+        narration = for_scene(scene, workdir, voice=voice, speed=speed) or narration
+        if narration.speed != speed:
+            break  # the faster read failed; keep the one that worked
     return narration

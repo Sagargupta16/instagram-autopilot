@@ -1,9 +1,13 @@
 """How-it-works layout: a chain of icon rows joined by connectors, with a packet riding each.
 
-One clock: hook 0-2.5 s, 2.2 s per step, the takeaway, then a 4 s hold whose last 2 s are
-the end card. With narration, `pace` lengthens any beat its spoken line needs (never shortens). The icon and the connector carry each beat: a step's one-line detail shows only
-while it is active (its card glows and its icon pops), then the row collapses to icon and
-label and dims until the takeaway, so the final frame is the whole path plus the takeaway.
+One clock: hook 0-2.5 s, 2.2 s per step, the takeaway, then a hold of at least 4 s whose
+last 2 s are the end card (15 s at least overall). The first step already lights at FIRST_S,
+while the hook is being read, so the opening frame shows the subject and not just a title.
+With narration, `pace` lengthens any beat its spoken line needs (never shortens). The icon and
+the connector carry each beat: a step's card swings in on a hinge and its coin-thick icon tile
+lifts while it is active, its one-line detail shows only then, and the row then collapses to
+icon and label and dims until the takeaway, so the final frame is the whole path plus the
+takeaway.
 """
 
 from __future__ import annotations
@@ -13,8 +17,10 @@ from typing import Any
 
 from src.media.svg_kit import (
     DETAIL_PX,
+    FIRST_S,
     LABEL_PX,
     LEFT,
+    MIN_S,
     RIGHT,
     RISE,
     SAFE,
@@ -35,6 +41,7 @@ from src.media.svg_parts import (
     takeaway_height,
     tile,
 )
+from src.media.svg_solid import coin
 
 HOOK_S, STEP_S, TAKE_S, HOLD_S = 2.5, 2.2, 1.3, 4.0
 # Icon px, row padding and gap between rows: the roomiest that fits is used.
@@ -61,7 +68,7 @@ def beats(scene: dict[str, Any], pace: Sequence[float] = ()) -> list[float]:
 
 
 def duration(scene: dict[str, Any], pace: Sequence[float] = ()) -> float:
-    return round(timing(scene, pace)[2] + HOLD_S, 2)
+    return max(MIN_S, round(timing(scene, pace)[2] + HOLD_S, 2))
 
 
 def hold_start(scene: dict[str, Any], pace: Sequence[float] = ()) -> float:
@@ -119,7 +126,7 @@ def compose(
     ends = [*begin[1:], take_at]
     cards, wires, ghosts = [], [], []
     for i, step in enumerate(steps):
-        appear = begin[i] + (0.15 if i == 0 else 0.55)
+        appear = FIRST_S if i == 0 else begin[i] + 0.55
         ghosts.append(ghost(canvas, LEFT, tops[i], RIGHT - LEFT, rows.row, 28))
         cards.append(
             _card(canvas, rows, step, i, (tops[i], details[i]), (appear, ends[i], take_at))
@@ -165,6 +172,8 @@ def _card(
         + "</rect>"
     )
     cy = top + rows.row / 2
+    card = canvas.swing(LEFT, top, appear, glow + rect)
+    base = coin(canvas, rows.cx, cy, rows.radius)
     mark = _mark(canvas, rows, step, index, cy)
     pop = [(appear + 0.1, "1"), (appear + 0.4, "1.14"), (done, "1.14"), (done + 0.35, "1")]
     mark = canvas.scaled(rows.cx, cy, pop, mark)
@@ -177,7 +186,7 @@ def _card(
         )
     lines, _ = canvas.lines(rows.text_x, top + rows.label_top, detail, rows.detail_px, look.muted)
     body = f'<g opacity="0">{canvas.fade(appear + 0.2, done)}{"".join(lines)}</g>'
-    return canvas.reveal([glow, rect, mark, title, body], appear, dim=(done, undim))
+    return canvas.reveal([card, base, mark, title, body], appear, dim=(done, undim))
 
 
 def _mark(canvas: Canvas, rows: _Rows, step: dict[str, Any], index: int, cy: float) -> str:

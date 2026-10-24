@@ -33,7 +33,7 @@ STAT_PILLAR = {
 def _reel(value: str) -> str:
     return json.dumps(
         {
-            "caption": f"U.S. drinking water bills rose {value} in a decade.",
+            "caption": f"U.S. water bills climbed fast.\nThey rose {value} in a decade.",
             "hashtags": "#data #water",
             "x_post": "Water bills keep climbing.",
             "scene": {

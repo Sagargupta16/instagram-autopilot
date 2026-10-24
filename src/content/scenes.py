@@ -16,7 +16,7 @@ from pydantic import (
 )
 
 from src.content.grounding import evidence_text, published_text, ungrounded
-from src.content.hooks import weak_hook
+from src.content.hooks import spent_hook, weak_hook
 from src.content.schemas import Nonempty, hashtag_list
 from src.content.sources import publication_name
 from src.content.voice import meta_commentary
@@ -283,7 +283,7 @@ def validate_svg_content(raw: object, *, kind: str, sources: list[dict]) -> SvgR
         raise ValueError("; ".join(problems))
     if problems := meta_commentary(scene, content.caption):
         raise ValueError("; ".join(problems))
-    if problems := weak_hook(scene):
+    if problems := weak_hook(scene) + spent_hook(scene, content.caption):
         raise ValueError("; ".join(problems))
     try:
         compose(scene, source_line=source_line(scene, sources))

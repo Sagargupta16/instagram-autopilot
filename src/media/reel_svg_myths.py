@@ -1,8 +1,10 @@
 """Myth vs fact: 2 or 3 common beliefs, each struck through and replaced by what is true.
 
 One clock: hook 0-2.5 s, then per item 1.6 s for the myth and 2.2 s for the fact, the
-takeaway with its source line, then a 4 s hold whose last 2 s are the end card. A card shows
-MYTH and the belief; on its fact beat a line strikes the belief and FACT appears beneath it.
+takeaway with its source line, then a hold of at least 4 s whose last 2 s are the end card
+(15 s at least overall). The first card already swings in at FIRST_S, while the hook is being
+read. A card shows MYTH and the belief; on its fact beat the card turns over, a line strikes
+the belief and FACT appears beneath it.
 Finished cards dim until the takeaway, so the final frame is every myth crossed out above its
 fact. Narration speaks the myth and the fact as two lines, so `pace` (which only lengthens
 beats) lines the strike up with the spoken word "Fact".
@@ -16,7 +18,9 @@ from typing import Any
 from src.media.svg_kit import (
     ASCENT,
     DETAIL_PX,
+    FIRST_S,
     LEFT,
+    MIN_S,
     RIGHT,
     RISE,
     SAFE,
@@ -60,7 +64,7 @@ def beats(scene: dict[str, Any], pace: Sequence[float] = ()) -> list[float]:
 
 
 def duration(scene: dict[str, Any], pace: Sequence[float] = ()) -> float:
-    return round(timing(scene, pace)[3] + HOLD_S, 2)
+    return max(MIN_S, round(timing(scene, pace)[3] + HOLD_S, 2))
 
 
 def hold_start(scene: dict[str, Any], pace: Sequence[float] = ()) -> float:
@@ -98,7 +102,8 @@ def compose(
     myths, facts, take_at, _ = timing(scene, pace)
     ends = [*myths[1:], take_at]
     for index, (myth, fact, height) in enumerate(cards):
-        window = (myths[index] + 0.15, facts[index], ends[index], take_at)
+        appear = FIRST_S if index == 0 else myths[index] + 0.15
+        window = (appear, facts[index], ends[index], take_at)
         parts.append(ghost(canvas, LEFT, top, RIGHT - LEFT, height))
         parts.append(_card(canvas, top, height, (myth, fact), window))
         top += height + 16
@@ -127,6 +132,8 @@ def _card(
         + canvas.anim("stroke-opacity", lit)
         + "</rect>"
     )
+    middle = top + height / 2
+    rect = canvas.swing(LEFT, top, appear, canvas.flip(LEFT, middle, fact_at - 0.1, rect))
     y = top + PAD
     tag = canvas.lines(LEFT + PAD, y, ["MYTH"], TEXT_PX, look.muted, bold=True)[0]
     belief, myth_bottom = canvas.lines(TEXT_X, y, myth, TEXT_PX, look.muted)

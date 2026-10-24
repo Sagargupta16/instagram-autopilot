@@ -201,7 +201,7 @@ def test_success_passes_the_callback_and_credits_source_and_music(pipeline) -> N
     pipeline.upload.assert_called_once_with(b"baked-mp4")
     svg, duration, _ = pipeline.render.call_args.args
     assert svg.startswith("<svg")
-    assert duration == pytest.approx(12.3)
+    assert duration == pytest.approx(15.0)  # the 15 s floor
     assert pipeline.bake.call_args.args[1:] == (pipeline.track.path, duration)  # not int(12.3)
     assert pipeline.verify.call_args.kwargs["audio"] is True
     pipeline.record.assert_called_once_with(pipeline.track)

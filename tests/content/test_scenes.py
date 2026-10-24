@@ -254,7 +254,13 @@ def test_ring_still_takes_a_share_of_a_whole() -> None:
 
 
 def test_grounded_stat_scene_passes(reel: dict[str, Any]) -> None:
-    content = _check({**reel, "caption": "Water bills rose 62% in a decade.", "scene": _stat()})
+    content = _check(
+        {
+            **reel,
+            "caption": "Water bills climbed fast.\nThey rose 62% in a decade.",
+            "scene": _stat(),
+        }
+    )
     assert content.scene.value == "62%"
     assert set(content.model_dump()) == {"caption", "hashtags", "x_post", "scene"}
 
@@ -268,7 +274,13 @@ def test_hallucinated_number_is_rejected(reel: dict[str, Any]) -> None:
 def test_commentary_about_the_source_triggers_a_repair(reel: dict[str, Any]) -> None:
     scene = _stat(takeaway="Bills rose; the summary omits which cities.")
     with pytest.raises(ValueError, match=r'scene\.takeaway says "summary"') as error:
-        _check({**reel, "caption": "Water bills rose 62% in a decade.", "scene": scene})
+        _check(
+            {
+                **reel,
+                "caption": "Water bills climbed fast.\nThey rose 62% in a decade.",
+                "scene": scene,
+            }
+        )
     assert not isinstance(error.value, ValidationError)
 
 
@@ -289,7 +301,11 @@ def test_caption_figures_must_be_in_evidence_but_links_and_tags_are_ignored(
     reel: dict[str, Any],
 ) -> None:
     links = " Read https://example.org/2024/report-7 #top10 #2026"
-    grounded = {**reel, "caption": "Water bills rose 62% in a decade." + links, "scene": _stat()}
+    grounded = {
+        **reel,
+        "caption": "Water bills climbed fast.\nThey rose 62% in a decade." + links,
+        "scene": _stat(),
+    }
     assert _check(grounded).caption.endswith("#2026")
     with pytest.raises(ValueError, match="caption may only use numbers") as error:
         _check({**grounded, "caption": "That is 62 for every 100 homes." + links})
