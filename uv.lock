@@ -325,7 +325,7 @@ wheels = [
 
 [[package]]
 name = "instagram-autopilot"
-version = "0.14.2"
+version = "0.14.3"
 source = { virtual = "." }
 dependencies = [
     { name = "botocore" },

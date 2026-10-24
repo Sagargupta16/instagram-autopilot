@@ -83,6 +83,8 @@ uv lock
 uv export --frozen --no-dev --no-hashes --output-file requirements.txt
 ```
 
+CI fails a PR whose `requirements.txt` differs from that export. Renovate edits `requirements.txt` as a plain pip file, so on its PRs the "Renovate lock sync" workflow runs `scripts/sync_requirements.sh` (it relocks each package whose pin disagrees with the export and exports the file again), pushes the result as `github-actions[bot]` and starts CI on it.
+
 ## GitHub Actions setup
 
 The workflow runs only from `main`. It serializes publishers, uses a frozen runtime installation, and writes durable state to the dedicated `autopilot-state` branch with the workflow token. State is checkpointed during execution; it does not depend on a final history commit step. The branch is created automatically on first use, provided the repository allows the workflow token to write contents.
