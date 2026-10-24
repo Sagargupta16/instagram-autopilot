@@ -11,6 +11,7 @@ from __future__ import annotations
 from html import escape
 
 from src.media.lucide import ICONS
+from src.media.svg_depth import HORIZON, cubes, floor
 from src.media.svg_kit import (
     ASCENT,
     FONT,
@@ -121,11 +122,14 @@ def takeaway(canvas: Canvas, top: float, text: str, start: float) -> tuple[str, 
     size, lines = fit(text, TAKE_PX, RIGHT - LEFT - 96, 3, bold=True)
     texts, _ = canvas.lines(LEFT + 56, top + 34, lines, size, look.text, bold=True)
     height = takeaway_height(text)
-    card = (
+    card = canvas.swing(
+        LEFT,
+        top,
+        start,
         f'<rect x="{LEFT}" y="{fmt(top)}" width="{RIGHT - LEFT}" height="{fmt(height)}" '
         f'rx="28" fill="{look.take}" stroke="{look.text}" stroke-opacity="0.10" stroke-width="2"/>'
         f'<rect x="{LEFT + 22}" y="{fmt(top + 28)}" width="8" height="{fmt(height - 56)}" '
-        f'rx="4" fill="{look.accent}"/>'
+        f'rx="4" fill="{look.accent}"/>',
     )
     return canvas.reveal([card, *texts], start), top + height
 
@@ -139,10 +143,10 @@ def icon(name: str, x: float, y: float, size: float, color: str) -> str:
     )
 
 
-def tile(canvas: Canvas, cx: float, cy: float, radius: float) -> str:
+def tile(canvas: Canvas, cx: float, cy: float, radius: float, opacity: float = 0.16) -> str:
     """The soft accent shape behind an icon (decoration, below 50% opacity)."""
     look = canvas.look
-    paint = f'fill="{look.accent}" fill-opacity="0.16"'
+    paint = f'fill="{look.accent}" fill-opacity="{fmt(opacity)}"'
     if look.tile == "circle":
         return f'<circle cx="{fmt(cx)}" cy="{fmt(cy)}" r="{fmt(radius)}" {paint}/>'
     side, corner = 2 * radius, 0.3 * radius
@@ -167,9 +171,12 @@ def end_card(canvas: Canvas, handle: str | None = None) -> str:
     start = canvas.total - END_S
     cy = (SAFE[1] + SAFE[3]) / 2
     top, height = cy - 210, 420
-    panel = (
+    panel = canvas.swing(
+        540,
+        cy,
+        start + 0.15,
         f'<rect x="{LEFT}" y="{fmt(top)}" width="{RIGHT - LEFT}" height="{height}" rx="36" '
-        f'fill="{look.card}" stroke="{look.accent}" stroke-width="4"/>'
+        f'fill="{look.card}" stroke="{look.accent}" stroke-width="4"/>',
     )
     badge = tile(canvas, 540, top + 110, 64) + icon("users", 540 - 44, top + 66, 88, look.accent)
     name = _handle_line(canvas, top + 262, handle) if handle else None
@@ -227,9 +234,11 @@ def source(canvas: Canvas, card_bottom: float, text: str, start: float) -> str:
 
 
 def lattice(canvas: Canvas, step: int = 60) -> str:
-    """A faint dot grid behind everything (decoration at 6% opacity, one static path)."""
+    """A faint dot grid above the floor (decoration at 6% opacity, one static path)."""
     dots = "".join(
-        f"M{x} {y}h0" for y in range(step // 2, HEIGHT, step) for x in range(step // 2, WIDTH, step)
+        f"M{x} {y}h0"
+        for y in range(step // 2, HORIZON, step)  # the floor takes over below the horizon
+        for x in range(step // 2, WIDTH, step)
     )
     return (
         f'<path d="{dots}" stroke="{canvas.look.text}" stroke-opacity="0.06" stroke-width="5" '
@@ -246,7 +255,7 @@ def dimmed(canvas: Canvas, parts: list[str]) -> str:
 
 def document(canvas: Canvas, parts: list[str], label: str, handle: str | None = None) -> str:
     """The finished file; raises LayoutError if any text box left the safe area."""
-    back = [wash(canvas), lattice(canvas)]
+    back = [wash(canvas), lattice(canvas), floor(canvas), cubes(canvas)]
     body = dimmed(canvas, [*back, *parts]) + end_card(canvas, handle) + progress(canvas)
     canvas.check()
     title = escape(clean(label), quote=False)

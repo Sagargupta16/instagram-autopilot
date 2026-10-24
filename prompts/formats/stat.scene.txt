@@ -1,8 +1,9 @@
 <animated_reel>
 This post is an animated stat Reel: one number story from ONE source record.
 
-Caption: say the stat in plain words, add one or two sentences of context from the same record,
-then the takeaway. A "Source:" line naming the publication is appended automatically. Close with
+Caption: open with one sentence that names the subject and what is surprising about it WITHOUT
+the figure (the Reel reveals it; a first line that states it is rejected), then say the stat in
+plain words, add one or two sentences of context from the same record, then the takeaway. A "Source:" line naming the publication is appended automatically. Close with
 the line "Visuals: animated chart drafted with AI assistance."
 
 "scene": {"kind": "stat", "variant": "big_number", "headline": "...", "icon": "...",
@@ -25,7 +26,9 @@ the line "Visuals: animated chart drafted with AI assistance."
 - value format: digits with optional thousands commas and decimals, an optional leading currency
   symbol and an optional suffix: %, k, m, bn, tn, thousand, million, billion or trillion.
 - headline: at most 48 characters, ideally under 40, plain, no clickbait, never a greeting, filler, "in this video",
-  "stop scrolling", a hashtag or an emoji. takeaway: at most 70 characters, ideally under 60, a careful
+  "stop scrolling", a hashtag or an emoji. Never put the value in the headline: the count-up
+  reveals it, so name what changed and leave the size open ("Water bills climbed fast", not
+  "Water bills rose 62%"; a headline holding the figure is rejected). takeaway: at most 70 characters, ideally under 60, a careful
   reading of what the number shows and nothing beyond it, said about the subject (for example
   "Almost the whole population is gone"), never about the source or its missing details.
 - Use plain hyphens, never en or em dashes.

@@ -30,14 +30,14 @@ sys.path.insert(0, str(ROOT))
 
 from src.media import audio_bake, audio_picker, narration, reel_probe, svg_video  # noqa: E402
 from src.media.audio_manifest import AudioTrack  # noqa: E402
-from src.media.reel_svg import Reel, compose  # noqa: E402
+from src.media.reel_svg import Reel, compose, length  # noqa: E402
 from src.media.svg_look import LOOKS  # noqa: E402
 from src.pillar import load_config  # noqa: E402
 
 SAMPLES = ROOT / "scripts" / "samples" / "svg_reel_scenes.json"
 OUT = ROOT / "output" / "svg-reel-sample"
 DEFAULT = ("steps-cicd", "stat-big-number", "timeline-hubble", "versus-tcp-udp", "myths-space")
-SAMPLE_HANDLE = "@creativity.prompt"  # stand-in: published Reels read the account's live handle
+SAMPLE_HANDLE = "@facts.in.motion"  # stand-in: published Reels read the account's live handle
 
 
 def moments(reel: Reel) -> dict[str, float]:
@@ -82,7 +82,7 @@ def render(item: dict, browser: str) -> dict:
     started = time.perf_counter()
     with tempfile.TemporaryDirectory(prefix="svg-reel-sample-") as temporary:
         workdir = Path(temporary)
-        voice = narration.for_scene(item["scene"], workdir)
+        voice = narration.fitted(item["scene"], workdir, lambda pace: length(item["scene"], pace))
         pace = voice.pace if voice else ()
         reel = compose(
             item["scene"],
@@ -108,6 +108,7 @@ def render(item: dict, browser: str) -> dict:
         "look": LOOKS[item["look"] % len(LOOKS)].name,
         "thumb_offset_ms": reel.thumb_offset_ms,
         "audio_track": track.track_id if track else None,
+        "narration_speed": voice.speed if voice else None,
         "narration": [
             {"line": line, "start": round(start, 2), "seconds": spoken}
             for line, start, spoken in zip(voice.lines, starts, voice.durations, strict=True)

@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.14.0] - 2026-10-24
+
+### Added
+- 3D motion in every Reel, all SMIL and deterministic. Behind each scene a perspective floor glides toward the viewer without a seam (its lines are spaced and weighted by one ratio, so a zoom by that ratio lands each line on the next) and wireframe cubes float up in three parallax layers, the near two turning in 3D through a quarter-turn loop (`src/media/svg_depth.py`; decoration under 50% opacity, the dot lattice now stops at the floor's horizon). Cards swing in on a hinge, the takeaway and end card included; icon tiles get a coin-thick base and lift while active; the big number extrudes toward the viewer in eight `accent_text` layers when its count-up lands; the ring tilts up from lying flat with a solid edge; bars grow as boxy solids with a lit top face and a shaded end face; the line draws as a ribbon over a set-back copy; and a myth card turns over on its fact beat (`src/media/svg_solid.py`, `src/media/reel_svg_charts.py`). Only shapes turn: text is never squashed or scaled down, and a test checks it. The 54 sample SVGs (9 samples, 3 looks, with and without a handle) pass the svg-forge validator with 0 errors at 43 to 61 KB.
+- "create one": posting is on demand. The workflow (now "Instagram Post") has no cron schedule, its `pillar` input is a choice of the five pillars and `post_now` defaults to on; the daily cap, the 180-minute gap and the 04:00-20:00 UTC window still refuse with a reason. CLAUDE.md gives the procedure a session follows when asked to create one, and README shows the `gh workflow run` command.
+
+### Changed
+- The first second shows the subject. The stat visual starts at 0.4 s under the headline instead of 2 s (the number is already counting at 0.9 s), and the first step, milestone, versus row or myth card swings in at 0.7 s while the hook is still read; versus column heads arrive at 0.2 and 0.45 s. Narration beats are unchanged. On the account's first 14 Reels 80.4% of views (weighted) left within three seconds and the median watch was 3.1 s, with the opening frame mostly empty (Instagram insights, read 2026-10-24).
+- Reels run 15 to 30 seconds. Every layout has a 15 s floor (stat Reels had 12 s). Narration pauses are shorter (0.15 s before a line, 0.2 s after, from 0.25 and 0.35), and a voice that would push a Reel past 30 s is read again faster, at most 1.25x and at most twice (`narration.fitted`). Measured on the samples: steps 25.2 s, stat 15.0 s, timeline 30.1 s, myths 30.1 s at 1.20x, and versus 31.4 s at the 1.25x ceiling, since Kokoro's speed control saves less than its factor.
+- A stat Reel's headline and caption first line may no longer contain its figure (`content/hooks.py`, one repair call), and the stat and caption prompts ask for an opening that names the subject and leaves the answer to the Reel. The three stat Reels that opened on their figure lost 87.5 to 100% of viewers in the first three seconds.
+- The pipeline diagram shows the on-demand trigger ("create one") and the 30 s narration cap; `orrery verify` finds all 53 evidence entries and the review scores 94.3 at 880 px.
+
 ## [0.13.2] - 2026-10-24
 
 ### Changed

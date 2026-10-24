@@ -30,7 +30,11 @@ TAKE_PX = (44, 42)
 SMALL_PX = 32  # kicker, source line and chart labels: the smallest text anywhere
 EASE = "0.22 1 0.36 1"  # entrances: fast out, soft landing
 TRAVEL = "0.45 0 0.25 1"  # line draws and growth: even travel with gentle ends
+SWING = "0.16 1 0.3 1"  # a card turning to face the viewer: quick, then a firm stop
 HOLD = "0 0 1 1"
+FIRST_S = 0.7  # the first step, row or milestone lights while the hook is still being read
+MIN_S = 15.0  # every Reel runs at least this long; narration may lengthen it
+EDGE_ON = "1 0.04"  # a card seen side-on, as thin as a line
 _DASHES = re.compile("[" + chr(0x2013) + chr(0x2014) + "]")
 
 
@@ -203,15 +207,35 @@ class Canvas:
         return f'<g opacity="0">{self.anim("opacity", frames)}{self.rise(start)}{body}</g>'
 
     def scaled(
-        self, x: float, y: float, frames: list[tuple[float, str]], body: str, *, also: str = ""
+        self,
+        x: float,
+        y: float,
+        frames: list[tuple[float, str]],
+        body: str,
+        *,
+        also: str = "",
+        ease: str = EASE,
     ) -> str:
         """`body` scaled about (x, y) by the factors in `frames` (it never moves otherwise);
         `also` is another animation for the same group, such as its opacity."""
-        pulse = self.anim("transform", frames, tag="animateTransform", extra='type="scale" ')
+        pulse = self.anim(
+            "transform", frames, tag="animateTransform", extra='type="scale" ', ease=ease
+        )
         return (
             f'<g transform="translate({fmt(x)} {fmt(y)})"><g>{pulse}{also}'
             f'<g transform="translate({fmt(-x)} {fmt(-y)})">{body}</g></g></g>'
         )
+
+    def swing(self, x: float, y: float, start: float, body: str, seconds: float = 0.55) -> str:
+        """`body` (a card's shapes, never its text) turns on a hinge through (x, y) from
+        side-on at `start` to facing the viewer `seconds` later."""
+        return self.scaled(x, y, [(start, EDGE_ON), (start + seconds, "1 1")], body, ease=SWING)
+
+    def flip(self, x: float, y: float, at: float, body: str) -> str:
+        """`body` turns over about the horizontal line through (x, y) at `at`, as a card shows
+        its other side: side-on after 0.22 s, facing the viewer again after 0.5 s."""
+        frames = [(at, "1 1"), (at + 0.22, EDGE_ON), (at + 0.5, "1 1")]
+        return self.scaled(x, y, frames, body, ease=SWING)
 
     def text(
         self,

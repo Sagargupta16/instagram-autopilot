@@ -1,8 +1,10 @@
 """The story of X: 4 to 6 dated milestones that reveal in turn down a rail of icon nodes.
 
-One clock: hook 0-2.5 s, 2.2 s per milestone, the takeaway with its source line, then a 4 s
-hold whose last 2 s are the end card. The active milestone's node pops and glows while the
-earlier ones dim; every row is back at full strength for the takeaway and the hold. Dates sit
+One clock: hook 0-2.5 s, 2.2 s per milestone, the takeaway with its source line, then a hold
+of at least 4 s whose last 2 s are the end card (15 s at least overall). The first milestone
+already shows at FIRST_S, while the hook is being read. The active milestone's coin-thick node
+lifts and glows while the earlier ones dim; every row is back at full strength for the
+takeaway and the hold. Dates sit
 beside their event when they are short and above it when they are not. With narration, `pace`
 lengthens any beat its spoken line needs (never shortens).
 """
@@ -14,7 +16,9 @@ from typing import Any
 
 from src.media.svg_kit import (
     ASCENT,
+    FIRST_S,
     LEFT,
+    MIN_S,
     RIGHT,
     RISE,
     SAFE,
@@ -38,6 +42,7 @@ from src.media.svg_parts import (
     takeaway_height,
     tile,
 )
+from src.media.svg_solid import coin
 
 HOOK_S, ITEM_S, TAKE_S, HOLD_S = 2.5, 2.2, 1.3, 4.0
 DATE_PX, EVENT_PX = 38, 32
@@ -63,7 +68,7 @@ def beats(scene: dict[str, Any], pace: Sequence[float] = ()) -> list[float]:
 
 
 def duration(scene: dict[str, Any], pace: Sequence[float] = ()) -> float:
-    return round(timing(scene, pace)[2] + HOLD_S, 2)
+    return max(MIN_S, round(timing(scene, pace)[2] + HOLD_S, 2))
 
 
 def hold_start(scene: dict[str, Any], pace: Sequence[float] = ()) -> float:
@@ -119,7 +124,7 @@ def compose(
     y, rows, rails, prev, ghosts = top + 44, [], [], None, []
     for i, (item, lines) in enumerate(zip(milestones, events, strict=True)):
         start = begin[i]
-        appear = start + (0.15 if i == 0 else 0.45)
+        appear = FIRST_S if i == 0 else start + 0.45
         done = begin[i + 1] if i < len(milestones) - 1 else take_at
         cy = y + heights[i] / 2
         block = _text_block(len(lines), beside)
@@ -187,7 +192,9 @@ def _node(
     pop = [(appear, "0"), (appear + 0.3, "1.15"), (done, "1.15"), (done + 0.3, "1")]
     dim = canvas.dimming(done, undim)
     shade = canvas.anim("opacity", dim) if dim else ""
-    return ring + canvas.scaled(x, cy, pop, body, also=shade)
+    shown = canvas.anim("opacity", [(appear, "0"), (appear + 0.3, "1"), *dim])
+    base = f'<g opacity="0">{shown}{coin(canvas, x, cy, radius)}</g>'
+    return ring + base + canvas.scaled(x, cy, pop, body, also=shade)
 
 
 def _rail(canvas: Canvas, x: float, y0: float, y1: float, start: float) -> str:

@@ -1,8 +1,10 @@
 """Two things compared row by row: "TCP vs UDP" with 3 or 4 aspects side by side.
 
-One clock: hook 0-2.5 s (the two column heads arrive during it), 2.6 s per row, the takeaway,
-then a 4 s hold whose last 2 s are the end card. Each row lights up while it is active, its
-right-hand cell arriving when a narrator would reach it, then dims until the takeaway, so the
+One clock: hook 0-2.5 s (the two column heads arrive at once and the first row at FIRST_S,
+while the hook is being read), 2.6 s per row, the takeaway, then a hold of at least 4 s whose
+last 2 s are the end card (15 s at least overall). Each row card swings in on a hinge and
+lights up while it is active, its right-hand cell arriving when a narrator would reach it,
+then dims until the takeaway, so the
 final frame is the whole table plus the takeaway. With narration, `pace` lengthens any beat
 its spoken line needs (never shortens).
 """
@@ -15,8 +17,10 @@ from typing import Any
 from src.media.svg_kit import (
     ASCENT,
     DETAIL_PX,
+    FIRST_S,
     LABEL_PX,
     LEFT,
+    MIN_S,
     RIGHT,
     RISE,
     SAFE,
@@ -30,6 +34,7 @@ from src.media.svg_kit import (
     wrap,
 )
 from src.media.svg_parts import ghost, header, icon, takeaway, takeaway_height, tile
+from src.media.svg_solid import coin
 
 HOOK_S, ROW_S, TAKE_S, HOLD_S = 2.5, 2.6, 1.3, 4.0
 GAP = 20
@@ -58,7 +63,7 @@ def beats(scene: dict[str, Any], pace: Sequence[float] = ()) -> list[float]:
 
 
 def duration(scene: dict[str, Any], pace: Sequence[float] = ()) -> float:
-    return round(timing(scene, pace)[2] + HOLD_S, 2)
+    return max(MIN_S, round(timing(scene, pace)[2] + HOLD_S, 2))
 
 
 def hold_start(scene: dict[str, Any], pace: Sequence[float] = ()) -> float:
@@ -78,6 +83,7 @@ def _head(
     parts, y = [], top
     if name := side.get("icon"):
         radius = ICON_PX / 2 + 6
+        parts.append(coin(canvas, cx, y + radius, radius))
         parts.append(tile(canvas, cx, y + radius, radius))
         parts.append(icon(name, cx - ICON_PX / 2, y + 6, ICON_PX, look.accent))
     y += space
@@ -139,15 +145,15 @@ def compose(
     divider = (  # behind the row cards, so it only shows in the gaps between them
         f'<rect x="{fmt(CELL_X[1] - GAP / 2 - 2)}" y="{fmt(heads_top)}" width="4" '
         f'height="{fmt(take_top - 24 - heads_top)}" rx="2" fill="{look.accent}" opacity="0">'
-        f"{canvas.fade(1.6)}</rect>"
+        f"{canvas.fade(0.5)}</rect>"
     )
     parts.append(divider)
-    parts.append(_head(canvas, scene["left"], CELL_X[0], heads_top, 0.9, space))
-    parts.append(_head(canvas, scene["right"], CELL_X[1], heads_top, 1.3, space))
+    parts.append(_head(canvas, scene["left"], CELL_X[0], heads_top, 0.2, space))
+    parts.append(_head(canvas, scene["right"], CELL_X[1], heads_top, 0.45, space))
     ends = [*begin[1:], take_at]
     for index, (aspect, left, right, height) in enumerate(rows):
-        start, done = begin[index] + 0.15, ends[index]
-        right_at = start + 0.45 * (done - begin[index])
+        start, done = (FIRST_S if index == 0 else begin[index] + 0.15), ends[index]
+        right_at = begin[index] + 0.15 + 0.45 * (done - begin[index])
         parts.append(ghost(canvas, LEFT, top, RIGHT - LEFT, height))
         parts.append(
             _row(canvas, (top, height), (aspect, left, right), (start, right_at, done, take_at))
@@ -169,11 +175,14 @@ def _row(
     aspect, left, right = texts
     start, right_at, done, undim = window
     lit = [(start, "0"), (start + 0.3, "1"), (done, "1"), (done + 0.3, "0")]
-    card = (
+    card = canvas.swing(
+        LEFT,
+        top,
+        start,
         f'<rect x="{LEFT}" y="{fmt(top)}" width="{RIGHT - LEFT}" height="{fmt(height)}" rx="24" '
         f'fill="{look.card}" stroke="{look.accent}" stroke-width="4" stroke-opacity="0">'
         + canvas.anim("stroke-opacity", lit)
-        + "</rect>"
+        + "</rect>",
     )
     name, _ = canvas.lines(LEFT + PAD, top + PAD, aspect, TEXT_PX, look.accent_text, bold=True)
     first, _ = canvas.lines(CELL_X[0], top + PAD, left, TEXT_PX, look.text)

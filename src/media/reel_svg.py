@@ -27,7 +27,7 @@ from src.media.svg_kit import Canvas, LayoutError
 from src.media.svg_look import look as pick_look
 from src.media.svg_parts import COVER_AFTER_HOLD, document
 
-__all__ = ["LayoutError", "Reel", "compose"]
+__all__ = ["LayoutError", "Reel", "compose", "length"]
 
 LAYOUTS = {
     "steps": reel_svg_steps,
@@ -82,6 +82,11 @@ def _draw(
     cover = layout.hold_start(scene, pace) + COVER_AFTER_HOLD
     svg = document(canvas, parts, label, handle)
     return Reel(svg, canvas.total, tuple(canvas.boxes), cover, tuple(layout.beats(scene, pace)))
+
+
+def length(scene: dict[str, Any], pace: Sequence[float] = ()) -> float:
+    """Seconds the Reel for `scene` runs at this narration pace, without drawing it."""
+    return LAYOUTS[scene["kind"]].duration(scene, pace)
 
 
 def compose(

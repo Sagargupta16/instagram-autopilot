@@ -27,7 +27,7 @@ from src.flows.previews import save_preview
 from src.flows.reel_flow import select_audio
 from src.media import audio_bake, audio_picker, narration, reel_probe, svg_video
 from src.media.audio_manifest import AudioTrack
-from src.media.reel_svg import LayoutError, Reel, compose
+from src.media.reel_svg import LayoutError, Reel, compose, length
 from src.publishing.account import handle as account_handle
 from src.publishing.reel import publish_reel
 from src.settings import settings
@@ -110,7 +110,9 @@ def _prepare(
         workdir = Path(temporary)
         voice = None
         if settings.narration:
-            voice = narration.for_scene(scene, workdir, voice=settings.narration_voice)
+            voice = narration.fitted(
+                scene, workdir, lambda pace: length(scene, pace), voice=settings.narration_voice
+            )
         else:
             log.info("SVG Reel without narration: narration is off (NARRATION=false)")
         if voice and len(f"{reel_caption}\n\n{narration.CREDIT}") > 2200:

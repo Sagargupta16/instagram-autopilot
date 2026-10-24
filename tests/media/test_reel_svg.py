@@ -144,11 +144,20 @@ def test_compose_is_deterministic(name) -> None:
 
 @pytest.mark.parametrize("name", NAMES)
 def test_animations_share_one_clock(name) -> None:
+    """Every animation runs on the Reel's clock, or (the depth layer) loops from zero for the
+    whole Reel, so any seek lands on the same frame."""
     built = reel(name)
     root = ET.fromstring(built.svg)
     animations = [e for tag in ("animate", "animateTransform") for e in root.iter(f"{NS}{tag}")]
     assert animations
-    for element in [*animations, *root.iter(f"{NS}animateMotion")]:
+    loops = [e for e in animations if e.get("repeatCount")]
+    assert 1 <= len(loops) <= 10  # the floor's zoom and the turning cubes
+    for element in loops:
+        assert element.get("calcMode") == "linear"
+        assert not element.get("begin")
+        dur = float(element.get("dur").removesuffix("s"))
+        assert dur * int(element.get("repeatCount")) >= built.duration
+    for element in [e for e in animations if e not in loops] + [*root.iter(f"{NS}animateMotion")]:
         assert float(element.get("dur").removesuffix("s")) == pytest.approx(built.duration)
         times = [float(t) for t in element.get("keyTimes").split(";")]
         assert times[0] == 0

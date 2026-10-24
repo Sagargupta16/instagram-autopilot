@@ -1,8 +1,7 @@
-name: Daily Instagram Post
+name: Instagram Post
 on:
-  schedule:
-    # Short scheduler ticks; application checks the UTC window and real publish gap.
-    - cron: '7,27,47 4-19 * * *'
+  # On demand only (since 2026-10-24): the owner asks for a Reel ("create one") and the run posts
+  # it at once. The posting window, daily cap and minimum gap still apply in the application.
   workflow_dispatch:
     inputs:
       dry_run:
@@ -20,12 +19,14 @@ on:
         type: boolean
         default: false
       pillar:
-        description: Optional pillar ID (tech-explainer, cool-stats, history-timeline) for the slot this run handles
-        type: string
+        description: Pillar of the Reel to create
+        type: choice
+        options: [cool-stats, tech-explainer, history-timeline, tech-versus, myth-vs-fact]
+        default: cool-stats
       post_now:
-        description: With a pillar, post now instead of waiting for a planned slot (daily cap, gap and window still apply)
+        description: Post now (daily cap, gap and window still apply); off only handles a planned slot
         type: boolean
-        default: false
+        default: true
 concurrency:
   group: instagram-publisher-${{ github.repository }}
   cancel-in-progress: false
