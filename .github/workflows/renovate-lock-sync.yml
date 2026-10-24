@@ -1,0 +1,49 @@
+name: Renovate lock sync
+# requirements.txt is a uv export of uv.lock, but Renovate edits it as a plain pip file and the
+# hosted Renovate app cannot run uv after an update (postUpgradeTasks are not allowlisted for
+# this repository). On a Renovate PR this job relocks what Renovate bumped only in
+# requirements.txt, exports the file again, pushes the result and starts CI on it: a push made
+# with the workflow token starts no workflow by itself. renovate.json lists the commit author in
+# gitIgnoredAuthors so Renovate keeps rebasing and automerging the PR.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+concurrency:
+  group: renovate-lock-sync-${{ github.head_ref }}
+  cancel-in-progress: true
+jobs:
+  sync:
+    name: Sync uv.lock and requirements.txt
+    if: github.event.pull_request.user.login == 'renovate[bot]' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.head_ref }}
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          python-version: '3.14'
+      - name: Relock and export
+        run: bash scripts/sync_requirements.sh
+      - name: Push the sync and start CI on it
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          if git diff --quiet -- uv.lock requirements.txt; then
+            echo "uv.lock and requirements.txt already agree"
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898699+github-actions[bot]@users.noreply.github.com'
+          git add uv.lock requirements.txt
+          git commit -m 'fix(deps): sync uv.lock and requirements.txt'
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/${HEAD_REF}"
+          gh workflow run ci.yml --ref "$HEAD_REF"

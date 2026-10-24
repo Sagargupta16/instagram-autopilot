@@ -3,6 +3,8 @@ on:
   push:
     branches: [main]
   pull_request:
+  # Renovate lock sync dispatches CI on the commit it pushes to a Renovate branch.
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:

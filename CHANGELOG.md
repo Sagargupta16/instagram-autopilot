@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.15.1] - 2026-10-24
+
+### Added
+- Renovate PRs no longer leave `uv.lock` and `requirements.txt` disagreeing. Both 2026-10-24 security PRs failed CI's export check: certifi (#37) was bumped only in `requirements.txt` because Renovate's uv support drops packages that only `uv.lock` holds (renovatebot/renovate#46378, open), and filelock (#42) was pinned to 4.2.1 there while `uv.lock` resolved 4.2.4. Renovate cannot run `uv export` itself on the hosted app (post-upgrade commands need a per-repository allowlist from Renovate's maintainers, who declined a similar request in renovatebot/renovate discussion 46270 and pointed to a check in the repository instead, and the `uvExportRequirements` option is an open PR, renovatebot/renovate#44833). The new "Renovate lock sync" workflow runs on Renovate's PRs: `scripts/sync_requirements.sh` relocks every package whose pin differs from the export and exports `requirements.txt` again, then the job pushes that as `github-actions[bot]` and dispatches CI on it (CI gained `workflow_dispatch`, since a push with the workflow token starts no workflow). `renovate.json` lists that author in `gitIgnoredAuthors` so Renovate keeps rebasing and automerging the PR. Run on the two broken Renovate commits, the script reproduces the hand fixes exactly.
+
 ## [0.15.0] - 2026-10-24
 
 ### Changed
