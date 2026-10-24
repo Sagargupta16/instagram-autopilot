@@ -255,8 +255,9 @@ def test_ambiguous_publish_error_propagates_unwrapped(pipeline) -> None:
 
 def test_callback_failure_propagates_unwrapped(pipeline) -> None:
     pipeline.publish.side_effect = lambda **kwargs: kwargs["before_publish"]("container")
+    checkpoint = Mock(side_effect=OSError("ledger failure"))
     with pytest.raises(OSError, match="ledger failure"):
-        post(dry_run=False, before_publish=Mock(side_effect=OSError("ledger failure")))
+        post(dry_run=False, before_publish=checkpoint)
     pipeline.publish.assert_called_once()
     pipeline.record.assert_not_called()
 
@@ -293,14 +294,16 @@ def test_caption_limit_counts_the_attribution(pipeline, length, fits) -> None:
         assert post(data("steps-cicd"), caption, dry_run=False) == "reel-media"
         assert len(pipeline.publish.call_args.kwargs["caption"]) == 2200
         return
+    steps = data("steps-cicd")
     with pytest.raises(flow.SvgReelError, match="caption limit"):
-        post(data("steps-cicd"), caption, dry_run=False)
+        post(steps, caption, dry_run=False)
     pipeline.render.assert_not_called()
     assert_nothing_posted(pipeline)
 
 
 def test_source_credit_also_counts_toward_the_caption_limit(pipeline) -> None:
     caption = "x" * (2200 - len(f"\n\n{ATTRIBUTION}"))
+    ring = data("stat-ring")
     with pytest.raises(flow.SvgReelError, match="caption limit"):
-        post(data("stat-ring"), caption, dry_run=False)
+        post(ring, caption, dry_run=False)
     pipeline.render.assert_not_called()

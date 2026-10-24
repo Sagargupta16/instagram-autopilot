@@ -9,11 +9,8 @@ import pytest
 
 
 def _ledger(tmp_path):
-    try:
-        module = importlib.import_module("src.state.ledger")
-        storage = importlib.import_module("src.state.local")
-    except ModuleNotFoundError:
-        pytest.fail("A durable publication ledger is required before publishing")
+    module = importlib.import_module("src.state.ledger")  # durable before any publication
+    storage = importlib.import_module("src.state.local")
     return module.Ledger(storage.LocalStore(tmp_path / "state.json"))
 
 
@@ -72,8 +69,9 @@ def test_superseded_worker_cannot_publish_after_lease_recovery(tmp_path):
     key = "2026-09-20|12:00|food"
     assert first.claim(key, now, min_gap_minutes=180)
     assert second.claim(key, now + timedelta(hours=2), min_gap_minutes=180)
+    later = now + timedelta(hours=2)
     with pytest.raises(RuntimeError, match="ownership"):
-        first.before_publish(key, "old-container", now + timedelta(hours=2))
+        first.before_publish(key, "old-container", later)
 
 
 def test_explicit_resolution_releases_uncertain_outcome(tmp_path):
@@ -91,8 +89,9 @@ def test_explicit_resolution_releases_uncertain_outcome(tmp_path):
 def test_corrupt_state_fails_closed(tmp_path):
     (tmp_path / "state.json").write_text('{"slots": "corrupt"}')
     ledger = _ledger(tmp_path)
+    now = datetime.now(UTC)
     with pytest.raises(ValueError, match="state"):
-        ledger.claim("slot", datetime.now(UTC), min_gap_minutes=180)
+        ledger.claim("slot", now, min_gap_minutes=180)
 
 
 def test_generation_retries_have_a_spending_limit(tmp_path):

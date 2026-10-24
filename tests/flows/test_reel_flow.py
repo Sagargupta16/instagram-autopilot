@@ -140,8 +140,9 @@ def test_no_fallback_after_ambiguous_publish(pipeline) -> None:
 
 def test_no_fallback_after_callback_failure(pipeline) -> None:
     pipeline.publish.side_effect = lambda **kwargs: kwargs["before_publish"]("container")
+    checkpoint = Mock(side_effect=OSError("ledger failure"))
     with pytest.raises(OSError):
-        post(dry_run=False, before_publish=Mock(side_effect=OSError("ledger failure")))
+        post(dry_run=False, before_publish=checkpoint)
     pipeline.fallback.assert_not_called()
 
 

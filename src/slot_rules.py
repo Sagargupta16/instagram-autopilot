@@ -1,12 +1,14 @@
-"""Which slot a run may fill: forced pillars, on-demand posts, and slot times already used;
-and which visual look the post gets."""
+"""Which slot a run may fill: forced pillars, on-demand posts, due candidates, the claim and
+slot times already used; and which visual look the post gets."""
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import date, datetime, timedelta
 from typing import Any
 
-from src.state.ledger import MAX_ATTEMPTS
+from src.schedule import SlotPlan, plan_today
+from src.state.ledger import MAX_ATTEMPTS, Ledger
 
 
 def forced_pillar(config: dict[str, Any], pillar_id: str | None) -> dict[str, Any] | None:
@@ -65,3 +67,43 @@ def post_now_refusal(slots: dict[str, Any], now: datetime, cadence: dict[str, An
         allowed = (max(published) + gap).strftime("%H:%M")
         return f"the minimum gap of {cadence['min_gap_minutes']} minutes runs until {allowed} UTC"
     return ""
+
+
+def candidates(
+    config: dict[str, Any],
+    current: datetime,
+    forced: dict[str, Any] | None,
+    *,
+    dry_run: bool,
+    post_now: bool,
+) -> list[SlotPlan]:
+    """Due slots inside the window; with post_now (or a dry-run with none due) this minute."""
+    window = config["cadence"]["window_utc"]
+    due = [
+        slot
+        for slot in plan_today(current.date(), config["cadence"], config["pillars"])
+        if not slot.skip
+        and (
+            dry_run or window["start"] <= slot.time_utc <= current.strftime("%H:%M") < window["end"]
+        )
+    ]
+    if (dry_run and not due) or post_now:
+        due = [SlotPlan(current.strftime("%H:%M"), forced or config["pillars"][0], False)]
+    return [replace(slot, pillar=forced) for slot in due] if forced else due
+
+
+def claimed(
+    ledger: Ledger | None, slots: dict[str, Any], key: str, now: datetime, config: dict[str, Any]
+) -> bool:
+    """Whether this run now owns `key`: no other pillar used the slot time and the ledger claim
+    (cap, gap, attempt budget) succeeded; always in a dry-run."""
+    if slot_time_used(slots, key):
+        return False
+    if ledger is None:
+        return True
+    return ledger.claim(
+        key,
+        now,
+        min_gap_minutes=config["cadence"]["min_gap_minutes"],
+        max_posts_per_day=config["cadence"]["max_posts_per_day"],
+    )

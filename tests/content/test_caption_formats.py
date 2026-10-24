@@ -89,13 +89,13 @@ def test_ungrounded_number_gets_exactly_one_repair(sample_persona: dict[str, Any
     assert shown == json.loads(_reel("62%"))["scene"]
 
 
-def test_second_ungrounded_response_raises(sample_persona: dict[str, Any]) -> None:
+def test_ungrounded_responses_raise_after_two_repairs(sample_persona: dict[str, Any]) -> None:
     with (
         patch("src.content.caption.invoke_claude", return_value=_reel("64%")) as model,
         pytest.raises(ValueError, match="not found there: 64"),
     ):
         generate_caption("Water bills", STAT_PILLAR, sample_persona, sources=EVIDENCE)
-    assert model.call_count == 2
+    assert model.call_count == 3  # the first answer and two repair calls
 
 
 def test_svg_reel_without_sources_cannot_show_a_stat(sample_persona: dict[str, Any]) -> None:
@@ -104,7 +104,7 @@ def test_svg_reel_without_sources_cannot_show_a_stat(sample_persona: dict[str, A
         pytest.raises(ValueError, match="source_index must reference"),
     ):
         generate_caption("Water bills", STAT_PILLAR, sample_persona)
-    assert model.call_count == 2
+    assert model.call_count == 3
 
 
 def test_carousel_prompt_has_no_animated_reel_rules(

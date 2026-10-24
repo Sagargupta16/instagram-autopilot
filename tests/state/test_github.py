@@ -11,10 +11,7 @@ import pytest
 
 
 def _store():
-    try:
-        module = importlib.import_module("src.state.github")
-    except ModuleNotFoundError:
-        pytest.fail("GitHub CAS state must survive runner termination")
+    module = importlib.import_module("src.state.github")  # GitHub CAS state survives the runner
     return module.GitHubStore("owner/repo", "dummy-token")
 
 
@@ -78,7 +75,7 @@ def test_missing_state_creates_a_dedicated_branch():
 
 
 def test_unsafe_repository_or_branch_rejected():
+    module = importlib.import_module("src.state.github")
     for repo, branch in [("../other", "state"), ("owner/repo", "main"), ("owner/repo", "../bad")]:
         with pytest.raises(ValueError):
-            module = importlib.import_module("src.state.github")
             module.GitHubStore(repo, "dummy", branch=branch)

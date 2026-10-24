@@ -12,7 +12,7 @@ import pytest
 from src.content import dedup
 
 
-@pytest.fixture()
+@pytest.fixture
 def tmp_history(tmp_path: Path) -> Iterator[Path]:
     """Redirect dedup module to a temp history file for the test."""
     file = tmp_path / "posted_topics.json"

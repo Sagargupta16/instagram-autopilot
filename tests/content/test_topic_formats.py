@@ -45,22 +45,24 @@ def no_history():
 
 @pytest.mark.parametrize("kind", ["stat", "timeline"])
 def test_numeric_formats_fail_before_any_model_call_without_numbers(kind: str) -> None:
+    pillar = _pillar(kind)
     with (
         patch("src.content.topic.fetch_trending_topics", return_value=[NO_NUMBER]),
         patch("src.content.topic.invoke_claude") as model,
         pytest.raises(ValueError, match=f"No source evidence with numbers or dates for a {kind}"),
     ):
-        topic.generate_topic_brief(_pillar(kind), "stat")
+        topic.generate_topic_brief(pillar, "stat")
     model.assert_not_called()
 
 
 def test_numeric_format_fails_closed_when_trends_fail() -> None:
+    pillar = _pillar("stat")
     with (
         patch("src.content.topic.fetch_trending_topics", side_effect=RuntimeError("down")),
         patch("src.content.topic.invoke_claude") as model,
         pytest.raises(ValueError, match="No source evidence"),
     ):
-        topic.generate_topic_brief(_pillar("stat"), "stat")
+        topic.generate_topic_brief(pillar, "stat")
     model.assert_not_called()
 
 
@@ -81,12 +83,13 @@ def test_stat_choice_without_a_number_is_repaired_once() -> None:
 
 
 def test_stat_choice_without_a_number_fails_after_one_repair() -> None:
+    pillar = _pillar("stat")
     with (
         patch("src.content.topic.fetch_trending_topics", return_value=[NO_NUMBER, WITH_NUMBER]),
         patch("src.content.topic.invoke_claude", return_value=_choice([0])) as model,
         pytest.raises(ValueError, match="a stat Reel needs"),
     ):
-        topic.generate_topic_brief(_pillar("stat"), "stat")
+        topic.generate_topic_brief(pillar, "stat")
     assert model.call_count == 2
 
 
@@ -95,6 +98,7 @@ def test_timeline_rejects_selections_with_fewer_than_four_distinct_dates(
     indices: list[int],
 ) -> None:
     repeated = {"title": "Anniversaries", "excerpt": "1957, 1957 and 1961 again in 1961."}
+    pillar = _pillar("timeline")
     with (
         patch(
             "src.content.topic.fetch_trending_topics",
@@ -103,7 +107,7 @@ def test_timeline_rejects_selections_with_fewer_than_four_distinct_dates(
         patch("src.content.topic.invoke_claude", return_value=_choice(indices)) as model,
         pytest.raises(ValueError, match="at least four dates"),
     ):
-        topic.generate_topic_brief(_pillar("timeline"), "timeline")
+        topic.generate_topic_brief(pillar, "timeline")
     assert model.call_count == 2
 
 
