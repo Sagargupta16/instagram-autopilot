@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.14.1] - 2026-10-24
+
+### Security
+- certifi 2026.7.22 -> 2026.10.23 (GHSA-6q48-6c7w-9gw2, critical, fixed from 2026.10.19): the new bundle drops the emSign root CAs whose intermediate keys were compromised. The Renovate update moved only `requirements.txt`, so CI's export check failed; `uv.lock` and `requirements.txt` now lock the same version.
+
 ## [0.14.0] - 2026-10-24
 
 ### Added
