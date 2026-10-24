@@ -7,7 +7,7 @@ from typing import Any
 import pytest
 
 
-@pytest.fixture()
+@pytest.fixture
 def sample_caption_data(sample_caption_data: dict[str, Any]) -> dict[str, Any]:
     return {
         **sample_caption_data,

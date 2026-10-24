@@ -6,7 +6,13 @@ from decimal import Decimal
 
 import pytest
 
-from src.content.grounding import evidence_text, numbers, published_text, ungrounded
+from src.content.grounding import (
+    evidence_text,
+    numbers,
+    published_text,
+    ungrounded,
+    verified_caption,
+)
 
 
 def test_thousands_separators_are_one_number() -> None:
@@ -118,3 +124,27 @@ def test_scaled_claim_is_not_supported_by_its_bare_figure() -> None:
 
 def test_ungrounded_labels_are_plain_decimals() -> None:
     assert ungrounded(["for every 100 people in 1990"], "") == ["100", "1990"]
+
+
+WATER = [{"title": "U.S. drinking water bills rose 62% in a decade", "excerpt": ""}]
+
+
+def test_salvage_keeps_only_sentences_whose_numbers_the_evidence_holds() -> None:
+    raw = {
+        "caption": "Water bills climbed fast.\n\nThey rose 62% in a decade. That is 2 times wages."
+        "\n\nCheck your bill. https://example.org/2024/x",
+        "scene": {"kind": "stat"},
+    }
+    kept = verified_caption(raw, sources=WATER)
+    assert kept["caption"] == (
+        "Water bills climbed fast.\n\nThey rose 62% in a decade.\n\n"
+        "Check your bill. https://example.org/2024/x"
+    )
+    assert kept["scene"] == raw["scene"]
+
+
+def test_salvage_declines_when_nothing_would_go_or_nothing_would_be_left() -> None:
+    assert verified_caption({"caption": "They rose 62% in a decade."}, sources=WATER) is None
+    assert verified_caption({"caption": "Only 7 are left."}, sources=WATER) is None
+    assert verified_caption({"scene": {}}, sources=WATER) is None
+    assert verified_caption(None, sources=WATER) is None

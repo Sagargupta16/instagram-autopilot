@@ -62,6 +62,8 @@ _WORDS = (
 _WORD = re.compile(r"\b(" + "|".join(_WORDS) + r")\b", re.IGNORECASE)
 _URL = re.compile(r"https?://\S+")
 _HASHTAG = re.compile(r"#\w+")
+_SENTENCE = re.compile(r"(?<=[.!?])\s+")
+_BLANKS = re.compile(r"\n{3,}")
 
 
 def _value(token: str) -> Decimal | None:
@@ -88,28 +90,38 @@ def numbers(text: str, *, raw: bool = False) -> list[Decimal]:
     raw=True also yields each unscaled figure, so evidence reading "2.5 million" supports a
     chart value of 2.5 whose unit is shown separately.
     """
+    found = [value for match in _NUMBER.finditer(text) for value in _figures(text, match, raw)]
+    return found + _spelled(text)
+
+
+def _figures(text: str, match: re.Match[str], raw: bool) -> list[Decimal]:
+    """The digits of one match, with a following thousand, million (...) suffix applied."""
     found: list[Decimal] = []
-    for match in _NUMBER.finditer(text):
-        parts = _parts(match.group())
-        for index, part in enumerate(parts):
-            value = _value(part)
-            if value is None:
-                continue
-            suffix = _SUFFIX.match(text, match.end()) if index == len(parts) - 1 else None
-            group = next((i for i in range(3, 7) if suffix and suffix.group(i)), None)
-            if group is None:
-                found.append(value)
-                continue
-            found.append((value * _SCALE[group]).normalize())
-            if raw:
-                found.append(value)
+    parts = _parts(match.group())
+    for index, part in enumerate(parts):
+        value = _value(part)
+        if value is None:
+            continue
+        suffix = _SUFFIX.match(text, match.end()) if index == len(parts) - 1 else None
+        group = next((i for i in range(3, 7) if suffix and suffix.group(i)), None)
+        if group is None:
+            found.append(value)
+            continue
+        found.append((value * _SCALE[group]).normalize())
+        if raw:
+            found.append(value)
+    return found
+
+
+def _spelled(text: str) -> list[Decimal]:
+    """Number words, skipping a scale word that already scaled the digits before it."""
+    found: list[Decimal] = []
     for match in _WORD.finditer(text):
+        word = match.group().casefold()
         before = text[max(0, match.start() - 2) : match.start()]
-        if match.group().casefold() in {"thousand", "million", "billion", "trillion"} and (
-            re.search(r"\d\s?$", before)
-        ):
+        if word in {"thousand", "million", "billion", "trillion"} and re.search(r"\d\s?$", before):
             continue  # already applied as a suffix
-        found.append(_WORDS[match.group().casefold()].normalize())
+        found.append(_WORDS[word].normalize())
     return found
 
 
@@ -135,3 +147,26 @@ def ungrounded(texts: Iterable[str], evidence: str) -> list[str]:
             if value not in supported and label not in missing:
                 missing.append(label)
     return missing
+
+
+def verified_caption(raw: object, *, sources: list[dict]) -> dict | None:
+    """A copy of model output whose caption keeps only the sentences whose numbers the
+    evidence contains, or None when nothing would go or nothing would be left.
+
+    The last resort after the repair calls: removing a sentence never adds a claim, so what
+    is left can only be verified facts (it must still pass every other check).
+    """
+    if not isinstance(raw, dict) or not isinstance(raw.get("caption"), str):
+        return None
+    evidence = evidence_text(sources)
+    lines, dropped = [], 0
+    for line in raw["caption"].split("\n"):
+        sentences = [part for part in _SENTENCE.split(line) if part.strip()]
+        kept = [part for part in sentences if not ungrounded([published_text(part)], evidence)]
+        dropped += len(sentences) - len(kept)
+        if kept or not sentences:
+            lines.append(" ".join(kept))
+    caption = _BLANKS.sub("\n\n", "\n".join(lines)).strip()
+    if not dropped or not caption:
+        return None
+    return {**raw, "caption": caption}

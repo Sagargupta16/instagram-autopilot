@@ -1,9 +1,20 @@
 # Changelog
 
-## [0.14.3] - 2026-10-24
+## [0.15.1] - 2026-10-24
 
 ### Added
 - Renovate PRs no longer leave `uv.lock` and `requirements.txt` disagreeing. Both 2026-10-24 security PRs failed CI's export check: certifi (#37) was bumped only in `requirements.txt` because Renovate's uv support drops packages that only `uv.lock` holds (renovatebot/renovate#46378, open), and filelock (#42) was pinned to 4.2.1 there while `uv.lock` resolved 4.2.4. Renovate cannot run `uv export` itself on the hosted app (post-upgrade commands need a per-repository allowlist from Renovate's maintainers, who declined a similar request in renovatebot/renovate discussion 46270 and pointed to a check in the repository instead, and the `uvExportRequirements` option is an open PR, renovatebot/renovate#44833). The new "Renovate lock sync" workflow runs on Renovate's PRs: `scripts/sync_requirements.sh` relocks every package whose pin differs from the export and exports `requirements.txt` again, then the job pushes that as `github-actions[bot]` and dispatches CI on it (CI gained `workflow_dispatch`, since a push with the workflow token starts no workflow). `renovate.json` lists that author in `gitIgnoredAuthors` so Renovate keeps rebasing and automerging the PR. Run on the two broken Renovate commits, the script reproduces the hand fixes exactly.
+
+## [0.15.0] - 2026-10-24
+
+### Changed
+- A post is a must. A failure before the publisher boundary now fails only that attempt, and the same run tries the same pillar once more with a fresh topic, then `tech-versus`, then `tech-explainer` (evergreen formats that need no figures), claiming each slot key again so the daily cap, the 180-minute gap, the posting window and the per-key attempt budget still hold (`src/post_attempts.py`). An attempt whose receipt reached the publish checkpoint stops the chain, so a publish call is never repeated. Since 2026-10-10, 9 of the 12 failed runs had ended on a scene still invalid after its one repair call, with nothing trying again that day (2026-10-23 went without a post that way).
+- Only verified facts, with more chances to get there: a Reel scene gets two repair calls instead of one, and when the caption is then the only thing still citing a number the sources do not contain, `grounding.verified_caption` drops the sentences holding it. Removing a sentence never adds a claim, and the reduced caption still has to pass every check; scene figures are never trimmed, that attempt fails and the chain moves on. The 2026-10-23 failure (a caption "2" not in the source) would now have posted without that sentence.
+- The workflow's job timeout is 45 minutes (from 25) to fit the fallback attempts.
+
+### Fixed
+- `apt-get` could stall the ffmpeg install: on 2026-10-24 it hung for 19 minutes and two main-branch CI runs ran out of time before rendering, and the post workflow ran the same step. `scripts/install_ffmpeg.sh` time-boxes each try (3 minutes for `apt-get update`, 5 for the install) and retries three times, in both workflows.
+- 47 of the 48 open SonarCloud findings, without behavior changes: `main.run`, `ledger.claim`, `grounding.numbers`, `source_record`, `_balanced_records` and `sync_history` are split under the cognitive-complexity limit (S3776), a redundant `UnidentifiedImageError` catch is gone (S5713), and the tests build their arguments before `pytest.raises` (S5778, 22), name exact exception types (S5958), split composite assertions (S9073), let a missing module fail naturally (S8714), compare two plans instead of one expression with itself (S5863) and drop empty fixture parentheses (S9083). Left on purpose: S8572 in `main()` would log the full exception chain, which can carry third-party messages and URLs, against the no-credentials-in-logs rule.
 
 ## [0.14.2] - 2026-10-24
 

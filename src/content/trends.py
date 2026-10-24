@@ -110,32 +110,40 @@ def _collect(tasks: list[tuple[str, tuple]]) -> dict[int, list]:
     return results
 
 
-def _balanced_records(
-    tasks: list[tuple[str, tuple]], results: dict[int, list], category: str | None, limit: int
-) -> list[dict[str, str]]:
+def _as_record(item: object, provider: str, category: str | None) -> dict[str, str] | None:
+    if isinstance(item, str):
+        return source_record(item, provider, category or "general")
+    if isinstance(item, dict) and isinstance(item.get("title"), str):
+        return dict(item)
+    return None
+
+
+def _by_provider(
+    tasks: list[tuple[str, tuple]], results: dict[int, list], category: str | None
+) -> dict[str, list[dict[str, str]]]:
     providers: dict[str, list[dict[str, str]]] = {}
     for index, (provider, _) in enumerate(tasks):
         for item in results.get(index, []):
-            if isinstance(item, str):
-                record = source_record(item, provider, category or "general")
-            elif isinstance(item, dict) and isinstance(item.get("title"), str):
-                record = dict(item)
-            else:
-                continue
-            if record["title"].strip():
+            record = _as_record(item, provider, category)
+            if record is not None and record["title"].strip():
                 providers.setdefault(provider, []).append(record)
+    return providers
+
+
+def _balanced_records(
+    tasks: list[tuple[str, tuple]], results: dict[int, list], category: str | None, limit: int
+) -> list[dict[str, str]]:
+    """One record per provider in turn, the first of each normalized title, up to `limit`."""
+    rounds = zip_longest(*_by_provider(tasks, results, category).values())
     selected: list[dict[str, str]] = []
     seen: set[str] = set()
-    for round_items in zip_longest(*providers.values()):
-        for record in round_items:
-            if record is None:
-                continue
-            key = normalize_topic(record["title"])
-            if key and key not in seen:
-                seen.add(key)
-                selected.append(record)
-                if len(selected) == limit:
-                    return selected
+    for record in (record for items in rounds for record in items if record is not None):
+        key = normalize_topic(record["title"])
+        if key and key not in seen:
+            seen.add(key)
+            selected.append(record)
+            if len(selected) == limit:
+                break
     return selected
 
 

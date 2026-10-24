@@ -10,6 +10,25 @@ from src.state.ledger import Ledger
 from src.state.store import update
 
 
+def _legacy_receipt(item: dict[str, Any], key: str) -> dict[str, Any]:
+    """A published receipt for one pre-ledger post, timed from its history entry."""
+    try:
+        timestamp = datetime.fromisoformat(item["ts"])
+        if timestamp.tzinfo is None:
+            timestamp = timestamp.replace(tzinfo=UTC)
+    except (KeyError, ValueError):
+        timestamp = datetime.fromisoformat(key[:10]).replace(hour=23, minute=59, tzinfo=UTC)
+    # Old timestamps precede generation: allow a conservative completion margin.
+    return {
+        "status": "published",
+        "owner": "legacy",
+        "topic": item.get("topic", ""),
+        "started_at": timestamp.isoformat(),
+        "published_at": (timestamp + timedelta(minutes=20)).isoformat(),
+        "legacy_receipt": True,
+    }
+
+
 def sync_history(ledger: Ledger) -> None:
     local = dedup._load_raw()
 
@@ -19,23 +38,8 @@ def sync_history(ledger: Ledger) -> None:
         data["history"] = local[-100:]
         for item in local:
             key = item.get("slot_key")
-            if not key or key in data["slots"]:
-                continue
-            try:
-                timestamp = datetime.fromisoformat(item["ts"])
-                if timestamp.tzinfo is None:
-                    timestamp = timestamp.replace(tzinfo=UTC)
-            except (KeyError, ValueError):
-                timestamp = datetime.fromisoformat(key[:10]).replace(hour=23, minute=59, tzinfo=UTC)
-            # Old timestamps precede generation: allow a conservative completion margin.
-            data["slots"][key] = {
-                "status": "published",
-                "owner": "legacy",
-                "topic": item.get("topic", ""),
-                "started_at": timestamp.isoformat(),
-                "published_at": (timestamp + timedelta(minutes=20)).isoformat(),
-                "legacy_receipt": True,
-            }
+            if key and key not in data["slots"]:
+                data["slots"][key] = _legacy_receipt(item, key)
         data["history_migrated"] = True
 
     update(ledger.store, seed)

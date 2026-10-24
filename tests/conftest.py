@@ -28,13 +28,13 @@ os.environ.setdefault("CLOUDINARY_API_KEY", "test-cloudinary-key")
 os.environ.setdefault("CLOUDINARY_API_SECRET", "test-cloudinary-secret")
 
 
-@pytest.fixture()
+@pytest.fixture
 def sample_config() -> dict[str, Any]:
     config_path = Path(__file__).resolve().parent.parent / "config.json"
     return json.loads(config_path.read_text())
 
 
-@pytest.fixture()
+@pytest.fixture
 def sample_pillar() -> dict[str, Any]:
     return {
         "id": "cognitive_biases",
@@ -46,7 +46,7 @@ def sample_pillar() -> dict[str, Any]:
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def sample_persona() -> dict[str, Any]:
     return {
         "name": "Psychology Insider",
@@ -55,7 +55,7 @@ def sample_persona() -> dict[str, Any]:
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def sample_caption_data() -> dict[str, Any]:
     return {
         "caption": "Here's something most people get wrong about memory...\n\nYour brain doesn't store memories like a camera.",

@@ -5,7 +5,7 @@ from __future__ import annotations
 import io
 import warnings
 
-from PIL import Image, ImageOps, UnidentifiedImageError
+from PIL import Image, ImageOps
 
 PORTRAIT_SIZE = (1080, 1350)
 MAX_INPUT_BYTES = 20_000_000
@@ -28,9 +28,8 @@ def decode_image(data: bytes) -> Image.Image:
                     raise ValueError("Image pixel count exceeds limit")
                 source.load()
                 return ImageOps.exif_transpose(source).copy()
-    except (
+    except (  # PIL's UnidentifiedImageError is an OSError
         OSError,
-        UnidentifiedImageError,
         Image.DecompressionBombWarning,
         Image.DecompressionBombError,
     ) as error:

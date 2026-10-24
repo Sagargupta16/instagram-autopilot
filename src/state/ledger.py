@@ -31,26 +31,19 @@ class Ledger:
             self._prune(data, now)
             slots = data["slots"]
             existing = slots.get(key, {})
-            if existing.get("status") in {"published", "publishing", "uncertain"}:
+            finished = existing.get("status") in {"published", "publishing", "uncertain"}
+            if finished or existing.get("attempts", 0) >= MAX_ATTEMPTS:
                 return False
-            if existing.get("attempts", 0) >= MAX_ATTEMPTS:
-                return False
+            today = now.date().isoformat()
             daily_count = sum(
-                entry["status"] == "published" and slot_key.startswith(now.date().isoformat())
+                entry["status"] == "published" and slot_key.startswith(today)
                 for slot_key, entry in slots.items()
             )
-            if daily_count >= max_posts_per_day:
+            gap = timedelta(minutes=min_gap_minutes)
+            if daily_count >= max_posts_per_day or any(
+                self._holds_back(entry, now, gap) for entry in slots.values()
+            ):
                 return False
-            for entry in slots.values():
-                status = entry["status"]
-                if status in {"publishing", "uncertain"}:
-                    return False
-                if status == "preparing" and datetime.fromisoformat(entry["lease_until"]) > now:
-                    return False
-                if status == "published":
-                    published = datetime.fromisoformat(entry["published_at"])
-                    if now - published < timedelta(minutes=min_gap_minutes):
-                        return False
             slots[key] = {
                 "status": "preparing",
                 "owner": self.owner,
@@ -61,6 +54,19 @@ class Ledger:
             return True
 
         return update(self.store, mutate)
+
+    @staticmethod
+    def _holds_back(entry: dict[str, Any], now: datetime, gap: timedelta) -> bool:
+        """An entry that rules out a new claim: a publication in flight, a live preparation
+        lease, or a post inside the minimum gap."""
+        status = entry["status"]
+        if status in {"publishing", "uncertain"}:
+            return True
+        if status == "preparing":
+            return datetime.fromisoformat(entry["lease_until"]) > now
+        if status == "published":
+            return now - datetime.fromisoformat(entry["published_at"]) < gap
+        return False
 
     @staticmethod
     def _expire_preparation(data: dict[str, Any], now: datetime) -> None:

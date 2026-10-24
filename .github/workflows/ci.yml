@@ -52,9 +52,7 @@ jobs:
       - name: Install locked runtime
         run: uv sync --frozen --no-dev --no-build
       - name: Install ffmpeg
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
+        run: bash scripts/install_ffmpeg.sh
       - name: Restore the licensed audio library
         id: audio-library
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0

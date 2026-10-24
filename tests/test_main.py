@@ -9,7 +9,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from src import main
+from src import main, slot_rules
 from src.content import dedup
 from src.flows import svg_reel_flow
 from src.media.reel_svg import Reel
@@ -44,7 +44,7 @@ def runner(monkeypatch, tmp_path, sample_config, sample_caption_data):
     monkeypatch.setattr(dedup, "DATA_DIR", tmp_path)
     monkeypatch.setattr(dedup, "POSTED_TOPICS_FILE", tmp_path / "topics.json")
     slots = [SlotPlan("10:00", sample_config["pillars"][0], False)]
-    monkeypatch.setattr(main, "plan_today", lambda *args: slots)
+    monkeypatch.setattr(slot_rules, "plan_today", lambda *args: slots)
     return ledger, slots
 
 
@@ -118,8 +118,9 @@ def test_publish_timeout_remains_uncertain_and_blocks_retry(runner, monkeypatch)
         main.run(now=NOW)
     key = f"2026-09-20|10:00|{slots[0].pillar['id']}"
     assert ledger.get(key)["status"] == "uncertain"
+    later = NOW + timedelta(hours=4)
     with pytest.raises(RuntimeError, match="reconcil"):
-        main.run(now=NOW + timedelta(hours=4))
+        main.run(now=later)
 
 
 def test_preview_works_even_on_a_day_without_scheduled_posts(runner, monkeypatch):
@@ -271,8 +272,9 @@ def summary():
 
 def test_post_now_is_refused_inside_the_minimum_gap(runner, flows):
     main.run(now=NOW, pillar_id="cool-stats", post_now=True)
+    soon = NOW + timedelta(minutes=20)
     with pytest.raises(RuntimeError, match=r"^Post-now refused: the minimum gap"):
-        main.run(now=NOW + timedelta(minutes=20), pillar_id="cool-stats", post_now=True)
+        main.run(now=soon, pillar_id="cool-stats", post_now=True)
     assert flows[0].call_count == 1
     assert summary()["status"] == "refused"
     assert "minimum gap" in summary()["reason"]
@@ -296,8 +298,9 @@ def test_post_now_is_refused_at_the_daily_cap(runner, flows, sample_config):
 
 def test_post_now_is_refused_outside_the_window_or_when_owned(runner, flows):
     ledger, _ = runner
+    late = NOW.replace(hour=21)
     with pytest.raises(RuntimeError, match=r"^Post-now refused: outside the posting window"):
-        main.run(now=NOW.replace(hour=21), pillar_id="cool-stats", post_now=True)
+        main.run(now=late, pillar_id="cool-stats", post_now=True)
     assert ledger.claim("2026-09-20|11:55|tech-explainer", NOW, min_gap_minutes=60)
     with pytest.raises(RuntimeError, match=r"^Post-now refused: slot .* owned by another run"):
         main.run(now=NOW, pillar_id="cool-stats", post_now=True)

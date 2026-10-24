@@ -36,10 +36,9 @@ def test_bake_builds_correct_ffmpeg_command_for_5s(tmp_path: Path) -> None:
 
     cmd = mock_run.call_args[0][0]
     assert cmd[0] == "ffmpeg"
-    assert "-c:v" in cmd and cmd[cmd.index("-c:v") + 1] == "copy"
-    assert "-c:a" in cmd and cmd[cmd.index("-c:a") + 1] == "aac"
-    assert "-b:a" in cmd and cmd[cmd.index("-b:a") + 1] == "128k"
-    assert "-ar" in cmd and cmd[cmd.index("-ar") + 1] == "48000"
+    for flag, value in (("-c:v", "copy"), ("-c:a", "aac"), ("-b:a", "128k"), ("-ar", "48000")):
+        assert flag in cmd
+        assert cmd[cmd.index(flag) + 1] == value
     joined = " ".join(cmd)
     assert "afade=t=in:st=0:d=0.5" in joined
     assert "afade=t=out:st=4.5:d=0.5" in joined

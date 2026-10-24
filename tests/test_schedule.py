@@ -51,7 +51,9 @@ _CADENCE_N2 = {
 
 def test_plan_today_deterministic_per_date() -> None:
     d = date(2026, 7, 3)
-    assert plan_today(d, _CADENCE_N2, _PILLARS) == plan_today(d, _CADENCE_N2, _PILLARS)
+    first = plan_today(d, _CADENCE_N2, _PILLARS)
+    again = plan_today(d, _CADENCE_N2, _PILLARS)
+    assert first == again
 
 
 def test_plan_today_differs_across_dates() -> None:
