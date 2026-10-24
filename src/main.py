@@ -7,10 +7,10 @@ import logging
 import random
 import sys
 from collections.abc import Callable
-from dataclasses import replace
 from datetime import UTC, datetime
 from typing import Any
 
+from src import post_attempts
 from src.adapters import bedrock, cloudinary_host, composio
 from src.content.caption import generate_caption
 from src.content.dedup import record_post
@@ -22,9 +22,9 @@ from src.flows.svg_reel_flow import post_svg_reel
 from src.media.svg_look import LOOKS
 from src.pillar import load_config
 from src.run_report import write_summary
-from src.schedule import SlotPlan, plan_today
+from src.schedule import SlotPlan
 from src.settings import settings
-from src.slot_rules import forced_pillar, next_look, post_now_refusal, slot_time_used
+from src.slot_rules import candidates, claimed, forced_pillar, next_look, post_now_refusal
 from src.state.factory import create_ledger
 from src.state.history import sync_history
 from src.state.ledger import MAX_ATTEMPTS, Ledger
@@ -100,103 +100,76 @@ def _refuse(reason: str) -> None:
     raise RuntimeError(f"Post-now refused: {reason}")
 
 
-def run(
-    *,
-    dry_run: bool = False,
-    now: datetime | None = None,
-    pillar_id: str | None = None,
-    post_now: bool = False,
-) -> dict[str, Any]:
-    """pillar_id swaps the content pillar of the slot this tick handles; never the timing.
-
-    post_now (with pillar_id) is the one exception to waiting for a planned slot: the current
-    minute becomes the only candidate, and the window, cap, gap and ledger claim still apply.
-    """
-    if now is not None and now.tzinfo is None:
-        raise ValueError("Scheduling requires a timezone-aware UTC time")
-    clock = (lambda: now.astimezone(UTC)) if now else (lambda: datetime.now(UTC))
-    current = clock()
-    config = load_config()
-    forced = forced_pillar(config, pillar_id)
-    if post_now and forced is None:
-        raise ValueError("Post-now requires a pillar ID")
-    plan = plan_today(current.date(), config["cadence"], config["pillars"])
-    window = config["cadence"]["window_utc"]
-    candidates = [
-        slot
-        for slot in plan
-        if not slot.skip
-        and (
-            dry_run or window["start"] <= slot.time_utc <= current.strftime("%H:%M") < window["end"]
-        )
+def _open_ledger(
+    current: datetime, config: dict[str, Any], *, dry_run: bool, post_now: bool
+) -> tuple[Ledger | None, dict[str, Any]]:
+    """The shared ledger and its slots; refuses while a publication is unresolved."""
+    if dry_run:
+        return None, {}
+    ledger = create_ledger()
+    sync_history(ledger)
+    slots = ledger.snapshot()["slots"]
+    unresolved = [
+        key for key, value in slots.items() if value["status"] in {"publishing", "uncertain"}
     ]
-    if (dry_run and not candidates) or post_now:
-        candidates = [SlotPlan(current.strftime("%H:%M"), forced or config["pillars"][0], False)]
-    if forced:
-        candidates = [replace(slot, pillar=forced) for slot in candidates]
-    if not candidates:
-        result = {"status": "skipped", "reason": "No due slots inside today's posting window"}
-        write_summary(result)
-        return result
-    ledger = None if dry_run else create_ledger()
-    slots: dict[str, Any] = {}
-    if ledger:
-        sync_history(ledger)
-        slots = ledger.snapshot()["slots"]
-        unresolved = [
-            key for key, value in slots.items() if value["status"] in {"publishing", "uncertain"}
-        ]
-        if unresolved:
-            write_summary({"status": "needs_reconciliation", "slots": unresolved})
-            raise RuntimeError("Publication requires reconciliation before another post")
-        if post_now and (reason := post_now_refusal(slots, current, config["cadence"])):
-            _refuse(reason)
-    look = next_look(slots, len(LOOKS), current.date())
-    for slot in candidates:
-        key = f"{current.date().isoformat()}|{slot.time_utc}|{slot.pillar['id']}"
-        claimed = not slot_time_used(slots, key) and (
-            not ledger
-            or ledger.claim(
-                key,
-                current,
-                min_gap_minutes=config["cadence"]["min_gap_minutes"],
-                max_posts_per_day=config["cadence"]["max_posts_per_day"],
-            )
+    if unresolved:
+        write_summary({"status": "needs_reconciliation", "slots": unresolved})
+        raise RuntimeError("Publication requires reconciliation before another post")
+    if post_now and (reason := post_now_refusal(slots, current, config["cadence"])):
+        _refuse(reason)
+    return ledger, slots
+
+
+def _failed(key: str, error: BaseException, dry_run: bool) -> RuntimeError:
+    write_summary({"status": "failed", "slot": key, "error": type(error).__name__})
+    if dry_run:
+        return RuntimeError("Preview failed; see generation logs. Nothing was published.")
+    return RuntimeError(f"Publication failed for {key}; inspect the durable receipt")
+
+
+def _post_claimed(
+    slot: SlotPlan,
+    key: str,
+    config: dict[str, Any],
+    ledger: Ledger | None,
+    *,
+    clock: Callable[[], datetime],
+    dry_run: bool,
+    look: int,
+) -> dict[str, Any]:
+    """Post a claimed slot; a failure before publishing moves on to the next attempt (a fresh
+    topic, then the evergreen pillars) until one posts or the plan runs out."""
+    try:
+        cloudinary_host.configure()
+        _preflight_all_auth(config["models"]["text"], dry_run=dry_run)
+        key, media_id = post_attempts.post(
+            slot,
+            key,
+            attempt=lambda chosen, slot_key: _run_slot(
+                chosen, config, dry_run=dry_run, ledger=ledger, key=slot_key, clock=clock, look=look
+            ),
+            ledger=ledger,
+            config=config,
+            clock=clock,
         )
-        if not claimed and post_now:
-            _refuse(f"slot {key} is already handled or owned by another run")
-        if not claimed:
-            continue
-        try:
-            cloudinary_host.configure()
-            _preflight_all_auth(config["models"]["text"], dry_run=dry_run)
-            media_id = _run_slot(
-                slot, config, dry_run=dry_run, ledger=ledger, key=key, clock=clock, look=look
-            )
-            if ledger:
-                ledger.complete(key, media_id, clock())
-            result = {
-                "status": "preview" if dry_run else "published",
-                "slot": key,
-                "media_id": media_id,
-            }
-            write_summary(result)
-            return result
-        except Exception as error:
-            if ledger:
-                ledger.fail(key, type(error).__name__, clock())
-            write_summary({"status": "failed", "slot": key, "error": type(error).__name__})
-            if dry_run:
-                raise RuntimeError(
-                    "Preview failed; see generation logs. Nothing was published."
-                ) from error
-            raise RuntimeError(
-                f"Publication failed for {key}; inspect the durable receipt"
-            ) from error
+        if ledger:
+            ledger.complete(key, media_id, clock())
+    except post_attempts.Failed as failure:  # every receipt is already settled as failed
+        raise _failed(failure.key, failure.__cause__ or failure, dry_run) from failure
+    except Exception as error:
+        if ledger:
+            ledger.fail(key, type(error).__name__, clock())
+        raise _failed(key, error, dry_run) from error
+    result = {"status": "preview" if dry_run else "published", "slot": key, "media_id": media_id}
+    write_summary(result)
+    return result
+
+
+def _nothing_posted(ledger: Ledger | None, today: str) -> dict[str, Any]:
     exhausted = ledger and any(
         entry["status"] == "failed" and entry.get("attempts", 0) >= MAX_ATTEMPTS
         for key, entry in ledger.snapshot()["slots"].items()
-        if key.startswith(current.date().isoformat())
+        if key.startswith(today)
     )
     if exhausted:
         write_summary({"status": "failed", "reason": "Daily slot retry budget exhausted"})
@@ -207,6 +180,43 @@ def run(
     }
     write_summary(result)
     return result
+
+
+def run(
+    *,
+    dry_run: bool = False,
+    now: datetime | None = None,
+    pillar_id: str | None = None,
+    post_now: bool = False,
+) -> dict[str, Any]:
+    """pillar_id swaps the content pillar of the slot this run handles; never the timing.
+
+    post_now (with pillar_id) is the one exception to waiting for a planned slot: the current
+    minute becomes the only candidate, and the window, cap, gap and ledger claim still apply.
+    A claimed slot then tries until it posts (`post_attempts`).
+    """
+    if now is not None and now.tzinfo is None:
+        raise ValueError("Scheduling requires a timezone-aware UTC time")
+    clock = (lambda: now.astimezone(UTC)) if now else (lambda: datetime.now(UTC))
+    current = clock()
+    config = load_config()
+    forced = forced_pillar(config, pillar_id)
+    if post_now and forced is None:
+        raise ValueError("Post-now requires a pillar ID")
+    due = candidates(config, current, forced, dry_run=dry_run, post_now=post_now)
+    if not due:
+        result = {"status": "skipped", "reason": "No due slots inside today's posting window"}
+        write_summary(result)
+        return result
+    ledger, slots = _open_ledger(current, config, dry_run=dry_run, post_now=post_now)
+    look = next_look(slots, len(LOOKS), current.date())
+    for slot in due:
+        key = f"{current.date().isoformat()}|{slot.time_utc}|{slot.pillar['id']}"
+        if claimed(ledger, slots, key, current, config):
+            return _post_claimed(slot, key, config, ledger, clock=clock, dry_run=dry_run, look=look)
+        if post_now:
+            _refuse(f"slot {key} is already handled or owned by another run")
+    return _nothing_posted(ledger, current.date().isoformat())
 
 
 def main() -> None:

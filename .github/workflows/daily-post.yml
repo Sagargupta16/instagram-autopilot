@@ -36,7 +36,7 @@ jobs:
   post:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 45  # room for the fallback attempts a post may need (fresh topic, evergreen pillar)
     permissions:
       contents: write
     steps:
@@ -110,7 +110,7 @@ jobs:
       - name: Install ffmpeg when Reels are enabled
         run: |
           if uv run --frozen --no-dev --no-build python -c 'from src.pillar import load_config; raise SystemExit(not any(p["content_format"] in {"reel", "svg_reel"} for p in load_config()["pillars"]))'; then
-            sudo apt-get update && sudo apt-get install -y ffmpeg
+            bash scripts/install_ffmpeg.sh
           fi
       - name: Check the browser that renders SVG Reels
         run: |

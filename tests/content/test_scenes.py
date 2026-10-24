@@ -163,10 +163,9 @@ def test_series_length_bounds(field: str, count: int, ok: bool) -> None:
 @pytest.mark.parametrize(("variant", "field"), [("bars", "bars"), ("line", "points")])
 def test_series_labels_must_be_distinct_ignoring_case(variant: str, field: str) -> None:
     items = [{"label": "Rail", "value": "1"}, {"label": "RAIL", "value": "2"}]
+    scene = _stat(variant, **{field: [*items, {"label": "Bus", "value": "3"}]})
     with pytest.raises(ValidationError, match="labels must be distinct"):
-        StatScene.model_validate(
-            _stat(variant, **{field: [*items, {"label": "Bus", "value": "3"}]})
-        )
+        StatScene.model_validate(scene)
 
 
 @pytest.mark.parametrize(
@@ -179,8 +178,9 @@ def test_series_labels_must_be_distinct_ignoring_case(variant: str, field: str) 
     ],
 )
 def test_variant_must_omit_other_variants_fields(variant: str, extra: dict[str, Any]) -> None:
+    scene = _stat(variant, **extra)
     with pytest.raises(ValidationError, match=f"variant {variant} must omit {next(iter(extra))}"):
-        StatScene.model_validate(_stat(variant, **extra))
+        StatScene.model_validate(scene)
 
 
 @pytest.mark.parametrize(
@@ -225,7 +225,7 @@ def test_timeline_source_line_lists_up_to_two_publications_and_steps_have_none()
     assert source_line(_steps(), sources) is None
 
 
-@pytest.fixture()
+@pytest.fixture
 def reel(sample_caption_data: dict[str, Any]) -> dict[str, Any]:
     """The publishing fields an SVG Reel keeps from the caption fixture."""
     return {key: sample_caption_data[key] for key in ("caption", "hashtags", "x_post")}
@@ -245,8 +245,9 @@ def _check(raw: dict, kind: str = "stat", sources: list[dict] | None = None):
     ],
 )
 def test_ring_is_refused_for_a_change(context: str) -> None:
+    scene = _stat("ring", context=context)
     with pytest.raises(ValidationError, match="ring shows a share of a whole"):
-        StatScene.model_validate(_stat("ring", context=context))
+        StatScene.model_validate(scene)
 
 
 def test_ring_still_takes_a_share_of_a_whole() -> None:
@@ -266,8 +267,9 @@ def test_grounded_stat_scene_passes(reel: dict[str, Any]) -> None:
 
 
 def test_hallucinated_number_is_rejected(reel: dict[str, Any]) -> None:
+    invented = {**reel, "scene": _stat(value="64%")}
     with pytest.raises(ValueError, match=r"cited source text; not found there: 64\.") as error:
-        _check({**reel, "scene": _stat(value="64%")})
+        _check(invented)
     assert not isinstance(error.value, ValidationError)
 
 
@@ -285,16 +287,18 @@ def test_commentary_about_the_source_triggers_a_repair(reel: dict[str, Any]) -> 
 
 
 def test_number_must_be_in_the_cited_source_not_just_any_source(reel: dict[str, Any]) -> None:
+    uncited = {**reel, "scene": _stat(value="64%")}
     with pytest.raises(ValueError, match=r"not found there: 64\."):
-        _check({**reel, "scene": _stat(value="64%")}, sources=[WATER, POWER])
+        _check(uncited, sources=[WATER, POWER])
     content = _check({**reel, "scene": _stat(value="64%", source_index=1)}, sources=[WATER, POWER])
     assert content.scene.source_index == 1
 
 
 @pytest.mark.parametrize("index", [1, 2])
 def test_source_index_must_reference_a_supplied_record(reel: dict[str, Any], index: int) -> None:
+    outside = {**reel, "scene": _stat(source_index=index)}
     with pytest.raises(ValueError, match="source_index must reference a supplied source record"):
-        _check({**reel, "scene": _stat(source_index=index)})
+        _check(outside)
 
 
 def test_caption_figures_must_be_in_evidence_but_links_and_tags_are_ignored(
@@ -354,8 +358,9 @@ def test_scene_too_long_for_the_layout_is_a_value_error(reel: dict[str, Any]) ->
 
 
 def test_schema_and_grounding_errors_are_reported_together(reel: dict[str, Any]) -> None:
+    broken = {**reel, "scene": _stat(value="64%", headline="h" * 49)}
     with pytest.raises(ValueError) as error:
-        _check({**reel, "scene": _stat(value="64%", headline="h" * 49)})
+        _check(broken)
     message = str(error.value)
     assert "scene.stat.headline" in message
     assert "Also: every number and date in the scene" in message
@@ -368,5 +373,6 @@ def test_schema_and_grounding_errors_are_reported_together(reel: dict[str, Any])
     ["image_prompts", "alt_texts", "slide_notes", "video_prompt", "audio_theme", "location_query"],
 )
 def test_photo_fields_are_rejected(reel: dict, sample_caption_data: dict, field: str) -> None:
+    photo = {**reel, "scene": _stat(), field: sample_caption_data[field]}
     with pytest.raises(ValidationError, match="Extra inputs are not permitted"):
-        _check({**reel, "scene": _stat(), field: sample_caption_data[field]})
+        _check(photo)

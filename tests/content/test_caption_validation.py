@@ -8,6 +8,7 @@ from unittest.mock import patch
 import pytest
 
 from src.content.caption import generate_caption
+from src.content.validation import generate_validated
 
 
 @pytest.fixture(autouse=True)
@@ -168,3 +169,32 @@ def test_combined_instagram_limit(
         else:
             with pytest.raises(ValueError):
                 generate_caption("Useful guide", sample_pillar, sample_persona)
+
+
+def _strict(raw: object) -> dict:
+    if not isinstance(raw, dict) or "2" in raw["caption"]:
+        raise ValueError("the caption may only use numbers in the evidence; not found there: 2")
+    return raw
+
+
+def test_the_salvage_runs_only_after_every_repair_fails() -> None:
+    calls = []
+
+    def invoke(prompt: str) -> str:
+        calls.append(prompt)
+        return json.dumps({"caption": "Bills rose. That is 2 times wages."})
+
+    def salvage(raw: object) -> dict:
+        return {"caption": raw["caption"].split(" That")[0]}
+
+    result = generate_validated("p", invoke, _strict, repairs=2, salvage=salvage)
+    assert result == {"caption": "Bills rose."}
+    assert len(calls) == 3
+
+
+def test_a_declined_salvage_raises_the_last_validation_error() -> None:
+    def invoke(prompt: str) -> str:
+        return json.dumps({"caption": "That is 2 times wages."})
+
+    with pytest.raises(ValueError, match="not found there: 2"):
+        generate_validated("p", invoke, _strict, repairs=1, salvage=lambda raw: None)

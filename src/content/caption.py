@@ -10,6 +10,7 @@ from typing import Any
 
 from src.adapters.bedrock import invoke_claude
 from src.content.dedup import load_recent_image_prompts
+from src.content.grounding import verified_caption
 from src.content.scenes import validate_svg_content
 from src.content.schemas import CaptionContent
 from src.content.validation import generate_validated
@@ -18,6 +19,7 @@ from src.pillar import load_config, scene_kind
 from src.settings import settings
 
 log = logging.getLogger(__name__)
+SCENE_REPAIRS = 2  # repair calls before the caption salvage and the run's fallbacks
 
 PROMPT_PATH = Path(__file__).resolve().parent.parent.parent / "prompts" / "caption.txt"
 SVG_PROMPT_PATH = PROMPT_PATH.parent / "svg_caption.txt"
@@ -102,6 +104,8 @@ def _scene_caption(
         prompt,
         lambda text: invoke_claude(config["models"]["text"], text, max_tokens=3000),
         partial(validate_svg_content, kind=kind, sources=sources),
+        repairs=SCENE_REPAIRS,
+        salvage=partial(verified_caption, sources=sources),
     )
     data = content.model_dump()
     log.info("Generated %s scene and caption (%d chars)", kind, len(data["caption"]))
