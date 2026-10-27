@@ -105,7 +105,7 @@ Required repository secrets:
 
 Optional: `META_USER_ACCESS_TOKEN` for location lookup, `GUARDIAN_API_KEY` for that discovery source (the public `test` key is rejected), and the Luma credentials described below. `NICHE`, `CONTENT_TYPES` and `ALLOW_SILENT_REELS` may be set as repository variables.
 
-**Run workflow** accepts `dry_run`, `pillar` (a choice of the five pillars, default `cool-stats`) and `post_now` (default on) in addition to the reconciliation inputs. The workflow installs `ffmpeg` with `scripts/install_ffmpeg.sh` (each `apt-get` try is time-boxed and retried three times; a stalled mirror once hung it for 19 minutes) and uses the runner's preinstalled Google Chrome; a missing browser is reported as a warning and SVG Reels are skipped.
+**Run workflow** accepts `dry_run`, `pillar` (a choice of the five pillars, default `cool-stats`) and `post_now` (default on) in addition to the reconciliation inputs. The workflow installs `ffmpeg` with `scripts/install_ffmpeg.sh` (each `apt-get` try is time-boxed and retried three times, and a retry skips the runner's Azure mirror for Canonical's archive; a stalled mirror once hung it for 19 minutes) and uses the runner's preinstalled Google Chrome; a missing browser is reported as a warning and SVG Reels are skipped.
 
 ### Creating a Reel on demand
 
