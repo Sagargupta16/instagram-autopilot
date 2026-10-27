@@ -1,7 +1,12 @@
 name: Instagram Post
 on:
-  # On demand only (since 2026-10-24): the owner asks for a Reel ("create one") and the run posts
-  # it at once. The posting window, daily cap and minimum gap still apply in the application.
+  # Short scheduler ticks fill the day's planned slots; GitHub fires only a few of them (about
+  # four a day), late, so the application checks the UTC window and the real publish gap. Back
+  # since 2026-10-27: on demand alone left the account three days without a post.
+  schedule:
+    - cron: '7,27,47 4-19 * * *'
+  # On demand: the owner asks for a Reel ("create one") and the run posts it at once. A scheduled
+  # run gets no inputs, so it never posts now; the window, daily cap and gap apply to both.
   workflow_dispatch:
     inputs:
       dry_run:

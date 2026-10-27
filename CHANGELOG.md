@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.16.0] - 2026-10-27
+
+### Changed
+- The "Instagram Post" workflow runs on its schedule again (`7,27,47 4-19 * * *`), alongside on demand. 0.14.0 removed the cron so that every Reel would be asked for ("create one"); nobody asked after the 2026-10-24 12:47 UTC post, and the account went three days without one. A scheduled run gets no inputs (a 2026-10-23 scheduled run's log shows `POST_NOW` and `PILLAR` empty), so it fills the day's planned slot with the same plan, daily cap, gap and window as before 0.14.0 and never posts now; a dispatch with a pillar still posts at once. Under the old schedule the account got 17 posts in the 12 days from 2026-10-11 to 2026-10-22, and 3 of the 4 empty days since 2026-10-12 were failed attempts, which 0.15.0's fallback chain now retries in the same run.
+
+### Fixed
+- The pipeline diagram said "on demand" and "one repair call" (two since 0.15.0), and 9 of its 53 code citations pointed at lines that had moved; `orrery verify` finds all 56 now.
+
 ## [0.15.1] - 2026-10-24
 
 ### Added
