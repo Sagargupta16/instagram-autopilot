@@ -3,7 +3,7 @@
 #   orrery render docs/diagrams/pipeline.yaml -o docs/diagrams/pipeline -f svg --theme both
 # Reviewed at README width: orrery review docs/diagrams/pipeline.yaml --width 880
 title: instagram-autopilot pipeline
-subtitle: One run per ask, at most one Reel. Every number on screen must appear in the fetched sources.
+subtitle: One run per due slot or ask, at most one Reel. Every number on screen must appear in the fetched sources.
 direction: down
 layout: { spacing: compact }
 legend:
@@ -11,12 +11,12 @@ legend:
 
 groups:
   sources: { type: internet, label: Evidence sources, cols: 4, evidence: "src/content/trends.py:62#_tasks" }
-  runner: { type: zone, label: "Actions runner: python -m src.main", icon: logos:python, evidence: ".github/workflows/daily-post.yml:144#src.main" }
+  runner: { type: zone, label: "Actions runner: python -m src.main", icon: logos:python, evidence: ".github/workflows/daily-post.yml:149#src.main" }
   render: { type: dashed, label: Render, cols: 4, in: runner, evidence: "src/flows/svg_reel_flow.py:93#_prepare" }
   aws: { type: aws:cloud, evidence: "src/adapters/bedrock.py:17#amazonaws.com" }
 
 nodes:
-  cron: { icon: logos:github-actions, label: Instagram Post, note: "on demand, 04:00-20:00 UTC", evidence: ".github/workflows/daily-post.yml:5#workflow_dispatch" }
+  cron: { icon: logos:github-actions, label: Instagram Post, note: "schedule + on demand, 04:00-20:00 UTC", evidence: [".github/workflows/daily-post.yml:6#schedule", ".github/workflows/daily-post.yml:10#workflow_dispatch"] }
   gnews: { icon: si:googlenews, label: Google News, size: md, in: sources, evidence: "src/adapters/google_news.py:23#fetch_headlines" }
   guardian: { icon: si:theguardian, label: Guardian, size: md, in: sources, evidence: "src/adapters/guardian.py:22#fetch_articles" }
   hn: { icon: logos:ycombinator, label: Hacker News, size: md, in: sources, evidence: "src/adapters/hackernews.py:12#search_stories" }
@@ -25,10 +25,10 @@ nodes:
   ghsearch: { icon: logos:github-icon, label: GitHub search, size: md, in: sources, evidence: "src/adapters/github_trending.py:18#fetch_trending" }
   lemmy: { icon: ph:fediverse-logo, label: Lemmy, size: md, in: sources, evidence: "src/adapters/lemmy.py:51#fetch_hot_posts" }
   wiki: { icon: si:wikipedia, label: Wikipedia, size: md, in: sources, evidence: "src/adapters/wikipedia.py:108#fetch_top_articles_with_extracts" }
-  claim: { icon: tabler:calendar-clock, label: Claim the slot, note: "this minute, cap and gap", in: runner, evidence: "src/main.py:159#claim" }
+  claim: { icon: tabler:calendar-clock, label: Claim the slot, note: "due slot or now, cap and gap", in: runner, evidence: "src/main.py:215#claimed" }
   fetch: { icon: tabler:news, label: Fetch evidence, note: + recent topics, in: runner, align: claim, evidence: "src/content/topic.py:49#fetch_trending_topics" }
   bedrock: { icon: aws:bedrock, label: Amazon Bedrock, note: "Claude: topic, scene", in: aws, evidence: ["src/adapters/bedrock.py:17#INVOKE_URL", "config.json:85#text"] }
-  gate: { icon: tabler:shield-check, label: Grounding gate, note: one repair call, in: runner, evidence: ["src/content/scenes.py:271#validate_svg_content", "src/content/grounding.py:128#ungrounded"] }
+  gate: { icon: tabler:shield-check, label: Grounding gate, note: two repair calls, in: runner, evidence: ["src/content/scenes.py:271#validate_svg_content", "src/content/grounding.py:140#ungrounded", "src/content/caption.py:22#SCENE_REPAIRS"] }
   svg: { icon: tabler:svg, label: SMIL SVG, note: "1080x1920, 3D depth", in: render, evidence: "src/media/reel_svg.py:92#compose" }
   chrome: { icon: logos:chrome, label: Headless Chrome, note: 30 fps frames, in: render, evidence: "src/media/svg_video.py:105#browser_command" }
   ffmpeg: { icon: logos:ffmpeg-icon, label: ffmpeg, note: H.264 + Mixkit music, in: render, evidence: ["src/media/svg_video.py:165#encode_command", "src/media/audio_bake.py:32#bake"] }
@@ -41,12 +41,12 @@ nodes:
   instagram: { icon: logos:instagram-icon, label: Instagram, note: Reel on the feed, evidence: "src/publishing/reel.py:61#INSTAGRAM_CREATE_POST" }
 
 edges:
-  - cron -> claim: { label: create one, evidence: ".github/workflows/daily-post.yml:26#post_now" }
-  - claim -> state: { label: "2/day cap, 180 min gap", evidence: "src/main.py:159#claim" }
+  - cron -> claim: { label: slot due or create one, evidence: [".github/workflows/daily-post.yml:7#cron", ".github/workflows/daily-post.yml:31#post_now"] }
+  - claim -> state: { label: "2/day cap, 180 min gap", evidence: "src/main.py:215#claimed" }
   - claim -> fetch: { evidence: "src/main.py:59#generate_topic_brief" }
-  - sources -> fetch: { label: titles + excerpts, evidence: "src/content/trends.py:152#_collect" }
+  - sources -> fetch: { label: titles + excerpts, evidence: "src/content/trends.py:160#_collect" }
   - fetch -> bedrock: { label: evidence, evidence: "src/content/topic.py:87#invoke_claude" }
-  - bedrock -> gate: { label: scene + caption, evidence: "src/content/caption.py:104#validate_svg_content" }
+  - bedrock -> gate: { label: scene + caption, evidence: "src/content/caption.py:106#validate_svg_content" }
   - gate -> svg: { evidence: "src/flows/svg_reel_flow.py:121#compose" }
   - gate --> voice: { evidence: "src/flows/svg_reel_flow.py:113#fitted" }
   - svg -> chrome: { evidence: "src/flows/svg_reel_flow.py:82#render" }
@@ -56,6 +56,6 @@ edges:
   - probe -> publish: { evidence: "src/flows/svg_reel_flow.py:145#_prepare" }
   - publish -> cloudinary: { label: upload MP4, evidence: "src/flows/svg_reel_flow.py:162#upload_video" }
   - publish -> composio: { label: "container, status, publish", evidence: ["src/publishing/reel.py:51#_create_container", "src/publishing/reel.py:56#wait_until_ready", "src/publishing/reel.py:61#INSTAGRAM_CREATE_POST"] }
-  - publish -> state: { label: "checkpoint, then receipt", evidence: ["src/main.py:82#before_publish", "src/main.py:177#complete"] }
+  - publish -> state: { label: "checkpoint, then receipt", evidence: ["src/main.py:82#before_publish", "src/main.py:156#complete"] }
   - composio -> instagram: { label: Graph API, evidence: "src/adapters/cloudinary_host.py:112#Graph" }
   - cloudinary -> instagram: { label: fetches video_url, evidence: ["src/publishing/reel.py:44#video_url", "src/adapters/cloudinary_host.py:113#res.cloudinary.com"] }
