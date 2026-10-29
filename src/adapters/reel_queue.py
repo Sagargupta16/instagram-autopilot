@@ -87,7 +87,8 @@ class ReelQueue:
         releases = self._get("/releases", headers=self.headers, params={"per_page": 100}).json()
         drafts = [item for item in releases if item.get("draft") and item["tag_name"] == RELEASE]
         if not drafts:
-            return []
+            # Never read as an empty queue: a token that cannot see drafts would post nothing.
+            raise QueueError(f"The draft release {RELEASE} is missing or not visible to the token")
         path = f"/releases/{drafts[0]['id']}/assets"
         return self._get(path, headers=self.headers, params={"per_page": 100}).json()
 
