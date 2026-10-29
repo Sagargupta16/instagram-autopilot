@@ -78,6 +78,8 @@ class Models(BaseModel):
 class Strategy(BaseModel):
     model_config = ConfigDict(extra="allow")
     cadence: Cadence = Field(default_factory=Cadence)
+    # "queue" posts finished videos from the private Reel queue and generates nothing.
+    video_source: Literal["generate", "queue"] = "generate"
     pillars: list[Pillar] = Field(min_length=1)
     persona: Persona
     models: Models

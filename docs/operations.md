@@ -2,6 +2,16 @@
 
 The workflow runs on short scheduler ticks (`7,27,47 4-19 * * *`) and on demand. GitHub's best-effort cron fires only a few of the 48 daily ticks (about four a day, often hours late), so each scheduled run posts the day's planned slot whose time has passed, and the deterministic daily plan reserves 40 minutes at the end for generation. A slot planned after the day's last in-window fire is lost; asking for a Reel ("create one", below) covers that. From 2026-10-24 to 2026-10-27 the workflow ran on demand alone and nothing posted for three days, so both run now. Each run handles one slot, and the ledger enforces spacing from the last confirmed publication (180 minutes), the daily cap (two posts) and the 04:00-20:00 UTC window. The cadence is deliberately low while the account is small: Meta's spam policy names automated high-frequency posting and repetitive content, and Instagram says the creators with the highest follower growth post 10 or more Reels a month, which two a day already exceeds. Raise it only on purpose, keeping `post_probability` one entry longer than `max_posts_per_day`.
 
+## Posting finished videos from the queue
+
+Since 2026-10-29 `config.json` sets `"video_source": "queue"` (the generator had posted the same Ballon d'Or story twice on 2026-10-28). Runs then generate nothing: each due slot, or a `post_now` run, posts the oldest waiting pair from the draft release `reel-queue`. Add a finished video with:
+
+```bash
+gh release upload reel-queue first-computer-bug.mp4 first-computer-bug.json --repo Sagargupta16/instagram-autopilot
+```
+
+The slug is lowercase letters, digits and hyphens. `<slug>.json` holds `title` (also the receipt's topic: a title with a published receipt never posts again), `pillar` (a label for the slot key), `caption`, `hashtags` (at most five), `duration_s` (15 to 30), `audio` (true when the MP4 has an AAC track), optional `cover_ms` (the cover frame, sent as `thumb_offset`), `alt_text` and `sources` (a list of `title` and `url`). An entry that does not validate stops the run before anything is uploaded. The MP4 must pass the same ffprobe check as a rendered Reel: H.264 High, yuv420p, 1080x1920, 30 fps, within 0.25 s of `duration_s`, at most 100 MB. After a confirmed publication both assets are renamed `posted-<name>`; they are never deleted. Never publish the release itself: a draft keeps every queued video private until it posts. An empty queue makes a scheduled run skip with a warning and a `post_now` run refuse; a missing draft release, or a token that cannot see it, fails the run. The `pillar` input of Run workflow is ignored in this mode. Set `video_source` back to `generate` to return to generated SVG Reels.
+
 ## Choosing a pillar and posting on demand
 
 **Run workflow** takes a `pillar` (`cool-stats` by default; `tech-explainer`, `history-timeline`, `tech-versus` or `myth-vs-fact`) and `post_now` (on by default), so pressing it posts a Reel now. From a terminal, or from a Claude Code session asked to "create one":

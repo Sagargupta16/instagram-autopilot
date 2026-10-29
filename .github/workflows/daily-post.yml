@@ -24,7 +24,7 @@ on:
         type: boolean
         default: false
       pillar:
-        description: Pillar of the Reel to create
+        description: Pillar of the Reel to create (ignored while config.json posts from the queue)
         type: choice
         options: [cool-stats, tech-explainer, history-timeline, tech-versus, myth-vs-fact]
         default: cool-stats

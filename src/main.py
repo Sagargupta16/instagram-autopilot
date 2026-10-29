@@ -10,8 +10,9 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import Any
 
-from src import post_attempts
+from src import checkpoint, post_attempts, queued_post
 from src.adapters import bedrock, cloudinary_host, composio
+from src.adapters.reel_queue import ReelQueue
 from src.content.caption import generate_caption
 from src.content.dedup import record_post
 from src.content.topic import generate_topic_brief
@@ -70,18 +71,8 @@ def _run_slot(
         ledger.remember(key, brief["topic"], content, current())
         record_post(brief["topic"], content.get("image_prompts", []))
 
-    def before_publish(container_id: str) -> None:
-        instant = current().astimezone(UTC)
-        window = config["cadence"]["window_utc"]
-        if not window["start"] <= instant.strftime("%H:%M") < window["end"] or not key.startswith(
-            instant.date().isoformat()
-        ):
-            raise RuntimeError("Posting window ended during generation; slot was not published")
-        if ledger is None:
-            raise RuntimeError("Publication requires a durable ledger")
-        ledger.before_publish(key, container_id, instant)
-
-    kwargs = {"dry_run": dry_run, "before_publish": None if dry_run else before_publish}
+    before_publish = None if dry_run else checkpoint.guard(config, ledger, key, current)
+    kwargs = {"dry_run": dry_run, "before_publish": before_publish}
     image_model = config["models"]["image"]
     match slot.pillar.get("content_format", "carousel"):
         case "reel":
@@ -165,6 +156,16 @@ def _post_claimed(
     return result
 
 
+def _queue_empty(post_now: bool) -> dict[str, Any]:
+    """With `video_source` "queue" nothing is generated: an empty queue posts nothing."""
+    if post_now:
+        _refuse("the Reel queue is empty")
+    log.warning("The Reel queue is empty; nothing to post")
+    result = {"status": "skipped", "reason": "The Reel queue is empty"}
+    write_summary(result)
+    return result
+
+
 def _nothing_posted(ledger: Ledger | None, today: str) -> dict[str, Any]:
     exhausted = ledger and any(
         entry["status"] == "failed" and entry.get("attempts", 0) >= MAX_ATTEMPTS
@@ -209,10 +210,21 @@ def run(
         write_summary(result)
         return result
     ledger, slots = _open_ledger(current, config, dry_run=dry_run, post_now=post_now)
+    queue = item = None
+    if config["video_source"] == "queue":
+        queue = ReelQueue.from_settings()
+        item = queue.next_item(published=queued_post.published_titles(slots))
+        if item is None:
+            return _queue_empty(post_now)
     look = next_look(slots, len(LOOKS), current.date())
     for slot in due:
-        key = f"{current.date().isoformat()}|{slot.time_utc}|{slot.pillar['id']}"
+        pillar = item.entry.pillar if item else slot.pillar["id"]
+        key = f"{current.date().isoformat()}|{slot.time_utc}|{pillar}"
         if claimed(ledger, slots, key, current, config):
+            if item:
+                return queued_post.post(
+                    item, queue, key, config, ledger, clock=clock, dry_run=dry_run
+                )
             return _post_claimed(slot, key, config, ledger, clock=clock, dry_run=dry_run, look=look)
         if post_now:
             _refuse(f"slot {key} is already handled or owned by another run")
