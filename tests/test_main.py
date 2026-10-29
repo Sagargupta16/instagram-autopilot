@@ -28,6 +28,7 @@ def runner(monkeypatch, tmp_path, sample_config, sample_caption_data):
     carousel = {**sample_config["pillars"][0], "id": "photo-carousel", "content_format": "carousel"}
     carousel.pop("scene_kind", None)
     sample_config["pillars"].insert(0, carousel)
+    sample_config["video_source"] = "generate"  # these tests cover generated posts, not the queue
     monkeypatch.chdir(tmp_path)
     ledger = Ledger(LocalStore(tmp_path / "publication.json"))
     monkeypatch.setattr(main, "create_ledger", lambda: ledger, raising=False)

@@ -18,6 +18,7 @@
     "schedule_buffer_minutes": 40,
     "skip_probability": 0.05
   },
+  "video_source": "queue",
   "categories": ["tech", "stats", "history"],
   "pillars": [
     {
