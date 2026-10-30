@@ -79,7 +79,7 @@ def test_cas_retry_preserves_another_writers_data():
 
 
 def test_hosted_run_cannot_silently_use_ephemeral_state(monkeypatch):
-    from src.settings import settings
+    from src.config.settings import settings
 
     monkeypatch.setenv("GITHUB_ACTIONS", "true")
     monkeypatch.setattr(settings, "state_backend", "local")
@@ -88,7 +88,7 @@ def test_hosted_run_cannot_silently_use_ephemeral_state(monkeypatch):
 
 
 def test_github_backend_requires_explicit_credentials(monkeypatch):
-    from src.settings import settings
+    from src.config.settings import settings
 
     monkeypatch.setattr(settings, "state_backend", "github")
     monkeypatch.setattr(settings, "state_repository", "owner/repo")

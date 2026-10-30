@@ -16,8 +16,8 @@ from src.content.scenes import (
     source_line,
     validate_svg_content,
 )
-from src.media.lucide import ICONS
-from src.media.reel_svg import LayoutError
+from src.media.svg.lucide import ICONS
+from src.media.svg.reel_svg import LayoutError
 
 WATER = {
     "title": "U.S. drinking water bills rose 62% in a decade",

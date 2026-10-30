@@ -5,7 +5,7 @@
 """Speak each narration line with the local Kokoro voice and write one WAV per line.
 
 Runs in its own locked environment because kokoro-onnx does not support Python 3.14, which the
-publisher uses. src/media/narration.py calls it from a temporary working directory as:
+publisher uses. src/media/audio/narration.py calls it from a temporary working directory as:
     uv run --frozen --python 3.13 --script scripts/narrate.py < request.json
 
 The request on stdin is {"voice": name, "speed": number, "lines": [text, ...]}; it carries no

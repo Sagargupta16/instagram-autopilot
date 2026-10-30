@@ -20,7 +20,7 @@ An Instagram publisher for a creative data and tech account, powered by AWS Bedr
 - Topics use category-relevant, source-balanced discovery. Available URLs, timestamps, publishers and excerpts travel into caption generation. Stat and timeline Reels require evidence that states numbers or dates; with none, the slot fails instead of inventing them.
 - Every number, percentage, date and number word in a scene, and in its caption outside links and hashtags, must appear in the adapters' title or excerpt text (a stat must appear in the one record it cites). Content is schema-validated with up to two repair calls for a Reel scene (one for the topic step); if the caption is then the only thing still citing a number the sources do not contain, the sentences holding it are dropped, so only verified facts remain. Anything still ungrounded fails that attempt before rendering, and the run moves on (below). The "Source:" line on the last frame and in the caption is built from adapter metadata, not model text.
 - Scenes are drawn as self-contained 1080x1920 SMIL SVGs: one type scale in `svg_kit.py` (hook 68-76 px, labels 44-48 px, details 32-34 px, takeaway 42-44 px, nothing under 32 px), every text color at least 4.5:1 and every mark at least 3:1 (also when dimmed), and all text inside the Reels safe area (x 60-1020, y 250-1600). The icon and the diagram carry each beat and the on-screen words stay short (Instagram shows Reels that are mostly text less); the full explanation is in the caption.
-  - Icons come from a vendored set of 60 [Lucide](https://lucide.dev) icons (ISC, license in `src/media/lucide/`). The model picks one allowed name per step, milestone or stat headline; an unknown name fails validation and triggers the one repair call. Step icons are 96 px or larger, in the accent color.
+  - Icons come from a vendored set of 60 [Lucide](https://lucide.dev) icons (ISC, license in `src/media/svg/lucide/`). The model picks one allowed name per step, milestone or stat headline; an unknown name fails validation and triggers the one repair call. Step icons are 96 px or larger, in the accent color.
   - The hook is readable on the first frame and gets an entrance: each word brightens in turn while its line pops, under a kicker line and an underline sweep. A thin progress bar fills along the top of the safe area, the active step or milestone glows while earlier ones dim, and the last 2 seconds are an end card with the account's handle and "Follow for more facts". The handle is read live from the connected account (a read-only `INSTAGRAM_GET_USER_INFO` call) when the Reel is drawn, so renaming the account needs no code change; if the lookup fails, the card shows the follow line alone rather than a stale name.
   - Three looks (midnight blue, violet, amber, from the svg-forge themes) with their own kicker wording and icon tile shape. Each post takes the look after the last published post's (stored on its receipt), so consecutive posts never look the same.
   - The first second already shows the subject, not just a title: the stat visual starts at 0.4 s under the headline (the number counting, the ring filling, the bars growing), and the first step, milestone, row or myth card swings in at 0.7 s while the hook is still being read. On the account's first 14 Reels 80% of views left within three seconds (Instagram's `reels_skip_rate`, read 2026-10-24), and the opening frame was mostly empty.
@@ -29,7 +29,7 @@ An Instagram publisher for a creative data and tech account, powered by AWS Bedr
 - Headless Chrome renders the frames, ffmpeg encodes H.264 High, yuv420p, BT.709, 30 fps with +faststart, licensed music is baked in as AAC 48 kHz stereo with a fade that ends at the Reel's real length, and ffprobe checks the file before upload.
 - Every SVG Reel is narrated when the voice model is present. A local [Kokoro](https://github.com/hexgrad/kokoro) voice (Apache-2.0 weights, run through [kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx) in its own locked Python 3.13 environment, `scripts/narrate.py`) reads the scene's own on-screen words, one line per beat: the hook, each step, milestone or stat line, and the takeaway. Each beat stretches to fit its line, the voice is normalized to -16 LUFS, the music dips under it (sidechain ducking), and the caption ends with "Narration: AI-generated voice." The voice never says a word or number that is not on screen, and any narration failure leaves the Reel music-only instead of skipping it. `NARRATION=false` turns it off; `NARRATION_VOICE` picks another Kokoro voice (default `af_heart`).
 - The hook or stat headline may not open with a greeting, filler, a video preamble, "stop scrolling", a hashtag or an emoji, and the caption's first line must be one complete sentence under 125 characters, the part the feed shows before "... more". A stat Reel's headline and caption first line may not contain its figure, so the count-up stays the reveal (the account's three stat Reels that opened on their figure lost 87.5 to 100% of viewers in the first three seconds). Any of these problems gets the one repair call. Captions carry at most five hashtags, Instagram's cap since 2025-12-18.
-- A post is a must (owner's ask, 2026-10-24): a failure before the publisher boundary (a scene still invalid, no audio, no browser or ffmpeg, a layout or render error, an upload error) fails only that attempt. The same run then tries the same pillar once more with a fresh topic, then the evergreen `tech-versus` and `tech-explainer` pillars, each claimed again under the daily cap, the minimum gap and the posting window (`src/post_attempts.py`). An attempt that reached the publish checkpoint is never followed by another, and SVG Reels never fall back to photos. Since 2026-10-10, 9 of 12 failed runs had ended on a scene still invalid after its repair call with no second try that day.
+- A post is a must (owner's ask, 2026-10-24): a failure before the publisher boundary (a scene still invalid, no audio, no browser or ffmpeg, a layout or render error, an upload error) fails only that attempt. The same run then tries the same pillar once more with a fresh topic, then the evergreen `tech-versus` and `tech-explainer` pillars, each claimed again under the daily cap, the minimum gap and the posting window (`src/slots/post_attempts.py`). An attempt that reached the publish checkpoint is never followed by another, and SVG Reels never fall back to photos. Since 2026-10-10, 9 of 12 failed runs had ended on a scene still invalid after its repair call with no second try that day.
 - Instagram publication is checkpointed durably before the final API request. A missing response never causes blind automatic republishing.
 - The carousel, single-image and Luma Reel formats remain in the code and tests as supported `content_format` values, but no configured pillar uses them.
 
@@ -43,7 +43,31 @@ An Instagram publisher for a creative data and tech account, powered by AWS Bedr
 
 The spec behind the picture is [`docs/diagrams/pipeline.yaml`](docs/diagrams/pipeline.yaml), rendered with [orrery](https://github.com/Sagargupta16/orrery).
 
-`src/adapters` owns service boundaries; `content` owns evidence, generated text, scenes and number grounding; `media` draws, renders and checks assets; `flows` composes generation and publishing; `publishing` validates Instagram actions; `state` provides local and GitHub compare-and-swap storage.
+### Layout
+
+```text
+src/
+  main.py          one scheduler run, and the CLI the workflow starts (python -m src.main)
+  config/          environment settings, the config.json schema and its loader
+  slots/           the day's plan, slot rules, the attempt chain, the publish checkpoint,
+                   a slot filled from the Reel queue, the run summary
+  adapters/        service clients: Bedrock, Cloudinary, Composio, the Reel queue, Meta places
+    sources/       the eight evidence feeds (Google News, Guardian, Hacker News, Hugging Face,
+                   Product Hunt, GitHub search, Lemmy, Wikipedia)
+  content/         evidence, topics, captions, scenes and number grounding
+  media/
+    svg/           the SVG Reel kit, looks, depth layer, layouts and vendored Lucide icons
+    video/         headless Chrome and ffmpeg rendering, ffprobe checks
+    audio/         the music library, the audio bake and Kokoro narration
+    photo/         the photo formats: Bedrock images, JPEG normalization, the Luma video
+  flows/           one flow per format, from media to a confirmed media ID
+  publishing/      Instagram actions through Composio: containers, readiness, publish
+  state/           local and GitHub compare-and-swap storage for receipts
+tests/             mirrors src/
+scripts/           asset fetchers, the narration script, the sample renderer, requirements sync
+prompts/           the Bedrock prompts, one topic and scene prompt per format
+docs/              operations, the pipeline diagram, Composio schema notes, history/ (old plans)
+```
 
 The configured models are in `config.json`. The text model is Claude through Bedrock; the Stable Image Ultra and Luma Ray 2 entries serve the unused photo and Luma formats. X text is generated for reuse; this project does not publish to X.
 

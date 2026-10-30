@@ -7,7 +7,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from itertools import zip_longest
 from typing import Any
 
-from src.adapters import (
+from src.adapters.sources import (
     github_trending,
     google_news,
     guardian,

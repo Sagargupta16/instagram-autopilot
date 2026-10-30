@@ -7,9 +7,9 @@ from collections.abc import Callable
 from typing import Any
 
 from src.adapters.composio import execute_action
+from src.config.settings import settings
 from src.publishing.boundaries import create_with_location, media_id, validate_alt_text
 from src.publishing.readiness import wait_until_ready
-from src.settings import settings
 
 log = logging.getLogger(__name__)
 

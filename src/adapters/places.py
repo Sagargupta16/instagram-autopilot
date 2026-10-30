@@ -20,7 +20,7 @@ from pathlib import Path
 
 import requests
 
-from src.settings import settings
+from src.config.settings import settings
 
 log = logging.getLogger(__name__)
 

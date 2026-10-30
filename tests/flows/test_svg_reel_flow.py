@@ -12,8 +12,9 @@ import pytest
 
 from src.flows import reel_flow
 from src.flows import svg_reel_flow as flow
-from src.media import audio_bake, audio_picker, svg_video
-from src.media.reel_svg import LayoutError, compose
+from src.media.audio import audio_bake, audio_picker
+from src.media.svg.reel_svg import LayoutError, compose
+from src.media.video import svg_video
 
 SAMPLES = Path(__file__).resolve().parents[2] / "scripts" / "samples" / "svg_reel_scenes.json"
 SCENES = {item["name"]: item["scene"] for item in json.loads(SAMPLES.read_text("utf-8"))["scenes"]}

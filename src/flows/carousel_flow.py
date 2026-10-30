@@ -15,7 +15,7 @@ from typing import Any
 from src.adapters.cloudinary_host import upload_image
 from src.adapters.places import resolve_location_id
 from src.flows.previews import image_items, save_preview
-from src.media.image import ImageFilteredError, generate_image
+from src.media.photo.image import ImageFilteredError, generate_image
 from src.publishing.carousel import publish_carousel
 
 log = logging.getLogger(__name__)

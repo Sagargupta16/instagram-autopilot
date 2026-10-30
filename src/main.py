@@ -10,9 +10,10 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import Any
 
-from src import checkpoint, post_attempts, queued_post
 from src.adapters import bedrock, cloudinary_host, composio
 from src.adapters.reel_queue import ReelQueue
+from src.config.pillar import load_config
+from src.config.settings import settings
 from src.content.caption import generate_caption
 from src.content.dedup import record_post
 from src.content.topic import generate_topic_brief
@@ -20,12 +21,11 @@ from src.flows.carousel_flow import post_carousel
 from src.flows.image_flow import post_image
 from src.flows.reel_flow import post_reel
 from src.flows.svg_reel_flow import post_svg_reel
-from src.media.svg_look import LOOKS
-from src.pillar import load_config
-from src.run_report import write_summary
-from src.schedule import SlotPlan
-from src.settings import settings
-from src.slot_rules import candidates, claimed, forced_pillar, next_look, post_now_refusal
+from src.media.svg.svg_look import LOOKS
+from src.slots import checkpoint, post_attempts, queued_post
+from src.slots.run_report import write_summary
+from src.slots.schedule import SlotPlan
+from src.slots.slot_rules import candidates, claimed, forced_pillar, next_look, post_now_refusal
 from src.state.factory import create_ledger
 from src.state.history import sync_history
 from src.state.ledger import MAX_ATTEMPTS, Ledger

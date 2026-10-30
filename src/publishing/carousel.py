@@ -4,7 +4,7 @@ Flow: N child containers (one per image, is_carousel_item=true, no caption)
 -> 1 carousel container (caption goes here) -> publish.
 
 location_id lives on the PARENT container only. Meta explicitly rejects
-it on child containers -- see docs/specs/2026-07-03-v2-premium-multi-slot.md.
+it on child containers -- see docs/history/2026-07-03-v2-premium-multi-slot-spec.md.
 """
 
 from __future__ import annotations
@@ -14,9 +14,9 @@ from collections.abc import Callable
 from typing import Any
 
 from src.adapters.composio import ComposioResponseError, execute_action
+from src.config.settings import settings
 from src.publishing.boundaries import create_with_location, media_id, validate_alt_text
 from src.publishing.readiness import wait_until_ready
-from src.settings import settings
 
 log = logging.getLogger(__name__)
 

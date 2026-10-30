@@ -8,6 +8,8 @@ from pathlib import Path
 from typing import Any
 
 from src.adapters.bedrock import invoke_claude
+from src.config.pillar import load_config, scene_kind
+from src.config.settings import settings
 from src.content.dedup import load_posted_topics
 from src.content.grounding import evidence_text, numbers
 from src.content.novelty import near_repeat
@@ -15,8 +17,6 @@ from src.content.schemas import TopicChoice
 from src.content.sources import normalize_topic
 from src.content.trends import fetch_trending_topics
 from src.content.validation import generate_validated
-from src.pillar import load_config, scene_kind
-from src.settings import settings
 
 log = logging.getLogger(__name__)
 

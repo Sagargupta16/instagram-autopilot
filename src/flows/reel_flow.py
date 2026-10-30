@@ -10,13 +10,13 @@ from typing import Any
 
 from src.adapters.cloudinary_host import upload_video
 from src.adapters.places import resolve_location_id
+from src.config.settings import settings
 from src.flows.carousel_flow import post_carousel
 from src.flows.previews import save_preview
-from src.media import audio_bake, audio_picker
-from src.media.audio_manifest import AudioTrack
-from src.media.video import download_video, generate_video
+from src.media.audio import audio_bake, audio_picker
+from src.media.audio.audio_manifest import AudioTrack
+from src.media.photo.video import download_video, generate_video
 from src.publishing.reel import publish_reel
-from src.settings import settings
 
 log = logging.getLogger(__name__)
 

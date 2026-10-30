@@ -13,8 +13,8 @@ from src.adapters import places
 @pytest.fixture(autouse=True)
 def _tmp_cache(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     monkeypatch.setattr(places, "CACHE_PATH", tmp_path / "places.json")
-    monkeypatch.setattr("src.settings.settings.meta_user_access_token", "test-token")
-    monkeypatch.setattr("src.settings.settings.meta_graph_api_version", "v21.0")
+    monkeypatch.setattr("src.config.settings.settings.meta_user_access_token", "test-token")
+    monkeypatch.setattr("src.config.settings.settings.meta_graph_api_version", "v21.0")
     return tmp_path
 
 
@@ -60,7 +60,7 @@ def test_resolve_returns_none_on_empty_query() -> None:
 
 
 def test_resolve_returns_none_without_token(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr("src.settings.settings.meta_user_access_token", "")
+    monkeypatch.setattr("src.config.settings.settings.meta_user_access_token", "")
     assert places.resolve_location_id("Bali") is None
 
 

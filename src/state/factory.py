@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from src.settings import settings
+from src.config.settings import settings
 from src.state.github import GitHubStore
 from src.state.ledger import Ledger
 from src.state.local import LocalStore
