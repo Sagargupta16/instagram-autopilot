@@ -20,8 +20,8 @@ from src.content.hooks import spent_hook, weak_hook
 from src.content.schemas import Nonempty, hashtag_list
 from src.content.sources import publication_name
 from src.content.voice import meta_commentary
-from src.media.lucide import ICONS
-from src.media.reel_svg import LayoutError, compose
+from src.media.svg.lucide import ICONS
+from src.media.svg.reel_svg import LayoutError, compose
 
 CHANGE = re.compile(
     r"\b(?:declin\w*|decreas\w*|increas\w*|drop\w*|fell|fall\w*|plung\w*|rise[sn]?|rising|rose"

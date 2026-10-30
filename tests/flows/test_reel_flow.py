@@ -7,7 +7,7 @@ from unittest.mock import Mock
 import pytest
 
 from src.flows import reel_flow as flow
-from src.media import audio_picker
+from src.media.audio import audio_picker
 
 
 @pytest.fixture

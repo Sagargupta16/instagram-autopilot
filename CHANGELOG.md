@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.17.1] - 2026-10-30
+
+### Changed
+- The code is grouped by concern. `src/` held ten loose modules beside its packages, and `src/media/` held 25 files. Now `src/` holds only `main.py` next to its packages. The new ones are `config/` (settings, the `config.json` schema and its loader), `slots/` (the day's plan, slot rules, the attempt chain, the publish checkpoint, the queue post and the run summary) and `adapters/sources/` (the eight evidence feeds). `media/` is split into `svg/`, `video/`, `audio/` and `photo/`, and `tests/` mirrors the new folders. Module names are unchanged, so `svg_kit.py`, `reel_probe.verify` and the other names in the contracts still find their code. Only import paths moved, including the one in the post workflow's ffmpeg check (`from src.config.pillar import load_config`).
+- No behavior changed. The same 944 tests pass. A local dry run read the next queued Reel (year-2038-clock, 30.0 s) from the draft release and passed its ffprobe check, with no upload and no state write. The narrated sample render still gives an H.264 High, 1080x1920, 30 fps MP4 with AAC audio.
+- The 2026-07-03 v2 plan and spec moved from `docs/plans/` and `docs/specs/` to `docs/history/`. The Composio schema notes moved from `tests/publishing/SCHEMA.md` to `docs/composio-schemas.md`. The README has a layout map.
+
+### Fixed
+- Six of the pipeline diagram's 56 code citations had pointed at moved lines since 0.17.0 changed `main.py` and `config.json`. They point at their call sites again, and so do the nine this release moved in `svg_reel_flow.py`. `orrery verify` finds all 56, and both SVGs are re-rendered with the new paths.
+
 ## [0.17.0] - 2026-10-29
 
 ### Added

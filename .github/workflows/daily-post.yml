@@ -114,7 +114,7 @@ jobs:
         run: uv sync --frozen --no-build --python 3.13 --script scripts/narrate.py
       - name: Install ffmpeg when Reels are enabled
         run: |
-          if uv run --frozen --no-dev --no-build python -c 'from src.pillar import load_config; raise SystemExit(not any(p["content_format"] in {"reel", "svg_reel"} for p in load_config()["pillars"]))'; then
+          if uv run --frozen --no-dev --no-build python -c 'from src.config.pillar import load_config; raise SystemExit(not any(p["content_format"] in {"reel", "svg_reel"} for p in load_config()["pillars"]))'; then
             bash scripts/install_ffmpeg.sh
           fi
       - name: Check the browser that renders SVG Reels

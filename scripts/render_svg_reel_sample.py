@@ -28,11 +28,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from src.media import audio_bake, audio_picker, narration, reel_probe, svg_video  # noqa: E402
-from src.media.audio_manifest import AudioTrack  # noqa: E402
-from src.media.reel_svg import Reel, compose, length  # noqa: E402
-from src.media.svg_look import LOOKS  # noqa: E402
-from src.pillar import load_config  # noqa: E402
+from src.config.pillar import load_config  # noqa: E402
+from src.media.audio import audio_bake, audio_picker, narration  # noqa: E402
+from src.media.audio.audio_manifest import AudioTrack  # noqa: E402
+from src.media.svg.reel_svg import Reel, compose, length  # noqa: E402
+from src.media.svg.svg_look import LOOKS  # noqa: E402
+from src.media.video import reel_probe, svg_video  # noqa: E402
 
 SAMPLES = ROOT / "scripts" / "samples" / "svg_reel_scenes.json"
 OUT = ROOT / "output" / "svg-reel-sample"

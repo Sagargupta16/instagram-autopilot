@@ -21,16 +21,17 @@ from typing import Any
 from urllib.parse import urlsplit
 
 from src.adapters.cloudinary_host import upload_video
+from src.config.settings import settings
 from src.content.scenes import source_line
 from src.content.sources import publication_name
 from src.flows.previews import save_preview
 from src.flows.reel_flow import select_audio
-from src.media import audio_bake, audio_picker, narration, reel_probe, svg_video
-from src.media.audio_manifest import AudioTrack
-from src.media.reel_svg import LayoutError, Reel, compose, length
+from src.media.audio import audio_bake, audio_picker, narration
+from src.media.audio.audio_manifest import AudioTrack
+from src.media.svg.reel_svg import LayoutError, Reel, compose, length
+from src.media.video import reel_probe, svg_video
 from src.publishing.account import handle as account_handle
 from src.publishing.reel import publish_reel
-from src.settings import settings
 
 log = logging.getLogger(__name__)
 

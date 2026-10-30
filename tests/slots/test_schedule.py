@@ -1,0 +1,118 @@
+"""Tests for posting-schedule jitter + plan_today."""
+
+from __future__ import annotations
+
+import itertools
+from datetime import date, timedelta
+from unittest.mock import patch
+
+from src.config.pillar import load_config
+from src.slots import schedule
+from src.slots.schedule import apply_jitter, plan_today
+
+
+class TestApplyJitter:
+    def test_zero_max_does_not_sleep(self) -> None:
+        with patch("src.slots.schedule.time.sleep") as mock_sleep:
+            apply_jitter(0)
+            mock_sleep.assert_not_called()
+
+    def test_sleeps_within_bounds(self) -> None:
+        with patch("src.slots.schedule.time.sleep") as mock_sleep:
+            with patch("src.slots.schedule.random.randint", return_value=300):
+                apply_jitter(10)
+            mock_sleep.assert_called_once_with(300)
+
+    def test_negative_max_does_not_sleep(self) -> None:
+        with patch("src.slots.schedule.time.sleep") as mock_sleep:
+            apply_jitter(-5)
+            mock_sleep.assert_not_called()
+
+
+def test_to_minutes_parses_hhmm() -> None:
+    assert schedule.to_minutes("04:00") == 240
+    assert schedule.to_minutes("20:30") == 1230
+
+
+def test_to_hhmm_formats_minutes() -> None:
+    assert schedule.to_hhmm(240) == "04:00"
+    assert schedule.to_hhmm(1230) == "20:30"
+
+
+_PILLARS = [{"id": "a", "weight": 1.0}, {"id": "b", "weight": 2.0}]
+_CADENCE_N2 = {
+    "max_posts_per_day": 3,
+    "post_probability": [0.0, 0.0, 1.0, 0.0],
+    "window_utc": {"start": "04:00", "end": "20:00"},
+    "min_gap_minutes": 90,
+    "skip_probability": 0.0,
+}
+
+
+def test_plan_today_deterministic_per_date() -> None:
+    d = date(2026, 7, 3)
+    first = plan_today(d, _CADENCE_N2, _PILLARS)
+    again = plan_today(d, _CADENCE_N2, _PILLARS)
+    assert first == again
+
+
+def test_plan_today_differs_across_dates() -> None:
+    p1 = plan_today(date(2026, 7, 3), _CADENCE_N2, _PILLARS)
+    p2 = plan_today(date(2026, 7, 4), _CADENCE_N2, _PILLARS)
+    assert p1 != p2
+
+
+def test_plan_respects_max_posts_per_day() -> None:
+    forced_5 = {**_CADENCE_N2, "post_probability": [0, 0, 0, 0, 1.0], "max_posts_per_day": 3}
+    plan = plan_today(date(2026, 7, 3), forced_5, _PILLARS)
+    assert len(plan) <= 3
+
+
+def test_plan_respects_min_gap() -> None:
+    from itertools import pairwise
+
+    plan = plan_today(date(2026, 7, 3), _CADENCE_N2, _PILLARS)
+    for a, b in pairwise(plan):
+        assert schedule.to_minutes(b.time_utc) - schedule.to_minutes(a.time_utc) >= 90
+
+
+def test_plan_zero_posts_returns_empty() -> None:
+    always_zero = {**_CADENCE_N2, "post_probability": [1.0, 0.0, 0.0, 0.0]}
+    assert plan_today(date(2026, 7, 3), always_zero, _PILLARS) == []
+
+
+def test_plan_empty_pillars_returns_empty() -> None:
+    assert plan_today(date(2026, 7, 3), _CADENCE_N2, []) == []
+
+
+def test_plan_leaves_time_for_scheduler_tick_and_generation() -> None:
+    cadence = {**_CADENCE_N2, "schedule_buffer_minutes": 40}
+    for day in range(1, 29):
+        slots = plan_today(date(2026, 9, day), cadence, _PILLARS)
+        assert all(schedule.to_minutes(slot.time_utc) <= 1160 for slot in slots)
+
+
+def test_plan_never_uses_the_exclusive_window_end() -> None:
+    cadence = {
+        **_CADENCE_N2,
+        "window_utc": {"start": "19:59", "end": "20:00"},
+        "post_probability": [0, 1],
+        "max_posts_per_day": 1,
+    }
+    for day in range(1, 29):
+        assert plan_today(date(2026, 9, day), cadence, _PILLARS)[0].time_utc == "19:59"
+
+
+def test_shipped_cadence_plans_at_most_two_posts_three_hours_apart() -> None:
+    config = load_config()
+    counts = []
+    for offset in range(365):
+        day = date(2026, 1, 1) + timedelta(days=offset)
+        slots = schedule.plan_today(day, config["cadence"], config["pillars"])
+        minutes = [schedule.to_minutes(slot.time_utc) for slot in slots]
+        assert minutes == sorted(minutes)
+        assert all(b - a >= 180 for a, b in itertools.pairwise(minutes))
+        assert all(240 <= m <= 20 * 60 - 40 for m in minutes)
+        counts.append(len(slots))
+    assert max(counts) == 2
+    assert {0, 1, 2} <= set(counts)

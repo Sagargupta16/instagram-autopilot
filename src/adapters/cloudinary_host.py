@@ -17,8 +17,8 @@ import cloudinary.api
 import cloudinary.uploader
 import requests
 
-from src.media.image_normalization import MAX_IMAGE_BYTES, validate_instagram_image
-from src.settings import settings
+from src.config.settings import settings
+from src.media.photo.image_normalization import MAX_IMAGE_BYTES, validate_instagram_image
 
 log = logging.getLogger(__name__)
 

@@ -9,14 +9,14 @@ from pathlib import Path
 from typing import Any
 
 from src.adapters.bedrock import invoke_claude
+from src.config.pillar import load_config, scene_kind
+from src.config.settings import settings
 from src.content.dedup import load_recent_image_prompts
 from src.content.grounding import verified_caption
 from src.content.scenes import validate_svg_content
 from src.content.schemas import CaptionContent
 from src.content.validation import generate_validated
-from src.media.lucide import NAMES as ICON_NAMES
-from src.pillar import load_config, scene_kind
-from src.settings import settings
+from src.media.svg.lucide import NAMES as ICON_NAMES
 
 log = logging.getLogger(__name__)
 SCENE_REPAIRS = 2  # repair calls before the caption salvage and the run's fallbacks

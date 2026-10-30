@@ -9,13 +9,14 @@ from unittest.mock import Mock
 
 import pytest
 
-from src import main, slot_rules
+from src import main
 from src.content import dedup
 from src.flows import svg_reel_flow
-from src.media.reel_svg import Reel
-from src.media.svg_look import LOOKS
-from src.schedule import SlotPlan
-from src.slot_rules import next_look
+from src.media.svg.reel_svg import Reel
+from src.media.svg.svg_look import LOOKS
+from src.slots import slot_rules
+from src.slots.schedule import SlotPlan
+from src.slots.slot_rules import next_look
 from src.state.ledger import Ledger
 from src.state.local import LocalStore
 

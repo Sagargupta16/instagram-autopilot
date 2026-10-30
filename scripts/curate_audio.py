@@ -32,7 +32,7 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from src.media.audio_manifest import THEMES, validate_track  # noqa: E402
+from src.media.audio.audio_manifest import THEMES, validate_track  # noqa: E402
 
 MANIFEST = ROOT / "assets" / "audio" / "audio_manifest.json"
 UA = "InstagramAutopilotBot/1.0 (github.com/Sagargupta16; sg85207@gmail.com)"

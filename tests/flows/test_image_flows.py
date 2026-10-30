@@ -5,7 +5,7 @@ from unittest.mock import Mock
 import pytest
 
 from src.flows import carousel_flow, image_flow
-from src.media.image import ImageFilteredError
+from src.media.photo.image import ImageFilteredError
 
 
 @pytest.fixture

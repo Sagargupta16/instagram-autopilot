@@ -13,8 +13,8 @@ from pathlib import Path
 from src.adapters.cloudinary_host import upload_video
 from src.adapters.reel_queue import QueuedReel, QueueError, ReelQueue
 from src.flows.previews import save_preview
-from src.media import reel_probe
-from src.media.svg_video import SvgVideoError
+from src.media.video import reel_probe
+from src.media.video.svg_video import SvgVideoError
 from src.publishing.reel import publish_reel
 
 log = logging.getLogger(__name__)

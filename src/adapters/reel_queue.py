@@ -14,7 +14,7 @@ from typing import Any
 import requests
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
-from src.settings import settings
+from src.config.settings import settings
 
 RELEASE = "reel-queue"
 POSTED = "posted-"
