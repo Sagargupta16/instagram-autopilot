@@ -2,7 +2,7 @@
 #    uv export --frozen --no-dev --no-hashes --output-file requirements.txt --no-cache
 annotated-types==0.8.0
     # via pydantic
-botocore==1.43.108
+botocore==1.43.123
     # via instagram-autopilot
 certifi==2026.10.23
     # via
@@ -14,7 +14,7 @@ cloudinary==1.46.3
     # via instagram-autopilot
 defusedxml==0.7.1
     # via instagram-autopilot
-filelock==4.2.4
+filelock==4.2.6
     # via instagram-autopilot
 idna==3.20
     # via requests
@@ -22,13 +22,13 @@ jmespath==1.1.0
     # via botocore
 pillow==13.0.0
     # via instagram-autopilot
-pydantic==2.13.5
+pydantic==2.14.2
     # via
     #   instagram-autopilot
     #   pydantic-settings
-pydantic-core==2.46.5
+pydantic-core==2.50.2
     # via pydantic
-pydantic-settings==2.15.0
+pydantic-settings==2.16.2
     # via instagram-autopilot
 python-dateutil==2.9.0.post0
     # via botocore
