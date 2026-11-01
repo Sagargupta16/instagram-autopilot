@@ -6,7 +6,8 @@ on:
   schedule:
     - cron: '7,27,47 4-19 * * *'
   # On demand: the owner asks for a Reel ("create one") and the run posts it at once. A scheduled
-  # run gets no inputs, so it never posts now; the window, daily cap and gap apply to both.
+  # run gets no inputs, so it never posts now. The daily cap and gap apply to both; the
+  # 04:00-20:00 UTC window only to scheduled runs, since on demand posts at any hour.
   workflow_dispatch:
     inputs:
       dry_run:
@@ -29,7 +30,7 @@ on:
         options: [cool-stats, tech-explainer, history-timeline, tech-versus, myth-vs-fact]
         default: cool-stats
       post_now:
-        description: Post now (daily cap, gap and window still apply); off only handles a planned slot
+        description: Post now, at any hour (daily cap and gap still apply); off only handles a planned slot
         type: boolean
         default: true
 concurrency:
