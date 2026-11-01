@@ -1,1 +1,1 @@
-{"$schema":"https://docs.renovatebot.com/renovate-schema.json","extends":["github>Sagargupta16/shared-workflows"],"gitIgnoredAuthors":["41898699+github-actions[bot]@users.noreply.github.com"]}
+{"$schema":"https://docs.renovatebot.com/renovate-schema.json","extends":["github>Sagargupta16/shared-workflows"],"packageRules":[{"matchDepNames":["python-dateutil"],"allowedVersions":"<4","description":"Held below 4: a major bump is reviewed by hand, never merged in a sweep (decided 2026-11-01)."}],"gitIgnoredAuthors":["41898699+github-actions[bot]@users.noreply.github.com"]}
