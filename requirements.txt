@@ -30,7 +30,7 @@ pydantic-core==2.50.2
     # via pydantic
 pydantic-settings==2.16.2
     # via instagram-autopilot
-python-dateutil==2.9.0.post0
+python-dateutil==3.0.0
     # via botocore
 python-dotenv==1.2.4
     # via pydantic-settings
