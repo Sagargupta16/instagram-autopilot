@@ -298,15 +298,15 @@ def test_post_now_is_refused_at_the_daily_cap(runner, flows, sample_config):
     assert summary()["status"] == "refused"
 
 
-def test_post_now_is_refused_outside_the_window_or_when_owned(runner, flows):
+def test_post_now_posts_outside_the_window_but_not_into_an_owned_slot(runner, flows):
     ledger, _ = runner
-    late = NOW.replace(hour=21)
-    with pytest.raises(RuntimeError, match=r"^Post-now refused: outside the posting window"):
-        main.run(now=late, pillar_id="cool-stats", post_now=True)
     assert ledger.claim("2026-09-20|11:55|tech-explainer", NOW, min_gap_minutes=60)
     with pytest.raises(RuntimeError, match=r"^Post-now refused: slot .* owned by another run"):
         main.run(now=NOW, pillar_id="cool-stats", post_now=True)
     flows[0].assert_not_called()
+    late = NOW.replace(hour=21)
+    assert main.run(now=late, pillar_id="cool-stats", post_now=True)["status"] == "published"
+    flows[0].assert_called_once()
 
 
 def test_post_now_requires_a_pillar(runner):

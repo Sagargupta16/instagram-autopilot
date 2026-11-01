@@ -193,7 +193,7 @@ def run(
     """pillar_id swaps the content pillar of the slot this run handles; never the timing.
 
     post_now (with pillar_id) is the one exception to waiting for a planned slot: the current
-    minute becomes the only candidate, and the window, cap, gap and ledger claim still apply.
+    minute becomes the only candidate, at any hour; the cap, gap and ledger claim still apply.
     A claimed slot then tries until it posts (`post_attempts`).
     """
     if now is not None and now.tzinfo is None:
@@ -209,6 +209,8 @@ def run(
         result = {"status": "skipped", "reason": "No due slots inside today's posting window"}
         write_summary(result)
         return result
+    if post_now:  # on demand posts at any hour of the UTC day (owner, 2026-11-01)
+        config["cadence"]["window_utc"] = {"start": "00:00", "end": "24:00"}
     ledger, slots = _open_ledger(current, config, dry_run=dry_run, post_now=post_now)
     queue = item = None
     if config["video_source"] == "queue":
@@ -249,7 +251,7 @@ def main() -> None:
     parser.add_argument(
         "--post-now",
         action="store_true",
-        help="With --pillar: use the current minute as the slot; cap, gap and window still apply",
+        help="With --pillar: use the current minute as the slot, any hour; cap and gap still apply",
     )
     args = parser.parse_args()
     if args.post_now and not args.pillar:

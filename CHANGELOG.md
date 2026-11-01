@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.18.0] - 2026-11-01
+
+### Changed
+- An on-demand post now goes out at any hour. On 2026-11-01 the owner's `post_now` dispatch at 00:20 UTC was refused with "outside the posting window 04:00-20:00 UTC", and he asked to post whenever he wants. `main.run` gives an on-demand run a 00:00-24:00 window, so the post-now refusal, the `before_publish` checkpoint and the attempt chain all accept the hour. The daily cap of two, the 180-minute gap, the ledger claim and the no-retry rule still apply. Scheduled slots keep the 04:00-20:00 UTC window. The workflow's `post_now` input, the README, the operations notes and the pipeline diagram say so.
+
 ## [0.17.1] - 2026-10-30
 
 ### Changed
@@ -214,7 +219,7 @@
 ### Added
 - `src/media/image.py`: `style: "PHOTOREALISM"` param, `seed: int | None` kwarg (random per call when None), `SEED_MIN`/`SEED_MAX` constants, defensive RAI-empty handling.
 - Tests: `test_image.py` gains `test_sends_photorealism_style`, `test_randomizes_seed_by_default`, `test_different_calls_use_different_seeds`, `test_explicit_seed_is_respected`, `test_raises_when_rai_strips_all_images`, `test_raises_when_images_key_missing`.
-- CLAUDE.md: two new "non-obvious contract" sections — "Photorealism comes from the `style` enum, not prompt text" and "Seed must be randomized per call or images collapse".
+- CLAUDE.md: two new "non-obvious contract" sections -- "Photorealism comes from the `style` enum, not prompt text" and "Seed must be randomized per call or images collapse".
 
 ### Changed
 - `prompts/caption.txt`: image_prompts_rules no longer says `ALL FIVE MUST BE PHOTOREALISTIC` (handled by style param); instead tells Claude to spend prompt budget on subject + environment + lighting specificity and not repeat the word "photorealistic".
