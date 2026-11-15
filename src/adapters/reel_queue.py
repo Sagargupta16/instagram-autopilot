@@ -20,6 +20,9 @@ RELEASE = "reel-queue"
 POSTED = "posted-"
 SLUG = re.compile(r"[a-z0-9][a-z0-9-]{0,80}")
 MAX_HASHTAGS = 5  # Instagram's cap since 2025-12-18 (contract 26)
+# Instagram recommends Reels to non-followers up to 3 minutes long (creators FAQ); the owner
+# lifted the old 30 s ceiling for queued videos on 2026-11-15 ("30 second is not hard rule").
+MAX_S = 180
 
 
 class QueueError(Exception):
@@ -34,7 +37,7 @@ class Entry(BaseModel):
     pillar: str = Field(pattern=r"^[a-zA-Z0-9_-]+$")
     caption: str = Field(min_length=1)
     hashtags: str = ""
-    duration_s: float = Field(ge=15, le=30)
+    duration_s: float = Field(ge=15, le=MAX_S)
     audio: bool
     cover_ms: int | None = Field(default=None, ge=0)
     alt_text: str = ""
@@ -96,8 +99,9 @@ class ReelQueue:
         binary = {**self.headers, "Accept": "application/octet-stream"}
         return self._get(f"/releases/assets/{asset}", headers=binary).content
 
-    def next_item(self, *, published: set[str]) -> QueuedReel | None:
-        """The oldest complete pair whose title has no published receipt yet."""
+    def next_item(self, *, published: set[str], slug: str | None = None) -> QueuedReel | None:
+        """The oldest complete pair whose title has no published receipt yet; with slug, only
+        that pair, so a timely video can go before the rest of the queue."""
         waiting = {
             asset["name"]: asset for asset in self._assets() if not asset["name"].startswith(POSTED)
         }
@@ -105,6 +109,8 @@ class ReelQueue:
             (asset for name, asset in waiting.items() if name.endswith(".json")),
             key=lambda asset: asset["created_at"],
         )
+        if slug is not None:
+            metas = [asset for asset in metas if asset["name"] == f"{slug}.json"]
         for meta in metas:
             slug = meta["name"].removesuffix(".json")
             video = waiting.get(f"{slug}.mp4")

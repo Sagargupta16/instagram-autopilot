@@ -33,6 +33,9 @@ on:
         description: Post now, at any hour (daily cap and gap still apply); off only handles a planned slot
         type: boolean
         default: true
+      slug:
+        description: Optional, with post_now; the queued video to post now instead of the oldest (its slug, for a timely Reel)
+        type: string
 concurrency:
   group: instagram-publisher-${{ github.repository }}
   cancel-in-progress: false
@@ -146,12 +149,16 @@ jobs:
             if [[ "$POST_NOW" == 'true' ]]; then
               args+=(--post-now)
             fi
+            if [[ -n "$SLUG" ]]; then
+              args+=(--slug "$SLUG")
+            fi
           fi
           uv run --frozen --no-dev --no-build python -m src.main "${args[@]}"
         env:
           DRY_RUN: ${{ inputs.dry_run }}
           PILLAR: ${{ inputs.pillar }}
           POST_NOW: ${{ inputs.post_now }}
+          SLUG: ${{ inputs.slug }}
           ALLOW_SILENT_REELS: ${{ vars.ALLOW_SILENT_REELS || 'false' }}
           RESOLVE_SLOT: ${{ inputs.resolve_slot }}
           MEDIA_ID: ${{ inputs.media_id }}

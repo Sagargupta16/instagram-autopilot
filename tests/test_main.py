@@ -338,7 +338,7 @@ def test_cli_passes_the_pillar_and_post_now_to_run(monkeypatch, post_now):
     run = Mock()
     monkeypatch.setattr(main, "run", run)
     main.main()
-    run.assert_called_once_with(dry_run=False, pillar_id="cool-stats", post_now=post_now)
+    run.assert_called_once_with(dry_run=False, pillar_id="cool-stats", post_now=post_now, slug=None)
 
 
 @pytest.mark.parametrize(

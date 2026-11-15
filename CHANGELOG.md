@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.19.0] - 2026-11-15
+
+### Added
+- A timely video can skip the queue. A `post_now` run can name a queued video with the new `slug` input (`--slug` on the command line), and that pair posts instead of the oldest one. This lets a news-hook Reel (the first one is NOAA's 12 November 2026 El Niño advisory) go out the day it is made rather than behind every video already waiting. The cap, gap, ledger claim, checkpoint, receipt and no-retry rule are unchanged. A slug that names no waiting pair refuses the run with that reason, and `--slug` without `--post-now` is rejected.
+
+### Changed
+- Queued videos may run 15 seconds to 3 minutes; the limit was 30 seconds. The owner lifted the old ceiling on 2026-11-15 ("30 second is not hard rule"), and Instagram recommends Reels to non-followers up to 3 minutes long. The ffprobe check and its 100 MB limit are unchanged, and generated SVG Reels still run 15 to 30 seconds.
+
 ## [0.18.0] - 2026-11-01
 
 ### Changed
