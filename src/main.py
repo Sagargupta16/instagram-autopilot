@@ -189,15 +189,19 @@ def run(
     now: datetime | None = None,
     pillar_id: str | None = None,
     post_now: bool = False,
+    slug: str | None = None,
 ) -> dict[str, Any]:
     """pillar_id swaps the content pillar of the slot this run handles; never the timing.
 
     post_now (with pillar_id) is the one exception to waiting for a planned slot: the current
     minute becomes the only candidate, at any hour; the cap, gap and ledger claim still apply.
-    A claimed slot then tries until it posts (`post_attempts`).
+    A claimed slot then tries until it posts (`post_attempts`). slug (post_now only) posts that
+    queued video instead of the oldest one, for a timely Reel.
     """
     if now is not None and now.tzinfo is None:
         raise ValueError("Scheduling requires a timezone-aware UTC time")
+    if slug is not None and not post_now:
+        raise ValueError("A queue slug requires post-now")
     clock = (lambda: now.astimezone(UTC)) if now else (lambda: datetime.now(UTC))
     current = clock()
     config = load_config()
@@ -215,7 +219,9 @@ def run(
     queue = item = None
     if config["video_source"] == "queue":
         queue = ReelQueue.from_settings()
-        item = queue.next_item(published=queued_post.published_titles(slots))
+        item = queue.next_item(published=queued_post.published_titles(slots), slug=slug)
+        if item is None and slug is not None:
+            _refuse(f"no waiting queued video named {slug}")
         if item is None:
             return _queue_empty(post_now)
     look = next_look(slots, len(LOOKS), current.date())
@@ -253,9 +259,14 @@ def main() -> None:
         action="store_true",
         help="With --pillar: use the current minute as the slot, any hour; cap and gap still apply",
     )
+    parser.add_argument(
+        "--slug", help="With --post-now: post this queued video now instead of the oldest one"
+    )
     args = parser.parse_args()
     if args.post_now and not args.pillar:
         parser.error("--post-now requires --pillar")
+    if args.slug and not args.post_now:
+        parser.error("--slug requires --post-now")
     if args.resolve_slot:
         if args.pillar or args.post_now:
             parser.error("--pillar and --post-now cannot be combined with --resolve-slot")
@@ -266,7 +277,7 @@ def main() -> None:
     if args.media_id or args.confirm_not_published:
         parser.error("Resolution options require --resolve-slot")
     try:
-        run(dry_run=args.dry_run, pillar_id=args.pillar, post_now=args.post_now)
+        run(dry_run=args.dry_run, pillar_id=args.pillar, post_now=args.post_now, slug=args.slug)
     except Exception as error:
         log.error("%s", error)
         raise SystemExit(1) from None
