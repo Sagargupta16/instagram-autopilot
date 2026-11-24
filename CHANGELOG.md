@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.20.1] - 2026-11-24
+
+### Fixed
+- A long queued Reel no longer stops at the Cloudinary upload. The first scheduler tick after 0.20.0 found the 04:03 slot due and the 47.9 MB `mediterranean-dried-up` video at the head of the queue, and Cloudinary refused its upload at once with HTTP 400; the 33.4 MB `krakatoa-loudest-sound` uploaded and posted minutes later. `upload_video` asked for `format="mp4"`, which makes Cloudinary convert the video inside the upload call. The bytes are already an MP4 that `reel_probe.verify` passed, so they are now stored as they are. Cloudinary's reason was not in the log, so the size cause is read from those two uploads; a refused upload now logs "Cloudinary rejected the video upload (N bytes): REASON".
+
 ## [0.20.0] - 2026-11-24
 
 ### Added
