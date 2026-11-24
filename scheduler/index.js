@@ -4,7 +4,9 @@
 // planned slot that is due, under the same cap, gap and window.
 export default {
   async scheduled(controller, env) {
-    if (!env.GH_DISPATCH_TOKEN) {
+    // A token piped into `wrangler secret put` from PowerShell can keep its line ending.
+    const token = (env.GH_DISPATCH_TOKEN ?? "").trim();
+    if (!token) {
       throw new Error("GH_DISPATCH_TOKEN is not set: run `npx wrangler secret put GH_DISPATCH_TOKEN`");
     }
     const url = `https://api.github.com/repos/${env.REPO}/actions/workflows/${env.WORKFLOW}/dispatches`;
@@ -12,7 +14,7 @@ export default {
       method: "POST",
       headers: {
         Accept: "application/vnd.github+json",
-        Authorization: `Bearer ${env.GH_DISPATCH_TOKEN}`,
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
         "User-Agent": "instagram-autopilot-scheduler",
         "X-GitHub-Api-Version": "2022-11-28",
