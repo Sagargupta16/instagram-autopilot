@@ -3,6 +3,8 @@ on:
   # Short scheduler ticks fill the day's planned slots; GitHub fires only a few of them (about
   # four a day), late, so the application checks the UTC window and the real publish gap. Back
   # since 2026-10-27: on demand alone left the account three days without a post.
+  # The Cloudflare cron in scheduler/ dispatches the same tick (tick: true) every 20 minutes in
+  # the window, since 2026-11-24 when this schedule fired once on 2026-11-23 and missed both slots.
   schedule:
     - cron: '7,27,47 4-19 * * *'
   # On demand: the owner asks for a Reel ("create one") and the run posts it at once. A scheduled
@@ -36,6 +38,10 @@ on:
       slug:
         description: Optional, with post_now; the queued video to post now instead of the oldest (its slug, for a timely Reel)
         type: string
+      tick:
+        description: A scheduler tick (the Cloudflare cron in scheduler/ sends it); runs exactly like the schedule and ignores every other input
+        type: boolean
+        default: false
 concurrency:
   group: instagram-publisher-${{ github.repository }}
   cancel-in-progress: false
@@ -132,7 +138,10 @@ jobs:
         shell: bash
         run: |
           args=()
-          if [[ -n "$RESOLVE_SLOT" ]]; then
+          if [[ "$TICK" == 'true' ]]; then
+            # A scheduler tick from scheduler/: no input reaches the app, as on a scheduled run
+            :
+          elif [[ -n "$RESOLVE_SLOT" ]]; then
             args+=(--resolve-slot "$RESOLVE_SLOT")
             if [[ -n "$MEDIA_ID" ]]; then
               args+=(--media-id "$MEDIA_ID")
@@ -155,6 +164,7 @@ jobs:
           fi
           uv run --frozen --no-dev --no-build python -m src.main "${args[@]}"
         env:
+          TICK: ${{ inputs.tick }}
           DRY_RUN: ${{ inputs.dry_run }}
           PILLAR: ${{ inputs.pillar }}
           POST_NOW: ${{ inputs.post_now }}

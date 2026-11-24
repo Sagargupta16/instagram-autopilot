@@ -35,13 +35,14 @@ Tests use dummy credentials, disable dotenv, and block sockets. CI exercises Pyt
 - `flows/`: compose media and publication; return a confirmed media ID or None for a dry-run.
 - `publishing/`: Composio schemas, draft readiness, alt text, final publish callback.
 - `state/`: conditional local/GitHub persistence, ownership leases, migration, and receipt transitions.
+- `scheduler/`: the Cloudflare Worker cron (JavaScript, deployed with wrangler, not part of the Python package) that dispatches the workflow with `tick=true`; its one secret, `GH_DISPATCH_TOKEN`, is a fine-grained token with only Actions write on this repository (docs/operations.md).
 
 ## Contracts that must survive changes
 
 1. Never make an irreversible publication before `before_publish(container_id)` returns. That callback must persist the publishing state. A callback exception aborts publication.
 2. Never blindly retry the final publish call. After its boundary, an ambiguous response requires reconciliation, not a fallback or regenerated post.
 3. Do not downgrade confirmed media success because optional audio-history saving failed.
-4. At most one slot per run; a run comes from a scheduler tick (a planned slot that is due) or on demand (contract 21). Keep the schedule; on demand adds posts, it does not replace them (from 2026-10-24 to 2026-10-27 the workflow had no schedule and nothing posted). Enforce actual successful-post spacing and the daily cap through shared state. No multi-hour runner sleeps.
+4. At most one slot per run; a run comes from a scheduler tick (a planned slot that is due) or on demand (contract 21). Ticks come from GitHub's cron and, since 2026-11-24, from the Cloudflare cron in `scheduler/`: a `tick=true` dispatch every 20 minutes in the window that runs exactly like the schedule, after GitHub fired once on 2026-11-23 and nothing posted for 36 hours. Keep both clocks; on demand adds posts, it does not replace them (from 2026-10-24 to 2026-10-27 the workflow had no schedule and nothing posted). Enforce actual successful-post spacing and the daily cap through shared state. No multi-hour runner sleeps.
 5. GitHub Actions must use the GitHub state backend, not ephemeral local state. The dedicated state branch is not an application deployment branch.
 6. Atomic JSON replacement alone is not interprocess protection: keep local file locking and GitHub revision compare-and-swap checks.
 7. Photo formats (carousel, image, Luma Reel): content responses require exactly five prompts and aligned alt texts before image work. Preserve source metadata from adapters rather than accepting model-authored source URLs.

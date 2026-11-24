@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.20.0] - 2026-11-24
+
+### Added
+- A second clock for the scheduler ticks. A Cloudflare Worker cron (`scheduler/`) dispatches the posting workflow every 20 minutes from 04:02 to 19:42 UTC, and GitHub's own schedule stays as a backup. Nothing posted from 2026-11-22 12:29 to 2026-11-24 00:42 UTC because GitHub fired the cron twice on 2026-11-22 and once on 2026-11-23. The 19:58 fire claimed the 12:37 slot, the Reel finished processing at 20:00:33, and the checkpoint refused it once the window had closed. The 2026-11-23 fire came at 14:25, before both slots. The Worker's one secret is a fine-grained token with only Actions write on this repository; it has no public URL. Deploy, rotation and checks are in `docs/operations.md`.
+- The workflow's `tick` input: a dispatched scheduler tick that runs exactly like the schedule and ignores every other input. A plain Run workflow still defaults to posting a `cool-stats` Reel now.
+
 ## [0.19.0] - 2026-11-15
 
 ### Added
