@@ -11,6 +11,7 @@ From 2026-11-22 12:29 to 2026-11-24 00:42 UTC nothing posted. GitHub's cron fire
 - **Set or rotate the token**: `npx wrangler secret put GH_DISPATCH_TOKEN` and paste it at the prompt. An expired token makes every tick fail with HTTP 401 in the Worker's logs and leaves only GitHub's sparse cron, so rotate it before its expiry date.
 - **Check it**: `gh run list --workflow daily-post.yml --event workflow_dispatch --limit 5` shows a run about every 20 minutes between 04:00 and 20:00 UTC, each with `TICK: true` in its run step; `npx wrangler tail instagram-autopilot-scheduler` streams the Worker's own log lines.
 - **Stop it**: set `crons = []` in `scheduler/wrangler.toml` and deploy, or `npx wrangler delete instagram-autopilot-scheduler`.
+- **A cancelled Run workflow**: GitHub keeps one pending run per concurrency group, so an on-demand run that waits behind a running one is cancelled when the next tick queues (ticks come at least 5 minutes apart, a queued post takes about 2). Dispatch it again.
 
 ## Posting finished videos from the queue
 
