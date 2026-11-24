@@ -1,0 +1,23 @@
+# The posting workflow's reliable clock: a Cloudflare cron that dispatches daily-post.yml with
+# tick=true every 20 minutes inside the posting window (docs/operations.md, "The Cloudflare
+# trigger"). Deploy from this folder with `npx wrangler deploy`; its one secret is
+# GH_DISPATCH_TOKEN (`npx wrangler secret put GH_DISPATCH_TOKEN`).
+name = "instagram-autopilot-scheduler"
+main = "index.js"
+compatibility_date = "2026-11-01"
+# No public URL: the Worker only runs on its cron.
+workers_dev = false
+preview_urls = false
+
+[triggers]
+# UTC, like the window. Between GitHub's own 7,27,47 ticks; the last one (19:42) still serves
+# a slot planned for 19:20, the latest the plan allows (end minus schedule_buffer_minutes).
+crons = ["2,22,42 4-19 * * *"]
+
+[vars]
+REPO = "Sagargupta16/instagram-autopilot"
+WORKFLOW = "daily-post.yml"
+REF = "main"
+
+[observability]
+enabled = true
