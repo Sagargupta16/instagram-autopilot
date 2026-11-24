@@ -14,6 +14,7 @@ from urllib.parse import urlsplit
 
 import cloudinary
 import cloudinary.api
+import cloudinary.exceptions
 import cloudinary.uploader
 import requests
 
@@ -112,16 +113,27 @@ def upload_video(video_bytes: bytes) -> str:
     Uses the same Cloudinary tenant as images -- IG's Graph API trusts
     res.cloudinary.com for both. Free-tier accounts count video against
     the same 25 credits/month bucket; 5s reels are ~1-3 credits each.
+
+    The bytes are stored as they are. The queue and SVG flows hand over an MP4
+    that `reel_probe.verify` passed, and a different container fails the `.mp4`
+    check below. Asking for a conversion (`format="mp4"`) made Cloudinary process
+    the video inside the upload call, and on 2026-11-24 it refused a 47.9 MB
+    queued Reel at once with HTTP 400 while a 33.4 MB one went through.
     """
-    result = cloudinary.uploader.upload(
-        io.BytesIO(video_bytes),
-        folder=_current_folder(),
-        resource_type="video",
-        type="upload",
-        format="mp4",
-        access_control=[{"access_type": "anonymous"}],
-        overwrite=False,
-    )
+    try:
+        result = cloudinary.uploader.upload(
+            io.BytesIO(video_bytes),
+            folder=_current_folder(),
+            resource_type="video",
+            type="upload",
+            access_control=[{"access_type": "anonymous"}],
+            overwrite=False,
+        )
+    except cloudinary.exceptions.BadRequest as error:
+        # A 400 names a refused parameter or a size limit and holds no credential.
+        reason = str(error)[:300]
+        log.error("Cloudinary rejected the video upload (%d bytes): %s", len(video_bytes), reason)
+        raise
     url: str = result["secure_url"]
     _validate_public_url(url, "video", ".mp4")
     log.info("Video uploaded to Cloudinary: %s", url)

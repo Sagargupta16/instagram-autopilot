@@ -6,10 +6,11 @@ import io
 import re
 from unittest.mock import MagicMock, patch
 
+import cloudinary.exceptions
 import pytest
 from PIL import Image
 
-from src.adapters.cloudinary_host import upload_image, verify_auth
+from src.adapters.cloudinary_host import upload_image, upload_video, verify_auth
 
 
 def image_bytes() -> bytes:
@@ -46,6 +47,33 @@ class TestUploadImage:
         # Folder is "instagram-autopilot/YYYY-MM" so monthly cleanup is trivial.
         assert re.match(r"^instagram-autopilot/\d{4}-\d{2}$", kwargs["folder"])
         assert kwargs["resource_type"] == "image"
+
+
+class TestUploadVideo:
+    @patch("src.adapters.cloudinary_host.cloudinary.uploader.upload")
+    def test_stores_the_bytes_without_a_conversion(self, mock_upload: MagicMock) -> None:
+        mock_upload.return_value = {
+            "secure_url": "https://res.cloudinary.com/x/video/upload/v1/reel.mp4"
+        }
+
+        url = upload_video(b"mp4 bytes")
+
+        kwargs = mock_upload.call_args.kwargs
+        assert url == "https://res.cloudinary.com/x/video/upload/v1/reel.mp4"
+        assert kwargs["resource_type"] == "video"
+        # A requested format makes Cloudinary process the video inside the upload call.
+        assert "format" not in kwargs
+
+    @patch("src.adapters.cloudinary_host.cloudinary.uploader.upload")
+    def test_a_refused_upload_logs_cloudinarys_reason(
+        self, mock_upload: MagicMock, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        mock_upload.side_effect = cloudinary.exceptions.BadRequest("Video is too large")
+
+        with pytest.raises(cloudinary.exceptions.BadRequest):
+            upload_video(b"12345")
+
+        assert "Cloudinary rejected the video upload (5 bytes): Video is too large" in caplog.text
 
 
 class TestVerifyAuth:
