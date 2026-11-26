@@ -57,3 +57,5 @@ data/publication_state.json
 data/publication_state.json.lock
 # wrangler's local state for the Cloudflare trigger (scheduler/)
 .wrangler/
+# scratch files of a working session (state dumps, run logs): never committed
+.scratch/
