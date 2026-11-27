@@ -40,7 +40,7 @@ def attempt_pillars(config: dict[str, Any], first: dict[str, Any]) -> list[dict[
     return [first, first, *fallbacks]
 
 
-def _ready(ledger: Ledger | None, key: str, now: datetime, config: dict[str, Any]) -> bool:
+def ready(ledger: Ledger | None, key: str, now: datetime, config: dict[str, Any]) -> bool:
     """Whether another attempt may start: always in a dry-run; otherwise inside the window
     and with the slot key claimed again under the cap, the gap and the attempt budget."""
     if ledger is None:
@@ -57,7 +57,7 @@ def _ready(ledger: Ledger | None, key: str, now: datetime, config: dict[str, Any
     )
 
 
-def _settled(ledger: Ledger | None, key: str, error: Exception, now: datetime) -> bool:
+def settled(ledger: Ledger | None, key: str, error: Exception, now: datetime) -> bool:
     """Record the failure; True when nothing reached Instagram, so trying again is safe."""
     if ledger is None:
         return True
@@ -80,13 +80,13 @@ def post(
     prefix, tried, last = key.rsplit("|", 1)[0], key, None
     for index, pillar in enumerate(plan):
         key = f"{prefix}|{pillar['id']}"
-        if index and not _ready(ledger, key, clock(), config):
+        if index and not ready(ledger, key, clock(), config):
             break
         tried = key
         try:
             return key, attempt(replace(slot, pillar=pillar), key)
         except Exception as error:
-            if not _settled(ledger, key, error, clock()):
+            if not settled(ledger, key, error, clock()):
                 raise  # it may have reached Instagram: reconcile, never post again
             last = error
             if index + 1 < len(plan):

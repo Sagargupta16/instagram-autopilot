@@ -5,7 +5,16 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
-from typing import Any
+from typing import Any, NoReturn
+
+
+class Refused(RuntimeError):
+    """An on-demand run refused with a reason; its summary is already written."""
+
+
+def refuse(reason: str, **extra: Any) -> NoReturn:
+    write_summary({"status": "refused", "reason": reason, **extra})
+    raise Refused(f"Post-now refused: {reason}")
 
 
 def write_summary(outcome: dict[str, Any]) -> None:

@@ -1,7 +1,10 @@
 """Publish a finished Reel from the private queue: download it, check the delivered bytes with
 ffprobe against the Reel spec and the entry's own duration (contract 18), upload it, then
 publish through the same checkpoint as every other Reel. Nothing here renders or writes text:
-the video and its caption arrive finished, with their facts checked when they were made."""
+the video and its caption arrive finished, with their facts checked when they were made.
+
+A video that arrived whole (its listed size and digest) and still fails the check raises
+BadPair, the one failure that is the pair's own; it is raised only before the upload."""
 
 from __future__ import annotations
 
@@ -11,7 +14,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 from src.adapters.cloudinary_host import upload_video
-from src.adapters.reel_queue import QueuedReel, QueueError, ReelQueue
+from src.adapters.reel_queue import BadPair, QueuedReel, QueueError, ReelQueue
 from src.flows.previews import save_preview
 from src.media.video import reel_probe
 from src.media.video.svg_video import SvgVideoError
@@ -39,7 +42,7 @@ def post_queued_reel(
     try:
         with tempfile.TemporaryDirectory(prefix="queued-reel-") as temporary:
             video = queue.video(item, Path(temporary) / "reel.mp4")
-            summary = reel_probe.verify(video, entry.duration_s, audio=entry.audio)
+            summary = _verify(item, video)
             body = video.read_bytes()
         log.info(
             "Queued Reel %s ready: %.1f s, %d bytes", item.slug, summary["duration"], len(body)
@@ -48,6 +51,9 @@ def post_queued_reel(
             save_preview([body], entry.text, suffix="mp4", alt_texts=[entry.alt_text or None])
             return None
         video_url = upload_video(body)
+    except BadPair as bad:
+        log.error("Queued Reel %s is bad in its own files (%s)", item.slug, bad.reason)
+        raise
     except Exception as error:
         # This scope excludes every publisher and callback operation, as in the SVG Reel path.
         own = isinstance(error, KNOWN)
@@ -61,3 +67,14 @@ def post_queued_reel(
         before_publish=before_publish,
         thumb_offset=entry.cover_ms,
     )
+
+
+def _verify(item: QueuedReel, video: Path) -> dict:
+    """reel_probe.verify; `queue.video` has already refused a download that contradicts its
+    listing, so a listed size means the bytes arrived whole and a mismatch is the pair's."""
+    try:
+        return reel_probe.verify(video, item.entry.duration_s, audio=item.entry.audio)
+    except reel_probe.SpecMismatch as error:
+        if item.video_size is None:
+            raise
+        raise BadPair(item.slug, item.video_asset, item.meta_asset, str(error)) from error

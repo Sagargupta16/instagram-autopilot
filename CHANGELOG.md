@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.21.0] - 2026-11-27
+
+### Changed
+- One bad queued video no longer stops every post. On 2026-11-26 three queued videos read an `avg_frame_rate` of `30.0001` instead of `30/1`. A run took the oldest waiting pair, `reel_probe.verify` refused it, the receipt went to `failed`, and the next run took the same pair again; a JSON at the head that did not validate stopped every run before a slot was claimed. Now a pair that cannot post because of its own files is set aside: its two assets are renamed, by the ids that were judged, to `<name>.failed-<UTC stamp to the minute>` (for example `otis-cut-the-rope.mp4.failed-20261127T0432Z`), never deleted, and the same run takes the next waiting pair. A bad JSON is set aside before any slot is claimed. A bad video is set aside after its receipt is back at `failed`, and the next pair claims the same slot time again under its own pillar, inside the window, the cap, the gap and the three-attempt budget, through the same rules as the generated-post chain (`post_attempts.ready` and `post_attempts.settled`). Each pair goes through the whole post on its own: its own auth check, receipt topic, checkpoint, `ledger.complete` and `posted-` rename.
+- A pair is judged only on bytes that arrived whole: the download must match the size GitHub lists, and its sha256 digest when GitHub lists one (an asset listed without a size is not judged). A short or mismatched download, ffprobe missing, timed out or killed (a negative return code), the auth preflight, the Cloudinary upload, the publish call and the checkpoint set nothing aside and fail the run as before. `reel_probe` raises the new `SpecMismatch` only for a spec mismatch and for ffprobe exiting above 0 while its own `-version` still runs, so a broken install never makes a good video look bad.
+- At most three pairs are set aside from the minute of the newest published receipt on; a fourth is left in place and the run fails saying so, because a fault in the checker, the runner or the entry schema must not shelve the whole queue. A `post_now` run that names a bad pair sets it aside and refuses; a dry run renames nothing and never moves on. When no pair is left after a set-aside, a run that claimed a slot fails with the last slot key tried, and every summary such a run writes lists the pair under `set_aside` (slug, reason, suffix). A set-aside reason names the entry's declared fields and the check's own messages, never the entry's text or a key the entry made up. A rename that fails is undone from the asset listing (a lost answer can hide a rename that landed), or the run fails saying that the pair may stand half aside.
+- Not covered: a pair that Instagram's own processing refuses after the upload is not judged by this check, so it still stops the queue until it is renamed by hand.
+
+## [0.20.2] - 2026-11-27
+
+### Fixed
+- The queue is read to its last page. GitHub lists a release's assets 100 to a page, sorted by name, and a posted pair is renamed `posted-<name>`, never deleted. On 2026-11-26 the draft release held 112 assets, so four waiting videos whose names sort after `posted-` (`sahara-dust-feeds-amazon`, `sunlight-old-energy`, `telegraphs-ran-on-aurora`, `wojtek-soldier-bear`) were on the second page, which no run read: a scheduled run passed over them and a `post_now` run that named one found no waiting pair. Left alone, every waiting name would have dropped off the first page as posted pairs piled up, and the queue would have read as empty with videos waiting. `ReelQueue` now asks for page after page until one comes back short.
+
 ## [0.20.1] - 2026-11-24
 
 ### Fixed
