@@ -208,7 +208,9 @@ def test_a_rename_whose_answer_is_lost_is_undone_from_the_listing(
 def test_a_whole_json_nested_too_deep_is_a_bad_pair(release, queue) -> None:
     release.pair(OTIS, b"[" * 100_000 + b"]" * 100_000)
 
-    with pytest.raises(BadPair, match="does not parse"):
+    # How deep a parser goes is the interpreter's and the platform's business: Python 3.12 gives
+    # up on this body, 3.14 on Linux parses it and the schema refuses the list it gets.
+    with pytest.raises(BadPair, match=r"does not parse|does not validate: entry"):
         queue.next_item(published=set())
 
 
