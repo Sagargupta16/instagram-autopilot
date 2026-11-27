@@ -23,7 +23,8 @@ from src.flows.reel_flow import post_reel
 from src.flows.svg_reel_flow import post_svg_reel
 from src.media.svg.svg_look import LOOKS
 from src.slots import checkpoint, post_attempts, queued_post
-from src.slots.run_report import write_summary
+from src.slots.queue_attempts import QueueRun
+from src.slots.run_report import refuse, write_summary
 from src.slots.schedule import SlotPlan
 from src.slots.slot_rules import candidates, claimed, forced_pillar, next_look, post_now_refusal
 from src.state.factory import create_ledger
@@ -86,11 +87,6 @@ def _run_slot(
             return post_carousel(content, caption, image_model, **kwargs)
 
 
-def _refuse(reason: str) -> None:
-    write_summary({"status": "refused", "reason": reason})
-    raise RuntimeError(f"Post-now refused: {reason}")
-
-
 def _open_ledger(
     current: datetime, config: dict[str, Any], *, dry_run: bool, post_now: bool
 ) -> tuple[Ledger | None, dict[str, Any]]:
@@ -107,7 +103,7 @@ def _open_ledger(
         write_summary({"status": "needs_reconciliation", "slots": unresolved})
         raise RuntimeError("Publication requires reconciliation before another post")
     if post_now and (reason := post_now_refusal(slots, current, config["cadence"])):
-        _refuse(reason)
+        refuse(reason)
     return ledger, slots
 
 
@@ -156,28 +152,19 @@ def _post_claimed(
     return result
 
 
-def _queue_empty(post_now: bool) -> dict[str, Any]:
-    """With `video_source` "queue" nothing is generated: an empty queue posts nothing."""
-    if post_now:
-        _refuse("the Reel queue is empty")
-    log.warning("The Reel queue is empty; nothing to post")
-    result = {"status": "skipped", "reason": "The Reel queue is empty"}
-    write_summary(result)
-    return result
-
-
-def _nothing_posted(ledger: Ledger | None, today: str) -> dict[str, Any]:
+def _nothing_posted(ledger: Ledger | None, today: str, extra: dict[str, Any]) -> dict[str, Any]:
     exhausted = ledger and any(
         entry["status"] == "failed" and entry.get("attempts", 0) >= MAX_ATTEMPTS
         for key, entry in ledger.snapshot()["slots"].items()
         if key.startswith(today)
     )
     if exhausted:
-        write_summary({"status": "failed", "reason": "Daily slot retry budget exhausted"})
+        write_summary({"status": "failed", "reason": "Daily slot retry budget exhausted", **extra})
         raise RuntimeError("Publication failed: retry budget exhausted for today")
     result = {
         "status": "skipped",
         "reason": "Slots already handled, owned, or waiting for minimum gap",
+        **extra,
     }
     write_summary(result)
     return result
@@ -217,26 +204,33 @@ def run(
         config["cadence"]["window_utc"] = {"start": "00:00", "end": "24:00"}
     ledger, slots = _open_ledger(current, config, dry_run=dry_run, post_now=post_now)
     queue = item = None
-    if config["video_source"] == "queue":
-        queue = ReelQueue.from_settings()
-        item = queue.next_item(published=queued_post.published_titles(slots), slug=slug)
+    if config["video_source"] == "queue":  # a pair bad in its own files is set aside (32)
+        published = queued_post.published_titles(slots)
+        queue = QueueRun(
+            ReelQueue.from_settings(),
+            ledger,
+            clock,
+            published=published,
+            dry_run=dry_run,
+            slug=slug,
+        )
+        item = queue.first()
         if item is None and slug is not None:
-            _refuse(f"no waiting queued video named {slug}")
+            refuse(f"no waiting queued video named {slug}", **queue.report())
         if item is None:
-            return _queue_empty(post_now)
+            return queue.empty(post_now)
+    extra = queue.report() if queue else {}
     look = next_look(slots, len(LOOKS), current.date())
     for slot in due:
         pillar = item.entry.pillar if item else slot.pillar["id"]
         key = f"{current.date().isoformat()}|{slot.time_utc}|{pillar}"
         if claimed(ledger, slots, key, current, config):
-            if item:
-                return queued_post.post(
-                    item, queue, key, config, ledger, clock=clock, dry_run=dry_run
-                )
+            if queue and item:
+                return queue.post(item, key, config)
             return _post_claimed(slot, key, config, ledger, clock=clock, dry_run=dry_run, look=look)
         if post_now:
-            _refuse(f"slot {key} is already handled or owned by another run")
-    return _nothing_posted(ledger, current.date().isoformat())
+            refuse(f"slot {key} is already handled or owned by another run", **extra)
+    return _nothing_posted(ledger, current.date().isoformat(), extra)
 
 
 def main() -> None:
